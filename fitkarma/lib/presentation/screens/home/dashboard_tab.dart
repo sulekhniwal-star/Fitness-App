@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../l10n/app_localizations.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/providers/auth_provider.dart';
@@ -19,6 +20,7 @@ class DashboardTab extends ConsumerWidget {
     final authState = ref.watch(authStateProvider);
     final user = authState.user;
     final stepState = ref.watch(stepProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       body: SafeArea(
@@ -59,7 +61,7 @@ class DashboardTab extends ConsumerWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          'Let\'s stay fit today',
+                          l10n.appTitle,
                           style:
                               Theme.of(context).textTheme.bodyLarge?.copyWith(
                                     color: AppTheme.textSecondary,
@@ -100,7 +102,7 @@ class DashboardTab extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
               // Step Counter Card
-              _buildStepCounterCard(context, stepState),
+              _buildStepCounterCard(context, stepState, l10n),
               const SizedBox(height: 16),
               // Premium Ad for Free Users
               if (user?.subscriptionTier == 'free')
@@ -138,11 +140,11 @@ class DashboardTab extends ConsumerWidget {
               // Festival Banner
               _buildFestivalBanner(context, ref),
               // Quick Actions
-              _buildQuickActions(context),
+              _buildQuickActions(context, l10n),
               const SizedBox(height: 24),
               // Weekly Progress
               Text(
-                'Weekly Progress',
+                l10n.dashboard,
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 16),
@@ -154,7 +156,8 @@ class DashboardTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildStepCounterCard(BuildContext context, StepState stepState) {
+  Widget _buildStepCounterCard(
+      BuildContext context, StepState stepState, AppLocalizations l10n) {
     final todaySteps = stepState.steps;
     const goal = AppConstants.defaultStepGoal;
     final progress = (todaySteps / goal).clamp(0.0, 1.0);
@@ -184,9 +187,9 @@ class DashboardTab extends ConsumerWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Today\'s Steps',
-                style: TextStyle(
+              Text(
+                l10n.steps,
+                style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
                 ),
@@ -274,14 +277,14 @@ class DashboardTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickActions(BuildContext context) {
+  Widget _buildQuickActions(BuildContext context, AppLocalizations l10n) {
     return Row(
       children: [
         Expanded(
           child: _buildActionCard(
             context,
             icon: Icons.restaurant_menu,
-            label: 'Log Food',
+            label: l10n.food,
             color: AppTheme.secondaryColor,
             onTap: () {},
           ),
@@ -291,7 +294,7 @@ class DashboardTab extends ConsumerWidget {
           child: _buildActionCard(
             context,
             icon: Icons.fitness_center,
-            label: 'Workout',
+            label: l10n.workouts,
             color: AppTheme.accentColor,
             onTap: () {},
           ),
@@ -301,7 +304,7 @@ class DashboardTab extends ConsumerWidget {
           child: _buildActionCard(
             context,
             icon: Icons.water_drop,
-            label: 'Water',
+            label: l10n.waterIntake,
             color: AppTheme.mintColor,
             onTap: () {},
           ),
@@ -311,7 +314,7 @@ class DashboardTab extends ConsumerWidget {
           child: _buildActionCard(
             context,
             icon: Icons.map_outlined,
-            label: 'Track', // Short for Track Walk
+            label: l10n.trackWalk,
             color: Colors.orange,
             onTap: () => context.push('/home/activity-tracking'),
           ),

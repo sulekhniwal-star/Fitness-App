@@ -1,0 +1,34 @@
+{
+  "@@locale": "en",
+  "appTitle": "FitKarma",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "dashboard": "Dashboard",
+  "community": "Community",
+  "profile": "Profile",
+  "food": "Food",
+  "workouts": "Workouts",
+  "karmaPoints": "{count} Karma Points",
+  "@karmaPoints": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "waterIntake": "Water Intake",
+  "steps": "Steps",
+  "calories": "Calories",
+  "trackWalk": "Track Walk",
+  "upgradeToPremium": "Upgrade to Premium",
+  "ayurvedicDoshaQuiz": "Ayurvedic Dosha Quiz",
+  "festivalCalendar": "Festival Calendar",
+  "language": "Language",
+  "hindi": "Hindi",
+  "english": "English",
+  "logout": "Logout",
+  "whatThisMeans": "What this means",
+  "bestFoods": "Best Foods for You",
+  "workoutAdvice": "Workout Advice"
+}

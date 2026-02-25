@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/providers/auth_provider.dart';
+import '../../../l10n/app_localizations.dart';
+import '../../../data/providers/locale_provider.dart';
 import 'health_tab.dart';
 import 'medical_scanner_screen.dart';
 import 'subscription_screen.dart';
@@ -17,9 +19,12 @@ class ProfileScreen extends ConsumerWidget {
     final authState = ref.watch(authStateProvider);
     final user = authState.user;
 
+    final l10n = AppLocalizations.of(context)!;
+    final locale = ref.watch(localeProvider);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: Text(l10n.profile),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -195,6 +200,15 @@ class ProfileScreen extends ConsumerWidget {
             ),
             _buildMenuItem(
               context,
+              icon: Icons.language,
+              title: l10n.language,
+              subtitle: locale.languageCode == 'en' ? l10n.english : l10n.hindi,
+              onTap: () {
+                _showLanguageDialog(context, ref);
+              },
+            ),
+            _buildMenuItem(
+              context,
               icon: Icons.help_outline,
               title: 'Help & Support',
               onTap: () {},
@@ -228,6 +242,34 @@ class ProfileScreen extends ConsumerWidget {
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     color: AppTheme.textSecondary,
                   ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showLanguageDialog(BuildContext context, WidgetRef ref) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.language),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Text(AppLocalizations.of(context)!.english),
+              onTap: () {
+                ref.read(localeProvider.notifier).setLocale(const Locale('en'));
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text(AppLocalizations.of(context)!.hindi),
+              onTap: () {
+                ref.read(localeProvider.notifier).setLocale(const Locale('hi'));
+                Navigator.pop(context);
+              },
             ),
           ],
         ),
