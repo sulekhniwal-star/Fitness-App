@@ -12,6 +12,7 @@ import '../../presentation/screens/home/splash_screen.dart';
 import '../../presentation/screens/home/community_tab.dart';
 import '../../presentation/screens/home/activity_tracking_screen.dart';
 import '../../presentation/screens/home/festival_calendar_screen.dart';
+import '../../presentation/screens/food/meal_planner_screen.dart';
 import '../../presentation/screens/food/food_logging_screen.dart';
 import '../../presentation/screens/workouts/workout_list_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
@@ -120,6 +121,13 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: '/food',
                 name: 'food',
                 builder: (context, state) => const FoodLoggingScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'meal-planner',
+                    name: 'meal-planner',
+                    builder: (context, state) => const MealPlannerScreen(),
+                  ),
+                ],
               ),
             ],
           ),

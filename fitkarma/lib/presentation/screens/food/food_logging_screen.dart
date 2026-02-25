@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:barcode_scan2/barcode_scan2.dart';
 
 import '../../../core/theme/app_theme.dart';
@@ -30,6 +31,11 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
       appBar: AppBar(
         title: const Text('Log Food'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.auto_awesome, color: AppTheme.saffronColor),
+            onPressed: () => context.push('/food/meal-planner'),
+            tooltip: 'AI Meal Planner',
+          ),
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
             onPressed: _scanBarcode,
