@@ -11,6 +11,7 @@ import '../../presentation/screens/home/onboarding_screen.dart';
 import '../../presentation/screens/home/splash_screen.dart';
 import '../../presentation/screens/home/community_tab.dart';
 import '../../presentation/screens/home/activity_tracking_screen.dart';
+import '../../presentation/screens/home/festival_calendar_screen.dart';
 import '../../presentation/screens/food/food_logging_screen.dart';
 import '../../presentation/screens/workouts/workout_list_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
@@ -103,6 +104,11 @@ final routerProvider = Provider<GoRouter>((ref) {
                     path: 'activity-tracking',
                     name: 'activity-tracking',
                     builder: (context, state) => const ActivityTrackingScreen(),
+                  ),
+                  GoRoute(
+                    path: 'festival-calendar',
+                    name: 'festival-calendar',
+                    builder: (context, state) => const FestivalCalendarScreen(),
                   ),
                 ],
               ),

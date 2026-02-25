@@ -7,6 +7,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/providers/step_provider.dart';
+import '../../../data/providers/festival_provider.dart';
 import '../../../core/storage/hive_service.dart';
 import '../profile/subscription_screen.dart';
 
@@ -134,6 +135,8 @@ class DashboardTab extends ConsumerWidget {
                     ],
                   ),
                 ),
+              // Festival Banner
+              _buildFestivalBanner(context, ref),
               // Quick Actions
               _buildQuickActions(context),
               const SizedBox(height: 24),
@@ -354,6 +357,65 @@ class DashboardTab extends ConsumerWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildFestivalBanner(BuildContext context, WidgetRef ref) {
+    final festivalState = ref.watch(festivalProvider);
+    if (!festivalState.isFestivalDay) {
+      return const SizedBox.shrink();
+    }
+
+    final festival = festivalState.todayFestival!;
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          colors: [AppTheme.saffronColor, Colors.orange],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.saffronColor.withValues(alpha: 0.3),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.celebration, color: Colors.white),
+              const SizedBox(width: 8),
+              Text(
+                'Happy ${festival.name}!',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              const Spacer(),
+              IconButton(
+                icon: const Icon(Icons.chevron_right, color: Colors.white),
+                onPressed: () => context.push('/home/festival-calendar'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Enjoy your day with +${((festival.calorieMultiplier - 1) * 100).toInt()}% calorie flexibility. Try ${festival.workoutSuggestion} today!',
+            style: const TextStyle(color: Colors.white, fontSize: 13),
+          ),
+        ],
       ),
     );
   }
