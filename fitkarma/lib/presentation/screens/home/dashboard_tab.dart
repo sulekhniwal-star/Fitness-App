@@ -1,10 +1,12 @@
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' hide StepState;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/providers/auth_provider.dart';
+import '../../../data/providers/step_provider.dart';
+import '../../../core/storage/hive_service.dart';
 
 class DashboardTab extends ConsumerWidget {
   const DashboardTab({super.key});
@@ -13,6 +15,7 @@ class DashboardTab extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);
     final user = authState.user;
+    final stepState = ref.watch(stepProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -78,7 +81,7 @@ class DashboardTab extends ConsumerWidget {
               ),
               const SizedBox(height: 24),
               // Step Counter Card
-              _buildStepCounterCard(context),
+              _buildStepCounterCard(context, stepState),
               const SizedBox(height: 16),
               // Quick Actions
               _buildQuickActions(context),
@@ -89,7 +92,7 @@ class DashboardTab extends ConsumerWidget {
                 style: Theme.of(context).textTheme.titleLarge,
               ),
               const SizedBox(height: 16),
-              _buildWeeklyChart(context),
+              _buildWeeklyChart(context, stepState),
             ],
           ),
         ),
@@ -97,14 +100,10 @@ class DashboardTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildStepCounterCard(BuildContext context) {
-    const todaySteps = 4500; // Placeholder - will connect to step provider
+  Widget _buildStepCounterCard(BuildContext context, StepState stepState) {
+    final todaySteps = stepState.steps;
     const goal = AppConstants.defaultStepGoal;
     final progress = (todaySteps / goal).clamp(0.0, 1.0);
-
-    // Cricket overs conversion (1 over = 6 steps)
-    final overs = (todaySteps / 6).floor();
-    const balls = todaySteps % 6;
 
     return Container(
       padding: const EdgeInsets.all(AppConstants.paddingLarge),
@@ -148,7 +147,7 @@ class DashboardTab extends ConsumerWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  '$overs.$balls overs 🏏',
+                  '${stepState.overs} overs 🏏',
                   style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
@@ -188,9 +187,9 @@ class DashboardTab extends ConsumerWidget {
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text(
+                    Text(
                       '$todaySteps',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
@@ -298,10 +297,33 @@ class DashboardTab extends ConsumerWidget {
     );
   }
 
-  Widget _buildWeeklyChart(BuildContext context) {
-    final weekData = [4500, 6200, 3800, 7100, 5500, 8000, 6200];
-    final days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
-    final maxY = weekData.reduce((a, b) => a > b ? a : b).toDouble() * 1.2;
+  Widget _buildWeeklyChart(BuildContext context, StepState stepState) {
+    final box = HiveService.stepsBox;
+    final now = DateTime.now();
+
+    String getDateStr(DateTime date) {
+      return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+    }
+
+    final weekData = <int>[];
+    final days = <String>[];
+
+    for (int i = 6; i >= 0; i--) {
+      final date = now.subtract(Duration(days: i));
+      final dateStr = getDateStr(date);
+      final dayLetter = ['M', 'T', 'W', 'T', 'F', 'S', 'S'][date.weekday - 1];
+      days.add(dayLetter);
+
+      if (i == 0) {
+        weekData.add(stepState.steps);
+      } else {
+        final val = box.get('history_$dateStr');
+        weekData.add(val is int ? val : 0);
+      }
+    }
+
+    final maxVal = weekData.reduce((a, b) => a > b ? a : b).toDouble();
+    final maxY = maxVal < 1000 ? 1000.0 : maxVal * 1.2;
 
     return Container(
       height: 200,
