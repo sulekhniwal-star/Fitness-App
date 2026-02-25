@@ -24,6 +24,7 @@ class AppConstants {
   static const String syncQueueBox = 'syncQueueBox';
   static const String settingsBox = 'settingsBox';
   static const String medicalBox = 'medicalBox';
+  static const String insightsBox = 'insightsBox';
 
   // Sync Configuration
   static const int maxSyncRetries = 3;
