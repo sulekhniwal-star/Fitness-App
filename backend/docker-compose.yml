@@ -1,0 +1,18 @@
+version: '3.7'
+
+services:
+  pocketbase:
+    image: ghcr.io/muchobrien/pocketbase:latest
+    container_name: fitkarma-pb
+    restart: unless-stopped
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./pb_data:/pb_data
+      - ./pb_migrations:/pb_migrations
+      - ./pb_schema.json:/pb_schema.json
+    command:
+      - serve
+      - --http=0.0.0.0:8080
+      - --dir=/pb_data
+      - --migrationsDir=/pb_migrations
