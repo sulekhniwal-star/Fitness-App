@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../core/theme/app_theme.dart';
 import '../../../data/providers/food_provider.dart';
 import '../../../data/repositories/food_repository.dart';
-import '../../../data/models/food_log_model.dart';
-import '../../../data/providers/auth_provider.dart';
-import '../../../data/providers/karma_provider.dart';
-import '../../../core/sync/sync_service.dart';
-import '../../../core/storage/hive_service.dart';
 
 class FoodSearchDelegate extends SearchDelegate<void> {
   final WidgetRef ref;
@@ -108,47 +102,25 @@ class FoodSearchDelegate extends SearchDelegate<void> {
   }
 
   void _logFood(BuildContext context, FoodItem item) async {
-    // Log food with default 100g quantity for MVP
-    final user = ref.read(authStateProvider).user;
-    if (user == null) return;
-
-    final log = FoodLogModel(
-      id: const Uuid().v4(),
-      userId: user.id,
-      date: DateTime.now(),
-      mealType: mealType,
-      foodItemId: item.id,
-      foodName: item.name,
-      quantityGrams: 100.0,
-      calories: item.calories,
-      proteinGrams: item.proteinGrams,
-      carbsGrams: item.carbsGrams,
-      fatGrams: item.fatGrams,
-      loggedVia: 'search',
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
-    );
-
-    // Save to Hive
-    await HiveService.foodLogBox.put(log.id, log);
-
-    // Sync to backend
-    ref.read(syncServiceProvider).enqueueAction(
-          collection: 'food_logs',
-          operation: 'create',
-          data: log.toJson(),
+    await ref.read(foodLogProvider.notifier).logFood(
+          name: item.name,
+          calories: item.calories,
+          protein: item.proteinGrams,
+          carbs: item.carbsGrams,
+          fat: item.fatGrams,
+          mealType: mealType,
+          foodItemId: item.id,
+          loggedVia: 'search',
         );
 
-    // Grant Karma
-    ref.read(karmaProvider.notifier).earnKarma(5, 'Logged meal');
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Logged ${item.name}! +5 Karma'),
-        backgroundColor: AppTheme.primaryColor,
-      ),
-    );
-
-    close(context, null);
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Logged ${item.name}! +5 Karma'),
+          backgroundColor: AppTheme.primaryColor,
+        ),
+      );
+      close(context, null);
+    }
   }
 }

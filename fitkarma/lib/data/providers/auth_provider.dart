@@ -165,6 +165,15 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> refreshUser() async {
     await _checkAuth();
   }
+
+  Future<void> requestPasswordReset(String email) async {
+    try {
+      final pb = _ref.read(pocketBaseProvider);
+      await pb.collection('users').requestPasswordReset(email);
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
 
 /// Auth state provider

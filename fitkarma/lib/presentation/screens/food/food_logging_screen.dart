@@ -187,8 +187,24 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
         trailing: IconButton(
           icon: const Icon(Icons.add_circle_outline),
           color: AppTheme.primaryColor,
-          onPressed: () {
-            // TODO: Add to log
+          onPressed: () async {
+            await ref.read(foodLogProvider.notifier).logFood(
+                  name: name,
+                  calories: calories.toDouble(),
+                  protein: protein,
+                  carbs: carbs,
+                  fat: fat,
+                  mealType: _selectedMealType,
+                  loggedVia: 'quick_add',
+                );
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Logged $name! +5 Karma'),
+                  backgroundColor: AppTheme.primaryColor,
+                ),
+              );
+            }
           },
         ),
       ),

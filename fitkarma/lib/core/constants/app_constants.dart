@@ -10,7 +10,7 @@ class AppConstants {
 
   // PocketBase Configuration
   static const String pocketBaseUrl =
-      'https://api.fitkarma.in'; // TODO: Update with actual URL
+      'http://127.0.0.1:8090'; // Local development server
   static const Duration apiTimeout = Duration(seconds: 30);
 
   // Hive Box Names
