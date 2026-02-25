@@ -2,7 +2,7 @@
 
 ## Current Position
 - **Phase**: 1 (Foundation & MVP Core)
-- **Status**: Completed - Wave 2: Navigation Shell, Phase 1 Plan 1.3
+- **Status**: Completed - Wave 2: Auth Flow, Phase 1 Plan 1.4
 - **Last Updated**: 2026-02-24
 
 ## Progress Summary
@@ -42,6 +42,8 @@
 ✅ Validated codebase with `flutter analyze` perfectly.
 ✅ [Plan 1.3] Set up GoRouter StatefulShellRoute configuration with bottom navigation tabs.
 ✅ [Plan 1.3] Developed AppShell to seamlessly preserve state and display BottomNavBar.
+✅ [Plan 1.4] Built cultured Splash and Onboarding UI flow with GoRouter redirects.
+✅ [Plan 1.4] Set up standard Registration and Login logic tied to PocketBase provider and GoRouter auth state.
 
 ### Files Created:
 - backend/README.md
@@ -75,7 +77,7 @@
 - **GSD Executor Note**: Flutter command rejected root folder "Fitness App" due to dart package naming conventions. The Flutter root directory is officially designated as `fitkarma/`. Future plans running Flutter CLI tools must use `fitkarma/` as their working directory.
 
 ## Next Steps
-1. Execute Plan `1.4-auth-flow.md`
+1. Execute Plan `1.5-offline-sync-engine.md`
 
 ## Known Issues (require flutter run / build runner)
 - None. `flutter analyze` passes perfectly.
