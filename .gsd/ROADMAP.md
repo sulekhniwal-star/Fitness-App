@@ -1,7 +1,7 @@
 # ROADMAP.md — FitKarma
 
-> **Current Phase**: 5
-> **Milestone**: v1.0 MVP
+> **Current Phase**: 7
+> **Milestone**: AI & Scale
 > **Last Updated**: 2026-02-24
 
 ---
@@ -111,7 +111,7 @@
 ---
 
 ## Phase 6: Cultural Integration (Post-MVP)
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Ayurvedic personalization, festival calendar, vernacular language support, AI-powered meal planner. Phase 3 from product roadmap.
 
 **Deliverables:**
