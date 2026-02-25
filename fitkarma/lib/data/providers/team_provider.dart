@@ -88,9 +88,9 @@ class TeamNotifier extends StateNotifier<TeamState> {
     // Sort teams by avg karma
     teams.sort((a, b) {
       final avgA =
-          a.totalKarma / (a.memberIds.length > 0 ? a.memberIds.length : 1);
+          a.totalKarma / (a.memberIds.isNotEmpty ? a.memberIds.length : 1);
       final avgB =
-          b.totalKarma / (b.memberIds.length > 0 ? b.memberIds.length : 1);
+          b.totalKarma / (b.memberIds.isNotEmpty ? b.memberIds.length : 1);
       return avgB.compareTo(avgA);
     });
 

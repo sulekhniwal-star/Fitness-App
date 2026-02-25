@@ -235,11 +235,11 @@ class _MealPlannerScreenState extends ConsumerState<MealPlannerScreen> {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppTheme.mintColor.withValues(alpha: 0.2)),
       ),
-      child: Row(
+      child: const Row(
         children: [
-          const Icon(Icons.lightbulb_outline, color: AppTheme.mintColor),
-          const SizedBox(width: 12),
-          const Expanded(
+          Icon(Icons.lightbulb_outline, color: AppTheme.mintColor),
+          SizedBox(width: 12),
+          Expanded(
             child: Text(
               'Grit Tip: Your meals are balanced for your Dosha. Try to eat mindfully and chew well!',
               style: TextStyle(fontSize: 13, color: Colors.teal),

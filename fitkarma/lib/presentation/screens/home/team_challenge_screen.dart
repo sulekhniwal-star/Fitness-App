@@ -152,17 +152,17 @@ class TeamChallengeScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppTheme.saffronColor.withValues(alpha: 0.2)),
       ),
-      child: Column(
+      child: const Column(
         children: [
-          const Icon(Icons.group_add, color: AppTheme.saffronColor, size: 48),
-          const SizedBox(height: 16),
-          const Text(
+          Icon(Icons.group_add, color: AppTheme.saffronColor, size: 48),
+          SizedBox(height: 16),
+          Text(
             'Health is better when shared!',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          const SizedBox(height: 8),
-          const Text(
+          SizedBox(height: 8),
+          Text(
             'Join a team to compete in local challenges and represent your workspace.',
             textAlign: TextAlign.center,
             style: TextStyle(color: AppTheme.textSecondary),

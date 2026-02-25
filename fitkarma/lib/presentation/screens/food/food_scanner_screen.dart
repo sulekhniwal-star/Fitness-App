@@ -135,7 +135,7 @@ class _FoodScannerScreenState extends ConsumerState<FoodScannerScreen> {
 
   Widget _buildOverlay() {
     return Container(
-      decoration: ShapeDecoration(
+      decoration: const ShapeDecoration(
         shape: _ScannerOverlayShape(
           borderColor: AppTheme.primaryColor,
           borderWidth: 3.0,

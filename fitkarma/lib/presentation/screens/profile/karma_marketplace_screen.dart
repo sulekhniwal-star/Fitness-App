@@ -142,7 +142,7 @@ class KarmaMarketplaceScreen extends ConsumerWidget {
                               const SizedBox(height: 4),
                               Text(
                                 reward.description,
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: AppTheme.textSecondary,
                                   fontSize: 13,
                                 ),
