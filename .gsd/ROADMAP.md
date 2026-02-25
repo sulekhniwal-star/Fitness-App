@@ -22,7 +22,7 @@
 ---
 
 ## Phase 1: Foundation & MVP Core
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Scaffold the Flutter app, configure PocketBase, implement authentication, offline-first data layer (Hive), and the app shell with navigation. Deliver a working skeleton that all subsequent features plug into.
 
 **Deliverables:**
