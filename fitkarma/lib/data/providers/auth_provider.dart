@@ -161,6 +161,10 @@ class AuthNotifier extends StateNotifier<AuthState> {
     HiveService.saveUser(updatedUser);
     state = state.copyWith(user: updatedUser);
   }
+
+  Future<void> refreshUser() async {
+    await _checkAuth();
+  }
 }
 
 /// Auth state provider

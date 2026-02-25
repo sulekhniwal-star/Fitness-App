@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart' hide StepState;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
@@ -300,6 +301,16 @@ class DashboardTab extends ConsumerWidget {
             label: 'Water',
             color: AppTheme.mintColor,
             onTap: () {},
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _buildActionCard(
+            context,
+            icon: Icons.map_outlined,
+            label: 'Track', // Short for Track Walk
+            color: Colors.orange,
+            onTap: () => context.push('/home/activity-tracking'),
           ),
         ),
       ],

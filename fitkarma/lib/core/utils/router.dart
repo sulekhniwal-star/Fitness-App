@@ -10,6 +10,7 @@ import '../../presentation/screens/home/dashboard_tab.dart';
 import '../../presentation/screens/home/onboarding_screen.dart';
 import '../../presentation/screens/home/splash_screen.dart';
 import '../../presentation/screens/home/community_tab.dart';
+import '../../presentation/screens/home/activity_tracking_screen.dart';
 import '../../presentation/screens/food/food_logging_screen.dart';
 import '../../presentation/screens/workouts/workout_list_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
@@ -96,6 +97,13 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: '/home',
                 name: 'home',
                 builder: (context, state) => const DashboardTab(),
+                routes: [
+                  GoRoute(
+                    path: 'activity-tracking',
+                    name: 'activity-tracking',
+                    builder: (context, state) => const ActivityTrackingScreen(),
+                  ),
+                ],
               ),
             ],
           ),
