@@ -11,6 +11,8 @@ import '../../../data/providers/step_provider.dart';
 import '../../../data/providers/festival_provider.dart';
 import '../../../core/storage/hive_service.dart';
 import '../profile/subscription_screen.dart';
+import '../../widgets/voice_assistant_sheet.dart';
+import '../../../core/utils/voice_service.dart';
 
 class DashboardTab extends ConsumerWidget {
   const DashboardTab({super.key});
@@ -77,7 +79,7 @@ class DashboardTab extends ConsumerWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: AppTheme.saffronColor.withOpacity(0.1),
+                      color: AppTheme.saffronColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -153,7 +155,47 @@ class DashboardTab extends ConsumerWidget {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showVoiceAssistant(context),
+        backgroundColor: AppTheme.saffronColor,
+        child: const Icon(Icons.mic, color: Colors.white),
+      ),
     );
+  }
+
+  void _showVoiceAssistant(BuildContext context) async {
+    final intent = await showModalBottomSheet<VoiceIntent>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const VoiceAssistantSheet(),
+    );
+
+    if (intent != null && context.mounted) {
+      _handleVoiceIntent(context, intent);
+    }
+  }
+
+  void _handleVoiceIntent(BuildContext context, VoiceIntent intent) {
+    // Basic intent routing for MVP
+    switch (intent.action) {
+      case 'log_food':
+        context.push('/food/logging');
+        break;
+      case 'track_steps':
+        context.push('/home/activity-tracking');
+        break;
+      case 'log_workout':
+        context.push('/workouts');
+        break;
+      default:
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Heard: "${intent.data['query']}"'),
+            backgroundColor: AppTheme.saffronColor,
+          ),
+        );
+    }
   }
 
   Widget _buildStepCounterCard(

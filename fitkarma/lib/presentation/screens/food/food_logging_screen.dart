@@ -6,6 +6,8 @@ import 'package:barcode_scan2/barcode_scan2.dart';
 import '../../../core/theme/app_theme.dart';
 import 'food_search_delegate.dart';
 import '../../../data/providers/food_provider.dart';
+import '../../widgets/voice_assistant_sheet.dart';
+import '../../../core/utils/voice_service.dart';
 
 class FoodLoggingScreen extends ConsumerStatefulWidget {
   const FoodLoggingScreen({super.key});
@@ -39,6 +41,11 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
           IconButton(
             icon: const Icon(Icons.qr_code_scanner),
             onPressed: _scanBarcode,
+          ),
+          IconButton(
+            icon: const Icon(Icons.mic, color: AppTheme.primaryColor),
+            onPressed: () => _showVoiceAssistant(context),
+            tooltip: 'Voice Logging',
           ),
           IconButton(
             icon: const Icon(Icons.camera_alt),
@@ -134,7 +141,7 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                 ),
                 const Spacer(),
                 TextButton.icon(
-                  onPressed: () {},
+                  onPressed: () => _showVoiceAssistant(context),
                   icon: const Icon(Icons.mic, size: 18),
                   label: const Text('Voice'),
                 ),
@@ -179,6 +186,24 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
         ),
       ),
     );
+  }
+
+  void _showVoiceAssistant(BuildContext context) async {
+    final intent = await showModalBottomSheet<VoiceIntent>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => const VoiceAssistantSheet(),
+    );
+
+    if (intent != null && context.mounted) {
+      if (intent.action == 'log_food') {
+        // In a real app, you'd trigger searching or logging
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Logging: ${intent.data['query']}')),
+        );
+      }
+    }
   }
 
   Future<void> _scanBarcode() async {
