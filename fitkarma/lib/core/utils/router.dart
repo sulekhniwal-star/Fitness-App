@@ -13,6 +13,7 @@ import '../../presentation/screens/home/community_tab.dart';
 import '../../presentation/screens/food/food_logging_screen.dart';
 import '../../presentation/screens/workouts/workout_list_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
+import '../../presentation/screens/profile/leaderboard_screen.dart';
 import '../../shared/widgets/app_shell.dart';
 import '../monitoring/analytics_service.dart';
 
@@ -131,6 +132,13 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: '/profile',
                 name: 'profile',
                 builder: (context, state) => const ProfileScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'leaderboard',
+                    name: 'leaderboard',
+                    builder: (context, state) => const LeaderboardScreen(),
+                  ),
+                ],
               ),
             ],
           ),

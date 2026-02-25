@@ -140,6 +140,12 @@ class ProfileScreen extends ConsumerWidget {
             ),
             _buildMenuItem(
               context,
+              icon: Icons.emoji_events_outlined,
+              title: 'Karma Leaderboard',
+              onTap: () => context.push('/profile/leaderboard'),
+            ),
+            _buildMenuItem(
+              context,
               icon: Icons.favorite_border,
               title: 'My Health Metrics',
               onTap: () {
