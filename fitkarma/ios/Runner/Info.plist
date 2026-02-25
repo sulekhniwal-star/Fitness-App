@@ -66,5 +66,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>FitKarma needs access to location for outdoor activity tracking.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>FitKarma needs access to location in the background to track your workout path.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>FitKarma needs access to location for outdoor activity tracking.</string>
 </dict>
 </plist>

@@ -7,6 +7,7 @@ import '../../data/models/weight_log_model.dart';
 import '../../data/models/medical_record_model.dart';
 import '../../data/models/post_model.dart';
 import '../../data/models/challenge_model.dart';
+import '../../data/models/tracking_point.dart';
 
 /// Service for managing local storage via Hive.
 class HiveService {
@@ -34,6 +35,7 @@ class HiveService {
     Hive.registerAdapter(MedicalRecordModelAdapter());
     Hive.registerAdapter(PostModelAdapter());
     Hive.registerAdapter(ChallengeModelAdapter());
+    Hive.registerAdapter(TrackingPointAdapter());
 
     // Open required core boxes for offline-first capabilities
     userBox = await Hive.openBox<UserModel>(AppConstants.userBox);
