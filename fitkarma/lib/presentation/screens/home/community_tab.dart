@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/providers/community_provider.dart';
+import '../../../data/providers/challenge_provider.dart';
 import '../../../data/models/post_model.dart';
+import '../../../data/models/challenge_model.dart';
 import '../../../core/network/pocketbase_client.dart';
 
 class CommunityTab extends ConsumerWidget {
@@ -11,7 +13,8 @@ class CommunityTab extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final state = ref.watch(communityProvider);
+    final postState = ref.watch(communityProvider);
+    final challengeState = ref.watch(challengeProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -19,26 +22,79 @@ class CommunityTab extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: () => ref.read(communityProvider.notifier).fetchPosts(),
+            onPressed: () {
+              ref.read(communityProvider.notifier).fetchPosts();
+              ref.read(challengeProvider.notifier).fetchChallenges();
+            },
           ),
         ],
       ),
       body: RefreshIndicator(
-        onRefresh: () => ref.read(communityProvider.notifier).fetchPosts(),
-        child: state.posts.isEmpty && !state.isLoading
-            ? _buildEmptyState()
-            : ListView.builder(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                itemCount: state.posts.length,
-                itemBuilder: (context, index) {
-                  return PostCard(post: state.posts[index]);
-                },
+        onRefresh: () async {
+          await ref.read(communityProvider.notifier).fetchPosts();
+          await ref.read(challengeProvider.notifier).fetchChallenges();
+        },
+        child: CustomScrollView(
+          slivers: [
+            if (challengeState.challenges.isNotEmpty)
+              SliverToBoxAdapter(
+                child:
+                    _buildChallengesSection(context, challengeState.challenges),
               ),
+            if (postState.posts.isEmpty && !postState.isLoading)
+              SliverFillRemaining(
+                child: _buildEmptyState(),
+              )
+            else
+              SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    return PostCard(post: postState.posts[index]);
+                  },
+                  childCount: postState.posts.length,
+                ),
+              ),
+          ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showCreatePostSheet(context, ref),
         child: const Icon(Icons.add_comment),
       ),
+    );
+  }
+
+  Widget _buildChallengesSection(
+      BuildContext context, List<ChallengeModel> challenges) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
+          child: Text(
+            'Active Challenges',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ),
+        SizedBox(
+          height: 160,
+          child: ListView.builder(
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+            scrollDirection: Axis.horizontal,
+            itemCount: challenges.length,
+            itemBuilder: (context, index) {
+              return ChallengeCard(challenge: challenges[index]);
+            },
+          ),
+        ),
+        const Padding(
+          padding: EdgeInsets.fromLTRB(16, 16, 16, 0),
+          child: Text(
+            'Recent Updates',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ),
+      ],
     );
   }
 
@@ -114,6 +170,171 @@ class CommunityTab extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+class ChallengeCard extends ConsumerWidget {
+  final ChallengeModel challenge;
+
+  const ChallengeCard({super.key, required this.challenge});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final curUserId = ref.watch(pocketBaseProvider).authStore.record?.id;
+    final isEnrolled = challenge.participants.contains(curUserId);
+
+    return Container(
+      width: 280,
+      margin: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: AppTheme.primaryColor.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.1)),
+      ),
+      child: InkWell(
+        onTap: () => _showChallengeDetail(context, ref),
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: AppTheme.primaryColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Text(
+                      '+${challenge.rewardPoints} Karma',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  if (isEnrolled)
+                    const Icon(Icons.check_circle,
+                        color: AppTheme.primaryColor, size: 20),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Text(
+                challenge.title,
+                style:
+                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                challenge.description,
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+              const Spacer(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    '${challenge.participants.length} joined',
+                    style: const TextStyle(
+                        fontSize: 12, fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    'Ends ${DateFormat.MMMd().format(challenge.endDate)}',
+                    style: TextStyle(fontSize: 10, color: Colors.grey.shade500),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showChallengeDetail(BuildContext context, WidgetRef ref) {
+    final curUserId = ref.read(pocketBaseProvider).authStore.record?.id;
+    final isEnrolled = challenge.participants.contains(curUserId);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              challenge.title,
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              challenge.description,
+              style: TextStyle(fontSize: 16, color: Colors.grey.shade700),
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildGoalInfo('Goal',
+                    '${challenge.goalValue.toInt()} ${challenge.goalType}'),
+                _buildGoalInfo('Reward', '${challenge.rewardPoints} Karma'),
+                _buildGoalInfo('Duration',
+                    '${challenge.endDate.difference(challenge.startDate).inDays} Days'),
+              ],
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton(
+              onPressed: isEnrolled
+                  ? null
+                  : () {
+                      ref
+                          .read(challengeProvider.notifier)
+                          .joinChallenge(challenge.id);
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                            content: Text('Joined Challenge! Good luck.')),
+                      );
+                    },
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                backgroundColor:
+                    isEnrolled ? Colors.grey : AppTheme.primaryColor,
+              ),
+              child: Text(isEnrolled ? 'Already Enrolled' : 'Join Challenge'),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGoalInfo(String label, String value) {
+    return Column(
+      children: [
+        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+        Text(value,
+            style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppTheme.primaryColor)),
+      ],
     );
   }
 }
