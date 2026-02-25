@@ -1,0 +1,15 @@
+0 Thali
+1 Dosa
+2 Idli
+3 Samosa
+4 Chole Bhature
+5 Paneer Tikka
+6 Butter Chicken
+7 Dal Makhani
+8 Roti
+9 Rice
+10 Upma
+11 Poha
+12 Vada Pav
+13 Gulab Jamun
+14 Jalebi
