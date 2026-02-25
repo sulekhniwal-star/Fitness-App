@@ -1,10 +1,8 @@
 import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:pocketbase/pocketbase.dart';
 
-import '../constants/app_constants.dart';
 import '../network/pocketbase_client.dart';
 import '../storage/hive_service.dart';
 
