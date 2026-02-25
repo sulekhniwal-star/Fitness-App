@@ -6,6 +6,7 @@ import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/providers/auth_provider.dart';
 import 'health_tab.dart';
+import 'medical_scanner_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -138,7 +139,12 @@ class ProfileScreen extends ConsumerWidget {
               context,
               icon: Icons.medical_services_outlined,
               title: 'Medical Reports',
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (ctx) => const MedicalScannerScreen()),
+                );
+              },
             ),
             _buildMenuItem(
               context,

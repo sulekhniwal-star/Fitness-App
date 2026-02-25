@@ -2,7 +2,7 @@
 
 ## Current Position
 - **Phase**: 3 (Workouts & Medical Records)
-- **Status**: Completed - Wave 1: Weight & BMI Tracking, Phase 3 Plan 3.3
+- **Status**: Completed - Wave 1: Medical Expressions, Phase 3 Plan 3.4
 - **Last Updated**: 2026-02-24
 
 ## Progress Summary
@@ -11,6 +11,7 @@
 ✅ [Plan 3.1] Built `WorkoutModel`, parsed it safely onto Hive using `.g.dart`, created `WorkoutRepository` static sets, and exposed it over native Riverpod `workout_provider.dart`.
 ✅ [Plan 3.2] Engineered `WorkoutListScreen` grid mapping native lists properly into `WorkoutDetailScreen` rendering videos perfectly allocating offline metric completions granting Karma points seamlessly.
 ✅ [Plan 3.3] Constructed `WeightLogModel` safely parsing history onto `HealthTab` mapping interactive `fl_chart` representations and explicit BMI categorization.
+✅ [Plan 3.4] Constructed `MedicalRecordModel` resolving pure text inputs mapping safely inside `MedicalParserService` converting unstructured formats into key-value datasets ready for offline logic.
 
 ### Phase 2 Completed Tasks:
 ✅ [Plan 2.1] Implemented FoodRepository calling Open Food Facts API and caching to Hive. Exposed FoodProvider StateNotifier.
@@ -98,6 +99,8 @@
 - fitkarma/lib/data/models/weight_log_model.dart
 - fitkarma/lib/data/providers/weight_provider.dart
 - fitkarma/lib/presentation/screens/profile/health_tab.dart
+- fitkarma/lib/data/models/medical_record_model.dart
+- fitkarma/lib/domain/services/medical_parser_service.dart
 
 ## Deviations/Constraints
 - **GSD Executor Note**: Flutter command rejected root folder "Fitness App" due to dart package naming conventions. The Flutter root directory is officially designated as `fitkarma/`. Future plans running Flutter CLI tools must use `fitkarma/` as their working directory.
@@ -106,7 +109,7 @@
 Phase 2 executed successfully. 5 plans, 7 tasks completed mapping pedometer streams, barcode scanners, open food facts APIs, and local caching.
 
 ## Next Steps
-1. Execute Plan 3.4 `3.4-medical-data-parsers.md`
+1. Execute Plan 3.5 `3.5-medical-ocr-scanner.md`
 
 ## Known Issues (require flutter run / build runner)
 - None. `flutter analyze` passes perfectly.
