@@ -13,6 +13,19 @@ import '../../presentation/screens/food/food_logging_screen.dart';
 import '../../presentation/screens/workouts/workout_list_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
 import '../../shared/widgets/app_shell.dart';
+import '../monitoring/analytics_service.dart';
+
+class AnalyticsObserver extends NavigatorObserver {
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPush(route, previousRoute);
+    if (route.settings.name != null) {
+      analyticsService.trackEvent('page_view', properties: {
+        'page_name': route.settings.name,
+      });
+    }
+  }
+}
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -20,6 +33,7 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/',
     debugLogDiagnostics: true,
+    observers: [AnalyticsObserver()],
     redirect: (context, state) {
       final isLoggedIn = authState.status == AuthStatus.authenticated;
       final isOnAuthPage = state.matchedLocation == '/login' ||

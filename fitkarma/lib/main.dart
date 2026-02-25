@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -9,29 +10,41 @@ import 'core/utils/router.dart';
 import 'core/storage/hive_service.dart';
 import 'core/network/pocketbase_client.dart';
 import 'core/sync/notification_service.dart';
+import 'core/monitoring/analytics_service.dart';
 
 void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  await SentryFlutter.init(
+    (options) {
+      options.dsn = ''; // Using empty DSN to prevent crashes while inactive
+      options.tracesSampleRate = 1.0;
+    },
+    appRunner: () async {
+      WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize Hive
-  await Hive.initFlutter();
+      // Initialize Hive
+      await Hive.initFlutter();
 
-  // Initialize Hive boxes
-  await HiveService.initBoxes();
+      // Initialize Hive boxes
+      await HiveService.initBoxes();
 
-  // Read initial pocketbase auth config from secure storage
-  const secureStorage = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
-  );
-  final initialAuth = await secureStorage.read(key: 'pb_auth');
+      // Initialize Analytics
+      await analyticsService.init();
 
-  runApp(
-    ProviderScope(
-      overrides: [
-        initialPbAuthProvider.overrideWithValue(initialAuth),
-      ],
-      child: const FitKarmaApp(),
-    ),
+      // Read initial pocketbase auth config from secure storage
+      const secureStorage = FlutterSecureStorage(
+        aOptions: AndroidOptions(encryptedSharedPreferences: true),
+      );
+      final initialAuth = await secureStorage.read(key: 'pb_auth');
+
+      runApp(
+        ProviderScope(
+          overrides: [
+            initialPbAuthProvider.overrideWithValue(initialAuth),
+          ],
+          child: const FitKarmaApp(),
+        ),
+      );
+    },
   );
 }
 
