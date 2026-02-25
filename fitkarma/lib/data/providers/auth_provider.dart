@@ -58,7 +58,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
       // Check PocketBase auth
       if (pb.authStore.isValid) {
-        final userId = pb.authStore.model?.id;
+        final userId = pb.authStore.record?.id;
 
         if (userId != null && userId.isNotEmpty) {
           final record = await pb.collection('users').getOne(userId);

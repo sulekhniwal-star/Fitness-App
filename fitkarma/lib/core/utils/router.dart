@@ -14,6 +14,7 @@ import '../../presentation/screens/home/activity_tracking_screen.dart';
 import '../../presentation/screens/food/food_logging_screen.dart';
 import '../../presentation/screens/workouts/workout_list_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
+import '../../presentation/screens/profile/dosha_quiz_screen.dart';
 import '../../presentation/screens/profile/leaderboard_screen.dart';
 import '../../shared/widgets/app_shell.dart';
 import '../monitoring/analytics_service.dart';
@@ -145,6 +146,11 @@ final routerProvider = Provider<GoRouter>((ref) {
                     path: 'leaderboard',
                     name: 'leaderboard',
                     builder: (context, state) => const LeaderboardScreen(),
+                  ),
+                  GoRoute(
+                    path: 'dosha-quiz',
+                    name: 'dosha-quiz',
+                    builder: (context, state) => const DoshaQuizScreen(),
                   ),
                 ],
               ),

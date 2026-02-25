@@ -42,7 +42,7 @@ class ProfileScreen extends ConsumerWidget {
                     BorderRadius.circular(AppConstants.cardBorderRadius),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -53,7 +53,8 @@ class ProfileScreen extends ConsumerWidget {
                   // Avatar
                   CircleAvatar(
                     radius: 50,
-                    backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
+                    backgroundColor:
+                        AppTheme.primaryColor.withValues(alpha: 0.1),
                     child: Text(
                       user?.name.substring(0, 1).toUpperCase() ?? 'U',
                       style: const TextStyle(
@@ -87,7 +88,7 @@ class ProfileScreen extends ConsumerWidget {
                       vertical: 8,
                     ),
                     decoration: BoxDecoration(
-                      color: AppTheme.saffronColor.withOpacity(0.1),
+                      color: AppTheme.saffronColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -143,6 +144,15 @@ class ProfileScreen extends ConsumerWidget {
               icon: Icons.emoji_events_outlined,
               title: 'Karma Leaderboard',
               onTap: () => context.push('/profile/leaderboard'),
+            ),
+            _buildMenuItem(
+              context,
+              icon: Icons.self_improvement_outlined,
+              title: 'Ayurvedic Dosha Quiz',
+              subtitle: user?.dosha != null
+                  ? 'Your Type: ${user?.dosha}'
+                  : 'Find your body type',
+              onTap: () => context.push('/profile/dosha-quiz'),
             ),
             _buildMenuItem(
               context,
