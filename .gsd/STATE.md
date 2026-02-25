@@ -1,17 +1,28 @@
 # STATE.md
 
 ## Current Position
-- **Phase**: 3 (Workouts & Medical Records)
-- **Status**: Completed - Wave 1: Medical Expressions, Phase 3 Plan 3.4
+- **Phase**: 5 (Health & Community)
+- **Status**: Planning Complete - Ready for Execution
 - **Last Updated**: 2026-02-24
 
 ## Progress Summary
+
+### Phase 4 Completed Tasks:
+✅ [Plan 4.1] Built `PaymentService` and `SubscriptionProvider` integrating Razorpay checkout flows safely updating `UserModel.subscriptionTier` and syncing natively.
+✅ [Plan 4.1] Constructed `SubscriptionScreen` UI mapping tiered plans and premium feature gates across `DashboardTab` and `ProfileScreen`.
+✅ [Plan 4.2] Engineered `NotificationService` linking PocketBase SSE subscriptions directly into global Riverpod streams.
+✅ [Plan 4.2] Hooked `AppShell` with floating `ScaffoldMessenger` alerts reacting to real-time events asynchronously.
+✅ [Plan 4.3] Integrated `Mixpanel` and `Sentry` SDKs providing production-grade telemetry and crash reporting.
+✅ [Plan 4.3] Developed `AnalyticsObserver` in `GoRouter` automatedly tracking page views via `AnalyticsService` events.
+✅ [Plan 4.4] Defined `docker-compose` and `nginx` configurations for production deployment of the PocketBase backend.
+✅ [Plan 4.4] Orchestrated `build_release` scripts optimizing Flutter APK architectures for distribution below 50MB.
 
 ### Phase 3 Completed Tasks:
 ✅ [Plan 3.1] Built `WorkoutModel`, parsed it safely onto Hive using `.g.dart`, created `WorkoutRepository` static sets, and exposed it over native Riverpod `workout_provider.dart`.
 ✅ [Plan 3.2] Engineered `WorkoutListScreen` grid mapping native lists properly into `WorkoutDetailScreen` rendering videos perfectly allocating offline metric completions granting Karma points seamlessly.
 ✅ [Plan 3.3] Constructed `WeightLogModel` safely parsing history onto `HealthTab` mapping interactive `fl_chart` representations and explicit BMI categorization.
 ✅ [Plan 3.4] Constructed `MedicalRecordModel` resolving pure text inputs mapping safely inside `MedicalParserService` converting unstructured formats into key-value datasets ready for offline logic.
+✅ [Plan 3.5] Bound `MedicalScannerScreen` integrating `google_mlkit_text_recognition` capturing images asynchronously assigning regex results natively into UI dialogs securely resolving local models.
 
 ### Phase 2 Completed Tasks:
 ✅ [Plan 2.1] Implemented FoodRepository calling Open Food Facts API and caching to Hive. Exposed FoodProvider StateNotifier.
@@ -101,15 +112,17 @@
 - fitkarma/lib/presentation/screens/profile/health_tab.dart
 - fitkarma/lib/data/models/medical_record_model.dart
 - fitkarma/lib/domain/services/medical_parser_service.dart
+- fitkarma/lib/presentation/screens/profile/medical_scanner_screen.dart
 
 ## Deviations/Constraints
 - **GSD Executor Note**: Flutter command rejected root folder "Fitness App" due to dart package naming conventions. The Flutter root directory is officially designated as `fitkarma/`. Future plans running Flutter CLI tools must use `fitkarma/` as their working directory.
 
-## Last Session Summary
-Phase 2 executed successfully. 5 plans, 7 tasks completed mapping pedometer streams, barcode scanners, open food facts APIs, and local caching.
+## Dev Notes
+Phase 4 plans generated covering Razorpay explicit deployments mapping analytics and build release scripts cleanly. Plans are ready to execute using `/execute 4`.
 
 ## Next Steps
-1. Execute Plan 3.5 `3.5-medical-ocr-scanner.md`
+1. Execute Plan 5.1 `5.1-community-social.md`
+2. Run `/execute 5` when ready.
 
 ## Known Issues (require flutter run / build runner)
 - None. `flutter analyze` passes perfectly.

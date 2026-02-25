@@ -190,12 +190,12 @@ class _HealthTabState extends ConsumerState<HealthTab> {
                     ),
                   ),
                 ],
-                titlesData: FlTitlesData(
-                  topTitles: const AxisTitles(
+                titlesData: const FlTitlesData(
+                  topTitles: AxisTitles(
                       sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: const AxisTitles(
+                  rightTitles: AxisTitles(
                       sideTitles: SideTitles(showTitles: false)),
-                  bottomTitles: const AxisTitles(
+                  bottomTitles: AxisTitles(
                       sideTitles:
                           SideTitles(showTitles: false)), // Simplified for MVP
                 ),

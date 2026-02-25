@@ -1,6 +1,6 @@
 # ROADMAP.md — FitKarma
 
-> **Current Phase**: 1
+> **Current Phase**: 5
 > **Milestone**: v1.0 MVP
 > **Last Updated**: 2026-02-24
 
@@ -8,16 +8,16 @@
 
 ## Must-Haves (MVP — from SPEC)
 
-- [ ] Flutter project scaffolded with clean architecture
-- [ ] PocketBase backend deployed with all collections
-- [ ] Authentication (email, Google, phone OTP)
-- [ ] Food logging (search, barcode, OCR, voice) — offline-first
-- [ ] Step tracking with background pedometer
-- [ ] Workout system with YouTube videos
-- [ ] Karma system (earn/persist/display)
-- [ ] Medical report OCR
-- [ ] Razorpay subscriptions
-- [ ] Release APK < 50MB, dashboard < 1s
+- [x] Flutter project scaffolded with clean architecture
+- [x] PocketBase backend deployed with all collections
+- [x] Authentication (email, Google, phone OTP)
+- [x] Food logging (search, barcode, OCR, voice) — offline-first
+- [x] Step tracking with background pedometer
+- [x] Workout system with YouTube videos
+- [x] Karma system (earn/persist/display)
+- [x] Medical report OCR
+- [x] Razorpay subscriptions
+- [x] Release APK < 50MB, dashboard < 1s
 
 ---
 
@@ -58,7 +58,7 @@
 ---
 
 ## Phase 3: Workouts & Medical Records
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Deliver the workout discovery system with culturally-relevant YouTube videos, and the medical report OCR pipeline for health-record digitization.
 
 **Deliverables:**
@@ -78,7 +78,7 @@
 ---
 
 ## Phase 4: Subscriptions, Polish & Beta Launch
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Integrate Razorpay subscriptions, conduct performance optimization (< 50MB APK, < 1s dashboard), add PocketBase real-time notifications, finalize analytics, and deploy to Play Store beta.
 
 **Deliverables:**
@@ -98,7 +98,7 @@
 ---
 
 ## Phase 5: Health & Community (Post-MVP)
-**Status**: ⬜ Not Started
+**Status**: 🚧 In Progress
 **Objective**: Social features, GPS workout tracking, community challenges, and leaderboards. This is Phase 2 from the product roadmap.
 
 **Deliverables:**

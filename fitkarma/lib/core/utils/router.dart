@@ -9,6 +9,7 @@ import '../../presentation/screens/auth/phone_otp_screen.dart';
 import '../../presentation/screens/home/dashboard_tab.dart';
 import '../../presentation/screens/home/onboarding_screen.dart';
 import '../../presentation/screens/home/splash_screen.dart';
+import '../../presentation/screens/home/community_tab.dart';
 import '../../presentation/screens/food/food_logging_screen.dart';
 import '../../presentation/screens/workouts/workout_list_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
@@ -112,6 +113,15 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: '/workouts',
                 name: 'workouts',
                 builder: (context, state) => const WorkoutListScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/social',
+                name: 'social',
+                builder: (context, state) => const CommunityTab(),
               ),
             ],
           ),

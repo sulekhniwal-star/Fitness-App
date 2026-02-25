@@ -59,7 +59,7 @@ class FoodSearchDelegate extends SearchDelegate<void> {
       // Auto-search as they type isn't ideal for API rate limits unless debounced
       // For MVP we just show a hint to press enter, or we can trigger it
     }
-    return Center(
+    return const Center(
       child: Text('Type a food name and press search...'),
     );
   }

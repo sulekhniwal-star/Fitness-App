@@ -51,6 +51,12 @@ class BottomNavBar extends StatelessWidget {
               ),
               _buildNavItem(
                 index: 3,
+                icon: Icons.people_outline,
+                activeIcon: Icons.people,
+                label: 'Social',
+              ),
+              _buildNavItem(
+                index: 4,
                 icon: Icons.person_outline,
                 activeIcon: Icons.person,
                 label: 'Profile',
