@@ -5,10 +5,12 @@ class AppConstants {
   // App Info
   static const String appName = 'FitKarma';
   static const String appVersion = '1.0.0';
-  static const String appTagline = 'India\'s Most Affordable, Culturally-Rich Fitness App';
+  static const String appTagline =
+      'India\'s Most Affordable, Culturally-Rich Fitness App';
 
   // PocketBase Configuration
-  static const String pocketBaseUrl = 'https://api.fitkarma.in'; // TODO: Update with actual URL
+  static const String pocketBaseUrl =
+      'https://api.fitkarma.in'; // TODO: Update with actual URL
   static const Duration apiTimeout = Duration(seconds: 30);
 
   // Hive Box Names
@@ -21,6 +23,7 @@ class AppConstants {
   static const String foodCacheBox = 'foodCacheBox';
   static const String syncQueueBox = 'syncQueueBox';
   static const String settingsBox = 'settingsBox';
+  static const String medicalBox = 'medicalBox';
 
   // Sync Configuration
   static const int maxSyncRetries = 3;
@@ -46,7 +49,8 @@ class AppConstants {
   static const double familyPrice = 1299.0;
 
   // Food API
-  static const String openFoodFactsBaseUrl = 'https://world.openfoodfacts.org/api/v2';
+  static const String openFoodFactsBaseUrl =
+      'https://world.openfoodfacts.org/api/v2';
   static const int foodCacheSize = 500;
 
   // Animation Durations

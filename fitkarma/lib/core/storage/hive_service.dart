@@ -4,6 +4,7 @@ import '../../data/models/user_model.dart';
 import '../../data/models/food_log_model.dart';
 import '../../data/models/workout_model.dart';
 import '../../data/models/weight_log_model.dart';
+import '../../data/models/medical_record_model.dart';
 
 /// Service for managing local storage via Hive.
 class HiveService {
@@ -14,8 +15,10 @@ class HiveService {
   static late Box foodCacheBox;
   static late Box syncQueueBox;
   static late Box waterBox; // Added auxiliary box mentioned in constants
-  static late Box weightBox; // Added auxiliary box mentioned in constants
+  static late Box<WeightLogModel>
+      weightBox; // Added auxiliary box mentioned in constants
   static late Box settingsBox; // Added auxiliary box mentioned in constants
+  static late Box<MedicalRecordModel> medicalBox;
 
   /// Initializes required Hive boxes internally.
   static Future<void> initBoxes() async {
@@ -24,6 +27,7 @@ class HiveService {
     Hive.registerAdapter(FoodLogModelAdapter());
     Hive.registerAdapter(WorkoutModelAdapter());
     Hive.registerAdapter(WeightLogModelAdapter());
+    Hive.registerAdapter(MedicalRecordModelAdapter());
 
     // Open required core boxes for offline-first capabilities
     userBox = await Hive.openBox<UserModel>(AppConstants.userBox);
@@ -37,6 +41,8 @@ class HiveService {
     waterBox = await Hive.openBox(AppConstants.waterBox);
     weightBox = await Hive.openBox<WeightLogModel>(AppConstants.weightBox);
     settingsBox = await Hive.openBox(AppConstants.settingsBox);
+    medicalBox =
+        await Hive.openBox<MedicalRecordModel>(AppConstants.medicalBox);
   }
 
   /// Clears all stored data (useful for logout).
@@ -50,6 +56,7 @@ class HiveService {
     await waterBox.clear();
     await weightBox.clear();
     await settingsBox.clear();
+    await medicalBox.clear();
   }
 
   // Settings operations
