@@ -13,6 +13,8 @@ import '../../../core/storage/hive_service.dart';
 import '../profile/subscription_screen.dart';
 import '../../widgets/voice_assistant_sheet.dart';
 import '../../../core/utils/voice_service.dart';
+import '../../widgets/health_twin_card.dart';
+import '../../../domain/services/health_twin_service.dart';
 
 class DashboardTab extends ConsumerWidget {
   const DashboardTab({super.key});
@@ -23,6 +25,11 @@ class DashboardTab extends ConsumerWidget {
     final user = authState.user;
     final stepState = ref.watch(stepProvider);
     final l10n = AppLocalizations.of(context)!;
+
+    // Trigger AI analysis on build (HealthTwinService handles debounce/checks internally)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(healthTwinServiceProvider).performAnalysis();
+    });
 
     return Scaffold(
       body: SafeArea(
@@ -141,6 +148,7 @@ class DashboardTab extends ConsumerWidget {
                 ),
               // Festival Banner
               _buildFestivalBanner(context, ref),
+              const HealthTwinCard(),
               // Quick Actions
               _buildQuickActions(context, l10n),
               const SizedBox(height: 24),
