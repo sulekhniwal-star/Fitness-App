@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:barcode_scan2/barcode_scan2.dart';
 
 import '../../../core/theme/app_theme.dart';
+import 'food_search_delegate.dart';
+import '../../../data/providers/food_provider.dart';
 
 class FoodLoggingScreen extends ConsumerStatefulWidget {
   const FoodLoggingScreen({super.key});
@@ -12,7 +15,7 @@ class FoodLoggingScreen extends ConsumerStatefulWidget {
 
 class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
   String _selectedMealType = 'breakfast';
-  
+
   final List<Map<String, dynamic>> _mealTypes = [
     {'type': 'breakfast', 'label': 'Breakfast', 'icon': Icons.free_breakfast},
     {'type': 'lunch', 'label': 'Lunch', 'icon': Icons.lunch_dining},
@@ -106,7 +109,11 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
                 ),
               ),
               onTap: () {
-                // TODO: Navigate to search
+                showSearch(
+                  context: context,
+                  delegate:
+                      FoodSearchDelegate(ref: ref, mealType: _selectedMealType),
+                );
               },
             ),
           ),
@@ -149,12 +156,14 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
     );
   }
 
-  Widget _buildQuickAddItem(String name, int calories, double protein, double carbs, double fat) {
+  Widget _buildQuickAddItem(
+      String name, int calories, double protein, double carbs, double fat) {
     return Card(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         title: Text(name),
-        subtitle: Text('$calories cal | P: ${protein}g | C: ${carbs}g | F: ${fat}g'),
+        subtitle:
+            Text('$calories cal | P: ${protein}g | C: ${carbs}g | F: ${fat}g'),
         trailing: IconButton(
           icon: const Icon(Icons.add_circle_outline),
           color: AppTheme.primaryColor,
@@ -166,11 +175,32 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
     );
   }
 
-  void _scanBarcode() {
-    // TODO: Implement barcode scanning
+  Future<void> _scanBarcode() async {
+    try {
+      var result = await BarcodeScanner.scan();
+      if (result.type == ResultType.Barcode && result.rawContent.isNotEmpty) {
+        // Search by barcode using provider
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Scanning barcode: ${result.rawContent}')),
+        );
+        ref.read(foodSearchProvider.notifier).searchBarcode(result.rawContent);
+        // Show search delegate which listens to this automatically
+        showSearch(
+          context: context,
+          delegate: FoodSearchDelegate(ref: ref, mealType: _selectedMealType)
+            ..query = result.rawContent,
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to scan barcode.')),
+      );
+    }
   }
 
   void _scanOCR() {
-    // TODO: Implement OCR scanning
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('OCR Camera is mocked for MVP!')),
+    );
   }
 }
