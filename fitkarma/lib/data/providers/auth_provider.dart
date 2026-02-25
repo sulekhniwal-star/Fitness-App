@@ -156,6 +156,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
     await HiveService.deleteUser();
     state = const AuthState(status: AuthStatus.unauthenticated);
   }
+
+  void updateUser(UserModel updatedUser) {
+    HiveService.saveUser(updatedUser);
+    state = state.copyWith(user: updatedUser);
+  }
 }
 
 /// Auth state provider

@@ -2,13 +2,14 @@
 
 ## Current Position
 - **Phase**: 2 (Core Features)
-- **Status**: Completed - Wave 1: Food Repository, Phase 2 Plan 2.1
+- **Status**: Completed - Wave 1: Pedometer Engine, Phase 2 Plan 2.2
 - **Last Updated**: 2026-02-24
 
 ## Progress Summary
 
 ### Phase 2 Completed Tasks:
 ✅ [Plan 2.1] Implemented FoodRepository calling Open Food Facts API and caching to Hive. Exposed FoodProvider StateNotifier.
+✅ [Plan 2.2] Created StepProvider capturing `pedometer` stream safely mapping daily tracking logic into Hive, including Android permissions.
 
 ### Phase 1 Completed Tasks:
 ✅ [Plan 1.1] Flutter project formally scaffolded with correct `.android`/`.ios`/`.web` configs in `fitkarma` subdirectory
@@ -79,6 +80,7 @@
 - fitkarma/lib/core/sync/sync_service.dart
 - fitkarma/lib/data/repositories/food_repository.dart
 - fitkarma/lib/data/providers/food_provider.dart
+- fitkarma/lib/data/providers/step_provider.dart
 
 ## Deviations/Constraints
 - **GSD Executor Note**: Flutter command rejected root folder "Fitness App" due to dart package naming conventions. The Flutter root directory is officially designated as `fitkarma/`. Future plans running Flutter CLI tools must use `fitkarma/` as their working directory.
@@ -87,7 +89,7 @@
 Phase 1 executed successfully. 5 plans, 11 tasks completed perfectly.
 
 ## Next Steps
-1. Execute Plan 2.2 `2.2-step-tracking-engine.md`
+1. Execute Plan 2.3 `2.3-karma-engine.md`
 
 ## Known Issues (require flutter run / build runner)
 - None. `flutter analyze` passes perfectly.
