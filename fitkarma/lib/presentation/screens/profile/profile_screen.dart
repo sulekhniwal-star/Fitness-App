@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/providers/auth_provider.dart';
+import 'health_tab.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -35,7 +36,8 @@ class ProfileScreen extends ConsumerWidget {
               padding: const EdgeInsets.all(AppConstants.paddingLarge),
               decoration: BoxDecoration(
                 color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
+                borderRadius:
+                    BorderRadius.circular(AppConstants.cardBorderRadius),
                 boxShadow: [
                   BoxShadow(
                     color: Colors.black.withOpacity(0.05),
@@ -118,9 +120,13 @@ class ProfileScreen extends ConsumerWidget {
             ),
             _buildMenuItem(
               context,
-              icon: Icons.fitness_center,
-              title: 'My Goals',
-              onTap: () {},
+              icon: Icons.favorite_border,
+              title: 'My Health Metrics',
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (ctx) => const HealthTab()),
+                );
+              },
             ),
             _buildMenuItem(
               context,

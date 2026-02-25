@@ -3,6 +3,7 @@ import '../../core/constants/app_constants.dart';
 import '../../data/models/user_model.dart';
 import '../../data/models/food_log_model.dart';
 import '../../data/models/workout_model.dart';
+import '../../data/models/weight_log_model.dart';
 
 /// Service for managing local storage via Hive.
 class HiveService {
@@ -22,6 +23,7 @@ class HiveService {
     Hive.registerAdapter(UserModelAdapter());
     Hive.registerAdapter(FoodLogModelAdapter());
     Hive.registerAdapter(WorkoutModelAdapter());
+    Hive.registerAdapter(WeightLogModelAdapter());
 
     // Open required core boxes for offline-first capabilities
     userBox = await Hive.openBox<UserModel>(AppConstants.userBox);
@@ -33,7 +35,7 @@ class HiveService {
 
     // Auxiliary boxes
     waterBox = await Hive.openBox(AppConstants.waterBox);
-    weightBox = await Hive.openBox(AppConstants.weightBox);
+    weightBox = await Hive.openBox<WeightLogModel>(AppConstants.weightBox);
     settingsBox = await Hive.openBox(AppConstants.settingsBox);
   }
 
