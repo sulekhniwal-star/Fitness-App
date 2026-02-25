@@ -40,7 +40,7 @@
 ---
 
 ## Phase 2: Core Features — Food, Steps & Karma
-**Status**: ⬜ Not Started
+**Status**: ✅ Complete
 **Objective**: Implement the three flagship daily-use features: food logging, step tracking, and the karma reward engine. These are the core engagement loops that drive daily active use.
 
 **Deliverables:**

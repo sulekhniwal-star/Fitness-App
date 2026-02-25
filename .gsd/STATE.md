@@ -1,8 +1,8 @@
 # STATE.md
 
 ## Current Position
-- **Phase**: 2 (Core Features)
-- **Status**: Completed - Wave 2: Food Logging UI, Phase 2 Plan 2.4
+- **Phase**: 3 (Workouts & Medical Records)
+- **Status**: Planning Complete - Ready for Execution
 - **Last Updated**: 2026-02-24
 
 ## Progress Summary
@@ -12,6 +12,7 @@
 ✅ [Plan 2.2] Created StepProvider capturing `pedometer` stream safely mapping daily tracking logic into Hive, including Android permissions.
 ✅ [Plan 2.3] Setup KarmaNotifier mapped explicitly to auth state and sync provider for reliable currency rewards local-first updates.
 ✅ [Plan 2.4] Connected `barcode_scan2` scanning mapping directly into `FoodSearchDelegate` capturing meal logging securely giving UI visibility into `FoodLogs` offline.
+✅ [Plan 2.5] Bound `StepProvider` output and `KarmaNotifier` state securely into `DashboardTab` mapping progress directly to `HiveService` historical steps on native un-mocked visual interfaces.
 
 ### Phase 1 Completed Tasks:
 ✅ [Plan 1.1] Flutter project formally scaffolded with correct `.android`/`.ios`/`.web` configs in `fitkarma` subdirectory
@@ -90,10 +91,11 @@
 - **GSD Executor Note**: Flutter command rejected root folder "Fitness App" due to dart package naming conventions. The Flutter root directory is officially designated as `fitkarma/`. Future plans running Flutter CLI tools must use `fitkarma/` as their working directory.
 
 ## Last Session Summary
-Phase 1 executed successfully. 5 plans, 11 tasks completed perfectly.
+Phase 2 executed successfully. 5 plans, 7 tasks completed mapping pedometer streams, barcode scanners, open food facts APIs, and local caching.
 
 ## Next Steps
-1. Execute Plan 2.5 `2.5-dashboard-integration.md`
+1. Execute Plan 3.1 `3.1-workout-data.md`
+2. Run `/execute 3` when ready.
 
 ## Known Issues (require flutter run / build runner)
 - None. `flutter analyze` passes perfectly.

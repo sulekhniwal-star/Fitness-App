@@ -2,6 +2,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../../core/constants/app_constants.dart';
 import '../../data/models/user_model.dart';
 import '../../data/models/food_log_model.dart';
+import '../../data/models/workout_model.dart';
 
 /// Service for managing local storage via Hive.
 class HiveService {
@@ -20,6 +21,7 @@ class HiveService {
     // Register adapters
     Hive.registerAdapter(UserModelAdapter());
     Hive.registerAdapter(FoodLogModelAdapter());
+    Hive.registerAdapter(WorkoutModelAdapter());
 
     // Open required core boxes for offline-first capabilities
     userBox = await Hive.openBox<UserModel>(AppConstants.userBox);
