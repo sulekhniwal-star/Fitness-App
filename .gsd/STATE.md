@@ -1,13 +1,16 @@
 # STATE.md
 
 ## Current Position
-- **Phase**: 1 (Foundation & MVP Core) (completed)
-- **Status**: Verified - All tasks complete
+- **Phase**: 2 (Core Features)
+- **Status**: Completed - Wave 1: Food Repository, Phase 2 Plan 2.1
 - **Last Updated**: 2026-02-24
 
 ## Progress Summary
 
-### Completed Tasks:
+### Phase 2 Completed Tasks:
+✅ [Plan 2.1] Implemented FoodRepository calling Open Food Facts API and caching to Hive. Exposed FoodProvider StateNotifier.
+
+### Phase 1 Completed Tasks:
 ✅ [Plan 1.1] Flutter project formally scaffolded with correct `.android`/`.ios`/`.web` configs in `fitkarma` subdirectory
 ✅ [Plan 1.1] pubspec.yaml updated with all requested dependencies and resolved via `flutter pub get`
 ✅ [Plan 1.1] Clean architecture folder structure generated under `lib/features` and `lib/shared`
@@ -74,6 +77,8 @@
 - fitkarma/lib/presentation/widgets/bottom_nav_bar.dart
 - fitkarma/lib/shared/widgets/app_shell.dart
 - fitkarma/lib/core/sync/sync_service.dart
+- fitkarma/lib/data/repositories/food_repository.dart
+- fitkarma/lib/data/providers/food_provider.dart
 
 ## Deviations/Constraints
 - **GSD Executor Note**: Flutter command rejected root folder "Fitness App" due to dart package naming conventions. The Flutter root directory is officially designated as `fitkarma/`. Future plans running Flutter CLI tools must use `fitkarma/` as their working directory.
@@ -82,8 +87,7 @@
 Phase 1 executed successfully. 5 plans, 11 tasks completed perfectly.
 
 ## Next Steps
-1. Proceed to Phase 2 (Core Features).
-2. Recommend running `/plan 2` to generate plans for Phase 2.
+1. Execute Plan 2.2 `2.2-step-tracking-engine.md`
 
 ## Known Issues (require flutter run / build runner)
 - None. `flutter analyze` passes perfectly.
