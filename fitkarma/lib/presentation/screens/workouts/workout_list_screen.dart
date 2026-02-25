@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../data/models/workout_model.dart';
+import '../../../data/providers/workout_provider.dart';
+import 'workout_detail_screen.dart';
 
 class WorkoutListScreen extends ConsumerStatefulWidget {
   const WorkoutListScreen({super.key});
@@ -67,8 +70,9 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen>
   }
 
   Widget _buildWorkoutList(String categoryId) {
-    // Placeholder workouts data
-    final workouts = _getWorkoutsForCategory(categoryId);
+    // Utilize the WorkoutProvider directly instead of static mock strings
+    final workouts =
+        ref.watch(workoutRepositoryProvider).getWorkoutsByCategory(categoryId);
 
     return ListView.builder(
       padding: const EdgeInsets.all(AppConstants.paddingMedium),
@@ -80,126 +84,34 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen>
     );
   }
 
-  List<Map<String, dynamic>> _getWorkoutsForCategory(String categoryId) {
-    switch (categoryId) {
-      case 'yoga':
-        return [
-          {
-            'title': 'Morning Yoga Flow',
-            'duration': '20 min',
-            'calories': 120,
-            'level': 'Beginner',
-            'thumbnail': 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-            'videoId': 'dQw4w9WgXcQ',
-          },
-          {
-            'title': 'Power Yoga',
-            'duration': '30 min',
-            'calories': 200,
-            'level': 'Intermediate',
-            'thumbnail': 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-            'videoId': 'dQw4w9WgXcQ',
-          },
-          {
-            'title': 'Relaxation Yoga',
-            'duration': '15 min',
-            'calories': 80,
-            'level': 'Beginner',
-            'thumbnail': 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-            'videoId': 'dQw4w9WgXcQ',
-          },
-        ];
-      case 'bollywood':
-        return [
-          {
-            'title': 'Bollywood Cardio Burn',
-            'duration': '25 min',
-            'calories': 250,
-            'level': 'Intermediate',
-            'thumbnail': 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-            'videoId': 'dQw4w9WgXcQ',
-          },
-          {
-            'title': 'Dance Fitness',
-            'duration': '30 min',
-            'calories': 300,
-            'level': 'Beginner',
-            'thumbnail': 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-            'videoId': 'dQw4w9WgXcQ',
-          },
-        ];
-      case 'desi':
-        return [
-          {
-            'title': 'Desi Home Workout',
-            'duration': '20 min',
-            'calories': 180,
-            'level': 'Beginner',
-            'thumbnail': 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-            'videoId': 'dQw4w9WgXcQ',
-          },
-          {
-            'title': 'Cricket Fitness',
-            'duration': '15 min',
-            'calories': 150,
-            'level': 'Intermediate',
-            'thumbnail': 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-            'videoId': 'dQw4w9WgXcQ',
-          },
-        ];
-      case 'hiit':
-        return [
-          {
-            'title': 'Quick Fat Burn',
-            'duration': '15 min',
-            'calories': 200,
-            'level': 'Advanced',
-            'thumbnail': 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-            'videoId': 'dQw4w9WgXcQ',
-          },
-        ];
-      case 'sports':
-        return [
-          {
-            'title': 'Cricket Training',
-            'duration': '30 min',
-            'calories': 220,
-            'level': 'Intermediate',
-            'thumbnail': 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-            'videoId': 'dQw4w9WgXcQ',
-          },
-          {
-            'title': 'Football Warmup',
-            'duration': '15 min',
-            'calories': 120,
-            'level': 'Beginner',
-            'thumbnail': 'https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg',
-            'videoId': 'dQw4w9WgXcQ',
-          },
-        ];
-      default:
-        return [];
-    }
-  }
-
-  Widget _buildWorkoutCard(Map<String, dynamic> workout) {
+  Widget _buildWorkoutCard(WorkoutModel workout) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
-          // TODO: Navigate to video player
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (ctx) => WorkoutDetailScreen(workout: workout),
+          ));
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Thumbnail placeholder
+            // Thumbnail placeholder mapping
             Container(
               height: 180,
               width: double.infinity,
               color: Colors.grey.shade300,
               child: Stack(
+                fit: StackFit.expand,
                 children: [
+                  Image.network(
+                    workout.imageUrl,
+                    fit: BoxFit.cover,
+                    errorBuilder: (ctx, _, __) => const Center(
+                      child: Icon(Icons.broken_image, color: Colors.grey),
+                    ),
+                  ),
                   const Center(
                     child: Icon(
                       Icons.play_circle_fill,
@@ -220,7 +132,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen>
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        workout['duration'],
+                        '${workout.durationMins} min',
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 12,
@@ -237,7 +149,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    workout['title'],
+                    workout.title,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -248,13 +160,13 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen>
                     children: [
                       _buildInfoChip(
                         Icons.local_fire_department,
-                        '${workout['calories']} cal',
+                        '${(workout.estimatedCaloriesPerMin * workout.durationMins).toInt()} cal',
                         AppTheme.errorColor,
                       ),
                       const SizedBox(width: 12),
                       _buildInfoChip(
                         Icons.signal_cellular_alt,
-                        workout['level'],
+                        workout.category,
                         AppTheme.primaryColor,
                       ),
                     ],

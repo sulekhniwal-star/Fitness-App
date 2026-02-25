@@ -2,10 +2,13 @@
 
 ## Current Position
 - **Phase**: 3 (Workouts & Medical Records)
-- **Status**: Planning Complete - Ready for Execution
+- **Status**: Completed - Wave 1: Workout Data, Phase 3 Plan 3.1
 - **Last Updated**: 2026-02-24
 
 ## Progress Summary
+
+### Phase 3 Completed Tasks:
+✅ [Plan 3.1] Built `WorkoutModel`, parsed it safely onto Hive using `.g.dart`, created `WorkoutRepository` static sets, and exposed it over native Riverpod `workout_provider.dart`.
 
 ### Phase 2 Completed Tasks:
 ✅ [Plan 2.1] Implemented FoodRepository calling Open Food Facts API and caching to Hive. Exposed FoodProvider StateNotifier.
@@ -86,6 +89,9 @@
 - fitkarma/lib/data/providers/step_provider.dart
 - fitkarma/lib/data/providers/karma_provider.dart
 - fitkarma/lib/presentation/screens/food/food_search_delegate.dart
+- fitkarma/lib/data/models/workout_model.dart
+- fitkarma/lib/data/repositories/workout_repository.dart
+- fitkarma/lib/data/providers/workout_provider.dart
 
 ## Deviations/Constraints
 - **GSD Executor Note**: Flutter command rejected root folder "Fitness App" due to dart package naming conventions. The Flutter root directory is officially designated as `fitkarma/`. Future plans running Flutter CLI tools must use `fitkarma/` as their working directory.
@@ -94,8 +100,7 @@
 Phase 2 executed successfully. 5 plans, 7 tasks completed mapping pedometer streams, barcode scanners, open food facts APIs, and local caching.
 
 ## Next Steps
-1. Execute Plan 3.1 `3.1-workout-data.md`
-2. Run `/execute 3` when ready.
+1. Execute Plan 3.2 `3.2-workout-library-ui.md`
 
 ## Known Issues (require flutter run / build runner)
 - None. `flutter analyze` passes perfectly.
