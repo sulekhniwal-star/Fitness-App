@@ -7,6 +7,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/providers/step_provider.dart';
 import '../../../core/storage/hive_service.dart';
+import '../profile/subscription_screen.dart';
 
 class DashboardTab extends ConsumerWidget {
   const DashboardTab({super.key});
@@ -28,26 +29,42 @@ class DashboardTab extends ConsumerWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Hello, ${user?.name ?? 'User'}! 👋',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium
-                            ?.copyWith(
-                              fontWeight: FontWeight.bold,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Text(
+                                'Hello, ${user?.name ?? 'User'}! 👋',
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .headlineMedium
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                              ),
                             ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Let\'s stay fit today',
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                              color: AppTheme.textSecondary,
-                            ),
-                      ),
-                    ],
+                            if (user?.subscriptionTier != 'free')
+                              const Padding(
+                                padding: EdgeInsets.only(left: 8.0),
+                                child: Icon(Icons.verified,
+                                    color: AppTheme.primaryColor),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Let\'s stay fit today',
+                          style:
+                              Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                    color: AppTheme.textSecondary,
+                                  ),
+                        ),
+                      ],
+                    ),
                   ),
                   // Karma Points Badge
                   Container(
@@ -83,6 +100,39 @@ class DashboardTab extends ConsumerWidget {
               // Step Counter Card
               _buildStepCounterCard(context, stepState),
               const SizedBox(height: 16),
+              // Premium Ad for Free Users
+              if (user?.subscriptionTier == 'free')
+                Container(
+                  width: double.infinity,
+                  margin: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade100,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.shade300),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.info_outline, color: Colors.grey),
+                      const SizedBox(width: 12),
+                      const Expanded(
+                        child: Text(
+                          'Support FitKarma & remove ads. Upgrade to Premium today!',
+                          style: TextStyle(fontSize: 12, color: Colors.grey),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (ctx) => const SubscriptionScreen()),
+                          );
+                        },
+                        child: const Text('UPGRADE'),
+                      ),
+                    ],
+                  ),
+                ),
               // Quick Actions
               _buildQuickActions(context),
               const SizedBox(height: 24),

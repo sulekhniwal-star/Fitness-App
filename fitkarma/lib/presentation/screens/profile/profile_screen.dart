@@ -7,6 +7,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../data/providers/auth_provider.dart';
 import 'health_tab.dart';
 import 'medical_scanner_screen.dart';
+import 'subscription_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -115,6 +116,24 @@ class ProfileScreen extends ConsumerWidget {
             // Menu Items
             _buildMenuItem(
               context,
+              icon: user?.subscriptionTier != 'free'
+                  ? Icons.star
+                  : Icons.star_border,
+              title: user?.subscriptionTier != 'free'
+                  ? 'Manage Subscription'
+                  : 'Upgrade to Premium',
+              subtitle: user?.subscriptionTier != 'free'
+                  ? 'Status: ${user?.subscriptionTier.toUpperCase()}'
+                  : 'Unlock advanced features',
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (ctx) => const SubscriptionScreen()),
+                );
+              },
+            ),
+            _buildMenuItem(
+              context,
               icon: Icons.person_outline,
               title: 'Edit Profile',
               onTap: () {},
@@ -204,6 +223,7 @@ class ProfileScreen extends ConsumerWidget {
     BuildContext context, {
     required IconData icon,
     required String title,
+    String? subtitle,
     required VoidCallback onTap,
   }) {
     return Card(
@@ -211,6 +231,7 @@ class ProfileScreen extends ConsumerWidget {
       child: ListTile(
         leading: Icon(icon, color: AppTheme.primaryColor),
         title: Text(title),
+        subtitle: subtitle != null ? Text(subtitle) : null,
         trailing: const Icon(Icons.chevron_right),
         onTap: onTap,
       ),
