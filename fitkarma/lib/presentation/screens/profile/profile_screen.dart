@@ -51,7 +51,7 @@ class ProfileScreen extends ConsumerWidget {
                     radius: 50,
                     backgroundColor: AppTheme.primaryColor.withOpacity(0.1),
                     child: Text(
-                      user?.name?.substring(0, 1).toUpperCase() ?? 'U',
+                      user?.name.substring(0, 1).toUpperCase() ?? 'U',
                       style: const TextStyle(
                         fontSize: 36,
                         fontWeight: FontWeight.bold,

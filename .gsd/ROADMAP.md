@@ -79,13 +79,13 @@
 
 ## Phase 4: Subscriptions, Polish & Beta Launch
 **Status**: ⬜ Not Started
-**Objective**: Integrate Razorpay subscriptions, conduct performance optimization (< 50MB APK, < 1s dashboard), add Firebase FCM notifications, finalize analytics, and deploy to Play Store beta.
+**Objective**: Integrate Razorpay subscriptions, conduct performance optimization (< 50MB APK, < 1s dashboard), add PocketBase real-time notifications, finalize analytics, and deploy to Play Store beta.
 
 **Deliverables:**
 - Subscription screen (Free / Monthly / Quarterly / Yearly / Family)
 - Razorpay payment integration + webhook handling
 - Premium feature gates
-- Firebase FCM push notifications (workout reminders, step goal, karma milestones)
+- PocketBase real-time notifications (workout reminders, step goal, karma milestones)
 - Mixpanel + Crashlytics + Sentry configured
 - Performance audit: lazy loading, WebP images, split APK
 - App size validation (< 50MB)

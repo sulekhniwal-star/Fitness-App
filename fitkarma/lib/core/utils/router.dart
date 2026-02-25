@@ -6,12 +6,13 @@ import '../../data/providers/auth_provider.dart';
 import '../../presentation/screens/auth/login_screen.dart';
 import '../../presentation/screens/auth/register_screen.dart';
 import '../../presentation/screens/auth/phone_otp_screen.dart';
-import '../../presentation/screens/home/home_screen.dart';
+import '../../presentation/screens/home/dashboard_tab.dart';
 import '../../presentation/screens/home/onboarding_screen.dart';
 import '../../presentation/screens/home/splash_screen.dart';
 import '../../presentation/screens/food/food_logging_screen.dart';
 import '../../presentation/screens/workouts/workout_list_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
+import '../../shared/widgets/app_shell.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authStateProvider);
@@ -68,25 +69,48 @@ final routerProvider = Provider<GoRouter>((ref) {
           return PhoneOtpScreen(phoneNumber: phone);
         },
       ),
-      GoRoute(
-        path: '/home',
-        name: 'home',
-        builder: (context, state) => const HomeScreen(),
-      ),
-      GoRoute(
-        path: '/food',
-        name: 'food',
-        builder: (context, state) => const FoodLoggingScreen(),
-      ),
-      GoRoute(
-        path: '/workouts',
-        name: 'workouts',
-        builder: (context, state) => const WorkoutListScreen(),
-      ),
-      GoRoute(
-        path: '/profile',
-        name: 'profile',
-        builder: (context, state) => const ProfileScreen(),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return AppShell(navigationShell: navigationShell);
+        },
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/home',
+                name: 'home',
+                builder: (context, state) => const DashboardTab(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/food',
+                name: 'food',
+                builder: (context, state) => const FoodLoggingScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/workouts',
+                name: 'workouts',
+                builder: (context, state) => const WorkoutListScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/profile',
+                name: 'profile',
+                builder: (context, state) => const ProfileScreen(),
+              ),
+            ],
+          ),
+        ],
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

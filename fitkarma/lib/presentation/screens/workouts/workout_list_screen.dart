@@ -200,7 +200,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen>
               color: Colors.grey.shade300,
               child: Stack(
                 children: [
-                  Center(
+                  const Center(
                     child: Icon(
                       Icons.play_circle_fill,
                       size: 60,

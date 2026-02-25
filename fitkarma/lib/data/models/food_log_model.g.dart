@@ -31,7 +31,7 @@ class FoodLogModelAdapter extends TypeAdapter<FoodLogModel> {
       loggedVia: fields[11] as String,
       createdAt: fields[12] as DateTime,
       updatedAt: fields[13] as DateTime,
-      isSynced: fields[14] as bool? ?? false,
+      isSynced: fields[14] as bool,
     );
   }
 

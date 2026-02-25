@@ -61,7 +61,7 @@ Key traits: smartphone-first, price-sensitive, vernacular language preference, s
 | Maps | OpenStreetMap / flutter_map | Free |
 | Video | YouTube (youtube_player_flutter) | Free |
 | Payments | Razorpay | Subscriptions |
-| Notifications | Firebase FCM | Free tier |
+| Notifications | PocketBase | Real-time subscriptions |
 | Analytics | Mixpanel + Crashlytics + Sentry | Free tiers |
 
 ---

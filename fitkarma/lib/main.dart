@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
 import 'core/theme/app_theme.dart';
 import 'core/utils/router.dart';
-import 'data/providers/hive_provider.dart';
-import 'data/providers/pocketbase_provider.dart';
+import 'core/storage/hive_service.dart';
+import 'core/network/pocketbase_client.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -14,12 +16,22 @@ void main() async {
   await Hive.initFlutter();
 
   // Initialize Hive boxes
-  await HiveProvider.initializeBoxes();
+  await HiveService.initBoxes();
 
-  // Initialize PocketBase
-  await PocketBaseProvider.initialize();
+  // Read initial pocketbase auth config from secure storage
+  const secureStorage = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
+  final initialAuth = await secureStorage.read(key: 'pb_auth');
 
-  runApp(const ProviderScope(child: FitKarmaApp()));
+  runApp(
+    ProviderScope(
+      overrides: [
+        initialPbAuthProvider.overrideWithValue(initialAuth),
+      ],
+      child: const FitKarmaApp(),
+    ),
+  );
 }
 
 class FitKarmaApp extends ConsumerWidget {

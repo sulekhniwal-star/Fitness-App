@@ -65,7 +65,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               children: [
                 const SizedBox(height: 48),
                 // Logo
-                Icon(
+                const Icon(
                   Icons.fitness_center,
                   size: 80,
                   color: AppTheme.primaryColor,

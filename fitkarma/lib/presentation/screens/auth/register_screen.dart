@@ -209,12 +209,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         TextSpan(
                           text: 'I agree to the ',
                           style: Theme.of(context).textTheme.bodyMedium,
-                          children: [
+                          children: const [
                             TextSpan(
                               text: 'Terms of Service',
                               style: TextStyle(color: AppTheme.primaryColor),
                             ),
-                            const TextSpan(text: ' and '),
+                            TextSpan(text: ' and '),
                             TextSpan(
                               text: 'Privacy Policy',
                               style: TextStyle(color: AppTheme.primaryColor),

@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
-import '../../../data/providers/hive_provider.dart';
+import '../../../core/storage/hive_service.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -19,25 +19,29 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   final List<OnboardingPage> _pages = [
     OnboardingPage(
       title: 'Track Your Steps',
-      description: 'Monitor your daily walking activity with accurate step counting and earn karma points for reaching your goals.',
+      description:
+          'Monitor your daily walking activity with accurate step counting and earn karma points for reaching your goals.',
       icon: Icons.directions_walk,
       color: AppTheme.primaryColor,
     ),
     OnboardingPage(
       title: 'Log Your Meals',
-      description: 'Track what you eat with barcode scanning, photo OCR, or voice input. Get personalized nutrition insights.',
+      description:
+          'Track what you eat with barcode scanning, photo OCR, or voice input. Get personalized nutrition insights.',
       icon: Icons.restaurant_menu,
       color: AppTheme.secondaryColor,
     ),
     OnboardingPage(
       title: 'Culturally-Rich Workouts',
-      description: 'Access yoga, Bollywood dance, and desi workouts from YouTube. All designed for Indian fitness enthusiasts.',
+      description:
+          'Access yoga, Bollywood dance, and desi workouts from YouTube. All designed for Indian fitness enthusiasts.',
       icon: Icons.fitness_center,
       color: AppTheme.accentColor,
     ),
     OnboardingPage(
       title: 'Earn Karma Points',
-      description: 'Stay consistent and earn karma points. Redeem them for premium features and achieve your fitness goals.',
+      description:
+          'Stay consistent and earn karma points. Redeem them for premium features and achieve your fitness goals.',
       icon: Icons.stars,
       color: AppTheme.saffronColor,
     ),
@@ -55,7 +59,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _completeOnboarding() {
-    HiveProvider.saveSetting('onboarding_completed', true);
+    HiveService.saveSetting('onboarding_completed', true);
     context.go('/login');
   }
 
@@ -118,9 +122,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 child: ElevatedButton(
                   onPressed: _nextPage,
                   child: Text(
-                    _currentPage == _pages.length - 1
-                        ? 'Get Started'
-                        : 'Next',
+                    _currentPage == _pages.length - 1 ? 'Get Started' : 'Next',
                   ),
                 ),
               ),

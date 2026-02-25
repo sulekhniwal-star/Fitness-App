@@ -63,7 +63,7 @@ class AppTheme {
           fontWeight: FontWeight.w600,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
@@ -80,7 +80,8 @@ class AppTheme {
             vertical: AppConstants.paddingMedium,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
+            borderRadius:
+                BorderRadius.circular(AppConstants.buttonBorderRadius),
           ),
           textStyle: const TextStyle(
             fontSize: 16,
@@ -97,7 +98,8 @@ class AppTheme {
             vertical: AppConstants.paddingMedium,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
+            borderRadius:
+                BorderRadius.circular(AppConstants.buttonBorderRadius),
           ),
         ),
       ),
@@ -232,7 +234,7 @@ class AppTheme {
           fontWeight: FontWeight.w600,
         ),
       ),
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
@@ -249,7 +251,8 @@ class AppTheme {
             vertical: AppConstants.paddingMedium,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppConstants.buttonBorderRadius),
+            borderRadius:
+                BorderRadius.circular(AppConstants.buttonBorderRadius),
           ),
         ),
       ),

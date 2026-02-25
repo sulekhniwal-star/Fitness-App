@@ -2,14 +2,16 @@
 
 ## Current Position
 - **Phase**: 1 (Foundation & MVP Core)
-- **Status**: In Progress - Wave 1: Project Setup & Core Infrastructure
+- **Status**: Completed - Wave 1: Project Setup & Core Infrastructure, Phase 1 Plan 1.2
 - **Last Updated**: 2026-02-24
 
 ## Progress Summary
 
 ### Completed Tasks:
-✅ Flutter project scaffolded with clean architecture folder structure
-✅ pubspec.yaml configured with dependencies (Riverpod, Hive, PocketBase, go_router, etc.)
+✅ [Plan 1.1] Flutter project formally scaffolded with correct `.android`/`.ios`/`.web` configs in `fitkarma` subdirectory
+✅ [Plan 1.1] pubspec.yaml updated with all requested dependencies and resolved via `flutter pub get`
+✅ [Plan 1.1] Clean architecture folder structure generated under `lib/features` and `lib/shared`
+✅ Legacy mock files migrated into `fitkarma` prefix
 ✅ App constants defined (colors, strings, box names)
 ✅ App theme configured (Indian-inspired colors - Saffron, Green, etc.)
 ✅ User model with Hive annotations
@@ -31,7 +33,17 @@
 ✅ Workout list screen (categories: Yoga, Bollywood, Desi, HIIT, Sports)
 ✅ Profile screen with menu items
 
+✅ Prepare PocketBase config (`backend/pb_schema.json` for all core entities)
+✅ Created backend folder and PocketBase setup instructions
+✅ [Plan 1.2] Initialize Hive in `main.dart` and `hive_service.dart` with all required boxes.
+✅ [Plan 1.2] Setup PocketBase Client via `pocketbase_client.dart` with secure storage persistence.
+✅ Addressed all known UI/legacy code issues within `lib/presentation`.
+✅ Executed `build_runner` to clean and regenerate `.g.dart` files.
+✅ Validated codebase with `flutter analyze` perfectly.
+
 ### Files Created:
+- backend/README.md
+- backend/pb_schema.json
 - fitkarma/pubspec.yaml
 - fitkarma/lib/main.dart
 - fitkarma/lib/core/constants/app_constants.dart
@@ -42,7 +54,7 @@
 - fitkarma/lib/data/models/food_log_model.dart
 - fitkarma/lib/data/models/food_log_model.g.dart
 - fitkarma/lib/data/providers/hive_provider.dart
-- fitkarma/lib/data/providers/pocketbase_provider.dart
+- fitkarma/lib/data/providers/pocketbase_client.dart
 - fitkarma/lib/data/providers/auth_provider.dart
 - fitkarma/lib/presentation/screens/home/splash_screen.dart
 - fitkarma/lib/presentation/screens/home/onboarding_screen.dart
@@ -56,18 +68,11 @@
 - fitkarma/lib/presentation/screens/profile/profile_screen.dart
 - fitkarma/lib/presentation/widgets/bottom_nav_bar.dart
 
+## Deviations/Constraints
+- **GSD Executor Note**: Flutter command rejected root folder "Fitness App" due to dart package naming conventions. The Flutter root directory is officially designated as `fitkarma/`. Future plans running Flutter CLI tools must use `fitkarma/` as their working directory.
+
 ## Next Steps
-1. Install Flutter SDK (currently not available in environment)
-2. Run `flutter pub get` to install dependencies
-3. Build and test the project
-4. Deploy PocketBase backend to VPS
-5. Test authentication flow
-6. Implement offline-first sync engine
+1. Execute Plan `1.3-routing-and-shell.md` (Check routing/shell configuration)
 
-## Known Issues (require Flutter SDK)
-- Some type mismatches in PocketBase API calls (will resolve with actual SDK)
-- CardTheme vs CardThemeData (Flutter API change)
-- Missing screen imports in some files
-
-## Blocker
-- Flutter SDK not installed - cannot run `flutter pub get` or build
+## Known Issues (require flutter run / build runner)
+- None. `flutter analyze` passes perfectly.

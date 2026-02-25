@@ -2,8 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
 
 import '../models/user_model.dart';
-import 'pocketbase_provider.dart';
-import 'hive_provider.dart';
+import '../../core/network/pocketbase_client.dart';
+import '../../core/storage/hive_service.dart';
 
 /// Auth state
 enum AuthStatus { initial, authenticated, unauthenticated, loading }
@@ -42,28 +42,29 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> _checkAuth() async {
     state = state.copyWith(status: AuthStatus.loading);
-    
+
     try {
       // Check Hive for cached user
-      final cachedUser = HiveProvider.getCurrentUser();
-      if (cachedUser != null && PocketBaseProvider.isAuthenticated) {
+      final cachedUser = HiveService.getCurrentUser();
+      final pb = _ref.read(pocketBaseProvider);
+
+      if (cachedUser != null && pb.authStore.isValid) {
         state = AuthState(
           status: AuthStatus.authenticated,
           user: cachedUser,
         );
         return;
       }
-      
+
       // Check PocketBase auth
-      if (PocketBaseProvider.isAuthenticated) {
-        final pb = PocketBaseProvider.instance;
-        final userId = PocketBaseProvider.currentUserId;
-        
-        if (userId != null) {
+      if (pb.authStore.isValid) {
+        final userId = pb.authStore.model?.id;
+
+        if (userId != null && userId.isNotEmpty) {
           final record = await pb.collection('users').getOne(userId);
           final user = UserModel.fromJson(record.toJson());
-          await HiveProvider.saveUser(user);
-          
+          await HiveService.saveUser(user);
+
           state = AuthState(
             status: AuthStatus.authenticated,
             user: user,
@@ -71,7 +72,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
           return;
         }
       }
-      
+
       state = const AuthState(status: AuthStatus.unauthenticated);
     } catch (e) {
       state = AuthState(
@@ -83,18 +84,17 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
   Future<void> signInWithEmail(String email, String password) async {
     state = state.copyWith(status: AuthStatus.loading, error: null);
-    
+
     try {
-      final pb = PocketBaseProvider.instance;
+      final pb = _ref.read(pocketBaseProvider);
       final authData = await pb.collection('users').authWithPassword(
-        email,
-        password,
-      );
-      
+            email,
+            password,
+          );
+
       final user = UserModel.fromJson(authData.record.toJson());
-      await HiveProvider.saveUser(user);
-      await PocketBaseProvider.saveAuth(authData.token, user.id);
-      
+      await HiveService.saveUser(user);
+
       state = AuthState(
         status: AuthStatus.authenticated,
         user: user,
@@ -112,20 +112,21 @@ class AuthNotifier extends StateNotifier<AuthState> {
     }
   }
 
-  Future<void> signUpWithEmail(String email, String password, String name) async {
+  Future<void> signUpWithEmail(
+      String email, String password, String name) async {
     state = state.copyWith(status: AuthStatus.loading, error: null);
-    
+
     try {
-      final pb = PocketBaseProvider.instance;
-      
+      final pb = _ref.read(pocketBaseProvider);
+
       // Create user
-      await pb.collection('users').create({
+      await pb.collection('users').create(body: {
         'email': email,
         'password': password,
         'passwordConfirm': password,
         'name': name,
       });
-      
+
       // Auto-login after registration
       await signInWithEmail(email, password);
     } on ClientException catch (e) {
@@ -151,8 +152,8 @@ class AuthNotifier extends StateNotifier<AuthState> {
   }
 
   Future<void> signOut() async {
-    await PocketBaseProvider.clearAuth();
-    await HiveProvider.deleteUser();
+    _ref.read(pocketBaseProvider).authStore.clear();
+    await HiveService.deleteUser();
     state = const AuthState(status: AuthStatus.unauthenticated);
   }
 }

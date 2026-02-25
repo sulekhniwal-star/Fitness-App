@@ -5,7 +5,6 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/providers/auth_provider.dart';
-import '../../../data/providers/hive_provider.dart';
 
 class DashboardTab extends ConsumerWidget {
   const DashboardTab({super.key});
@@ -31,7 +30,10 @@ class DashboardTab extends ConsumerWidget {
                     children: [
                       Text(
                         'Hello, ${user?.name ?? 'User'}! 👋',
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineMedium
+                            ?.copyWith(
                               fontWeight: FontWeight.bold,
                             ),
                       ),
@@ -96,13 +98,13 @@ class DashboardTab extends ConsumerWidget {
   }
 
   Widget _buildStepCounterCard(BuildContext context) {
-    final todaySteps = 4500; // Placeholder - will connect to step provider
-    final goal = AppConstants.defaultStepGoal;
+    const todaySteps = 4500; // Placeholder - will connect to step provider
+    const goal = AppConstants.defaultStepGoal;
     final progress = (todaySteps / goal).clamp(0.0, 1.0);
-    
+
     // Cricket overs conversion (1 over = 6 steps)
     final overs = (todaySteps / 6).floor();
-    final balls = todaySteps % 6;
+    const balls = todaySteps % 6;
 
     return Container(
       padding: const EdgeInsets.all(AppConstants.paddingLarge),
@@ -186,9 +188,9 @@ class DashboardTab extends ConsumerWidget {
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
+                    const Text(
                       '$todaySteps',
-                      style: const TextStyle(
+                      style: TextStyle(
                         color: Colors.white,
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
