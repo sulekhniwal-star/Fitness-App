@@ -8,6 +8,7 @@ import 'core/theme/app_theme.dart';
 import 'core/utils/router.dart';
 import 'core/storage/hive_service.dart';
 import 'core/network/pocketbase_client.dart';
+import 'core/sync/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,6 +41,8 @@ class FitKarmaApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
+    // Initialize notification service
+    ref.watch(notificationServiceProvider);
 
     return MaterialApp.router(
       title: 'FitKarma',
