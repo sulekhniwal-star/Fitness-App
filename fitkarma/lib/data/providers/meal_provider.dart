@@ -3,6 +3,7 @@ import '../models/meal_recommendation_model.dart';
 import '../models/dosha_model.dart';
 import '../repositories/meal_repository.dart';
 import 'auth_provider.dart';
+import 'festival_provider.dart';
 
 class MealState {
   final DailyMealPlan? currentPlan;
@@ -53,6 +54,10 @@ class MealNotifier extends StateNotifier<MealState> {
         target =
             (10 * user.weightKg!) + (6.25 * user.heightCm!) - (5 * 25) + 500;
       }
+
+      // Apply Festival Fasting Mode Modifiers
+      target =
+          _ref.read(festivalProvider.notifier).getAdjustedCalorieGoal(target);
 
       final plan = MealRepository.generatePlan(
         dosha: userDosha,
