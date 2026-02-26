@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/post_model.dart';
 import '../../core/network/pocketbase_client.dart';
 import '../../core/storage/hive_service.dart';
+import '../providers/karma_provider.dart';
 
 class CommunityState {
   final List<PostModel> posts;
@@ -84,6 +85,9 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
 
       // Refresh feed
       await fetchPosts();
+
+      // Award Karma for engagement
+      _ref.read(karmaProvider.notifier).earnKarma(15, 'Created a Post');
     } catch (e) {
       state = state.copyWith(error: 'Failed to create post: $e');
     }
@@ -102,6 +106,9 @@ class CommunityNotifier extends StateNotifier<CommunityState> {
         likes.remove(userId);
       } else {
         likes.add(userId);
+        _ref
+            .read(karmaProvider.notifier)
+            .earnKarma(2, 'Engaged with Community');
       }
 
       await pb.collection('posts').update(postId, body: {'likes': likes});
