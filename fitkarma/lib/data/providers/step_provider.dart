@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pedometer/pedometer.dart';
 import '../../core/storage/hive_service.dart';
+import 'karma_provider.dart';
 
 class StepState {
   final int steps;
@@ -35,10 +36,11 @@ class StepState {
 }
 
 class StepNotifier extends StateNotifier<StepState> {
+  final Ref _ref;
   StreamSubscription<StepCount>? _stepSubscription;
   StreamSubscription<PedestrianStatus>? _statusSubscription;
 
-  StepNotifier() : super(StepState()) {
+  StepNotifier(this._ref) : super(StepState()) {
     _initPedometer();
   }
 
@@ -101,7 +103,16 @@ class StepNotifier extends StateNotifier<StepState> {
     }
 
     int todaySteps = box.get('today_steps', defaultValue: 0) as int;
+    int previousMilestones = (todaySteps ~/ 1000);
+
     todaySteps += diff;
+
+    int newMilestones = (todaySteps ~/ 1000);
+    if (newMilestones > previousMilestones) {
+      try {
+        importKarmaAndAward(newMilestones - previousMilestones);
+      } catch (_) {}
+    }
 
     box.put('today_steps', todaySteps);
     box.put('last_pedometer_value', newValue);
@@ -110,6 +121,15 @@ class StepNotifier extends StateNotifier<StepState> {
     box.put('history_$todayStr', todaySteps);
 
     state = state.copyWith(steps: todaySteps);
+  }
+
+  void importKarmaAndAward(int milestonesCrossed) {
+    if (milestonesCrossed <= 0) return;
+    try {
+      final karmaPoints = milestonesCrossed * 5; // 5 Karma per 1,000 steps
+      _ref.read(karmaProvider.notifier).earnKarma(
+          karmaPoints, 'Milestone: Reached ${milestonesCrossed * 1000} steps');
+    } catch (_) {}
   }
 
   void _onPedestrianStatusChanged(PedestrianStatus event) {
@@ -133,5 +153,5 @@ class StepNotifier extends StateNotifier<StepState> {
 }
 
 final stepProvider = StateNotifierProvider<StepNotifier, StepState>((ref) {
-  return StepNotifier();
+  return StepNotifier(ref);
 });

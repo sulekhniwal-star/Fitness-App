@@ -43,7 +43,7 @@ class KarmaNotifier extends StateNotifier<int> {
       collection: 'users',
       operation: 'update',
       recordId: updatedUser.id,
-      data: {'karma_points': newKarma},
+      data: {'karma_points+': amount},
     );
   }
 
@@ -68,7 +68,7 @@ class KarmaNotifier extends StateNotifier<int> {
       collection: 'users',
       operation: 'update',
       recordId: updatedUser.id,
-      data: {'karma_points': newKarma},
+      data: {'karma_points-': amount},
     );
 
     return true;
