@@ -49,10 +49,30 @@ class MealNotifier extends StateNotifier<MealState> {
       // Determine Target Calories (Rough estimate for MVP)
       double target = 2000.0;
       if (user.weightKg != null && user.heightCm != null) {
-        // Simple BMR approx: (10 * weight) + (6.25 * height) - (5 * age)
-        // Using average age 25 for now
-        target =
-            (10 * user.weightKg!) + (6.25 * user.heightCm!) - (5 * 25) + 500;
+        // Calculate precise age if available
+        int age = 25;
+        if (user.dob != null) {
+          age = DateTime.now().year - user.dob!.year;
+          if (DateTime.now().month < user.dob!.month ||
+              (DateTime.now().month == user.dob!.month &&
+                  DateTime.now().day < user.dob!.day)) {
+            age--;
+          }
+        }
+
+        // BMR Calculation via Mifflin-St Jeor
+        double bmr =
+            (10 * user.weightKg!) + (6.25 * user.heightCm!) - (5 * age);
+
+        // Gender modifier
+        if (user.gender == 'female') {
+          bmr -= 161;
+        } else {
+          bmr += 5; // Male or unset defaults to +5
+        }
+
+        // Apply Sedentary TDEE multiplier roughly as MVP baseline
+        target = bmr * 1.2;
       }
 
       // Apply Festival Fasting Mode Modifiers
