@@ -7,6 +7,7 @@ import '../../../data/providers/challenge_provider.dart';
 import '../../../data/models/post_model.dart';
 import '../../../data/models/challenge_model.dart';
 import '../../../core/network/pocketbase_client.dart';
+import 'package:go_router/go_router.dart';
 
 class CommunityTab extends ConsumerWidget {
   const CommunityTab({super.key});
@@ -20,6 +21,12 @@ class CommunityTab extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Community'),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.group_work_outlined,
+                color: AppTheme.primaryColor),
+            onPressed: () => context.push('/home/team-challenge'),
+            tooltip: 'Team Challenges',
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {

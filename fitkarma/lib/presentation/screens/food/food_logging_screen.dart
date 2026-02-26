@@ -8,6 +8,7 @@ import 'food_search_delegate.dart';
 import '../../../data/providers/food_provider.dart';
 import '../../widgets/voice_assistant_sheet.dart';
 import '../../../core/utils/voice_service.dart';
+import 'food_scanner_screen.dart';
 
 class FoodLoggingScreen extends ConsumerStatefulWidget {
   const FoodLoggingScreen({super.key});
@@ -46,6 +47,12 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
             icon: const Icon(Icons.mic, color: AppTheme.primaryColor),
             onPressed: () => _showVoiceAssistant(context),
             tooltip: 'Voice Logging',
+          ),
+          IconButton(
+            icon: const Icon(Icons.remove_red_eye_outlined,
+                color: AppTheme.accentColor),
+            onPressed: () => _scanVisual(context),
+            tooltip: 'Visual Food Scan',
           ),
           IconButton(
             icon: const Icon(Icons.camera_alt),
@@ -233,5 +240,21 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('OCR Camera is mocked for MVP!')),
     );
+  }
+
+  Future<void> _scanVisual(BuildContext context) async {
+    final result = await Navigator.push<String>(
+      context,
+      MaterialPageRoute(builder: (context) => const FoodScannerScreen()),
+    );
+
+    if (result != null && mounted) {
+      // Trigger search with recognized label
+      showSearch(
+        context: context,
+        delegate: FoodSearchDelegate(ref: ref, mealType: _selectedMealType),
+        query: result,
+      );
+    }
   }
 }

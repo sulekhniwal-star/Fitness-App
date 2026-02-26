@@ -9,6 +9,7 @@ import '../../data/models/post_model.dart';
 import '../../data/models/challenge_model.dart';
 import '../../data/models/tracking_point.dart';
 import '../../data/models/health_insight_model.dart';
+import '../../data/models/team_model.dart';
 
 /// Service for managing local storage via Hive.
 class HiveService {
@@ -26,6 +27,7 @@ class HiveService {
   static late Box<PostModel> postsBox;
   static late Box<ChallengeModel> challengesBox;
   static late Box<HealthInsight> insightsBox;
+  static late Box<TeamModel> teamsBox;
 
   /// Initializes required Hive boxes internally.
   static Future<void> initBoxes() async {
@@ -41,6 +43,7 @@ class HiveService {
     Hive.registerAdapter(InsightTypeAdapter());
     Hive.registerAdapter(InsightCategoryAdapter());
     Hive.registerAdapter(HealthInsightAdapter());
+    Hive.registerAdapter(TeamModelAdapter());
 
     // Open required core boxes for offline-first capabilities
     userBox = await Hive.openBox<UserModel>(AppConstants.userBox);
@@ -57,8 +60,10 @@ class HiveService {
     medicalBox =
         await Hive.openBox<MedicalRecordModel>(AppConstants.medicalBox);
     postsBox = await Hive.openBox<PostModel>('postsBox');
-    challengesBox = await Hive.openBox<ChallengeModel>('challengesBox');
+    challengesBox =
+        await Hive.openBox<ChallengeModel>(AppConstants.challengesBox);
     insightsBox = await Hive.openBox<HealthInsight>(AppConstants.insightsBox);
+    teamsBox = await Hive.openBox<TeamModel>(AppConstants.teamsBox);
   }
 
   /// Clears all stored data (useful for logout).
@@ -76,6 +81,7 @@ class HiveService {
     await postsBox.clear();
     await challengesBox.clear();
     await insightsBox.clear();
+    await teamsBox.clear();
   }
 
   // Settings operations

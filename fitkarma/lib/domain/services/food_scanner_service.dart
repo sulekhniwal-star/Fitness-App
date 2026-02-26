@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tflite_v2/tflite_v2.dart';
 
 class Recognition {
@@ -70,3 +71,7 @@ class FoodScannerService {
     await Tflite.close();
   }
 }
+
+final foodScannerServiceProvider = Provider<FoodScannerService>((ref) {
+  return FoodScannerService();
+});

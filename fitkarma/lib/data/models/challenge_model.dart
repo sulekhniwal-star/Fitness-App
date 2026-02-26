@@ -34,6 +34,9 @@ class ChallengeModel extends HiveObject {
   @HiveField(9)
   final String? imageUrl;
 
+  @HiveField(10)
+  final bool isTeamChallenge;
+
   ChallengeModel({
     required this.id,
     required this.title,
@@ -45,6 +48,7 @@ class ChallengeModel extends HiveObject {
     required this.endDate,
     this.participants = const [],
     this.imageUrl,
+    this.isTeamChallenge = false,
   });
 
   factory ChallengeModel.fromJson(Map<String, dynamic> json) {
@@ -59,6 +63,7 @@ class ChallengeModel extends HiveObject {
       endDate: DateTime.parse(json['end_date'] as String),
       participants: List<String>.from(json['participants'] ?? []),
       imageUrl: json['image'] as String?,
+      isTeamChallenge: json['is_team_challenge'] as bool? ?? false,
     );
   }
 
@@ -74,6 +79,7 @@ class ChallengeModel extends HiveObject {
       'end_date': endDate.toIso8601String(),
       'participants': participants,
       'image': imageUrl,
+      'is_team_challenge': isTeamChallenge,
     };
   }
 
@@ -90,7 +96,8 @@ class ChallengeModel extends HiveObject {
       startDate: startDate,
       endDate: endDate,
       participants: participants ?? this.participants,
-      imageUrl: imageUrl,
+      imageUrl: imageUrl ?? this.imageUrl,
+      isTeamChallenge: this.isTeamChallenge,
     );
   }
 

@@ -27,13 +27,14 @@ class ChallengeModelAdapter extends TypeAdapter<ChallengeModel> {
       endDate: fields[7] as DateTime,
       participants: (fields[8] as List).cast<String>(),
       imageUrl: fields[9] as String?,
+      isTeamChallenge: fields[10] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, ChallengeModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(11)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -53,7 +54,9 @@ class ChallengeModelAdapter extends TypeAdapter<ChallengeModel> {
       ..writeByte(8)
       ..write(obj.participants)
       ..writeByte(9)
-      ..write(obj.imageUrl);
+      ..write(obj.imageUrl)
+      ..writeByte(10)
+      ..write(obj.isTeamChallenge);
   }
 
   @override

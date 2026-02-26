@@ -10,6 +10,7 @@ import '../../../data/providers/locale_provider.dart';
 import 'health_tab.dart';
 import 'medical_scanner_screen.dart';
 import 'subscription_screen.dart';
+import 'karma_marketplace_screen.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -143,6 +144,18 @@ class ProfileScreen extends ConsumerWidget {
               icon: Icons.person_outline,
               title: 'Edit Profile',
               onTap: () {},
+            ),
+            _buildMenuItem(
+              context,
+              icon: Icons.storefront_outlined,
+              title: 'Karma Marketplace',
+              subtitle: 'Redeem points for rewards',
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                      builder: (ctx) => const KarmaMarketplaceScreen()),
+                );
+              },
             ),
             _buildMenuItem(
               context,

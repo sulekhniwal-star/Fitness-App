@@ -14,6 +14,9 @@
 ✅ [Plan 7.1] Built `HealthInsightModel` with Hive adapters and `InsightProvider` for managing offline health patterns.
 ✅ [Plan 7.2] Implemented `HealthTwinService` behavioral analysis logic and `HealthTwinCard` dashboard integration.
 ✅ [Plan 7.3] Configured `tflite_v2` environment and developed `FoodScannerService` for on-device visual food recognition.
+✅ [Plan 7.4] Built `FoodScannerScreen` UI with camera preview, custom overlays, and integrated it into the meal logging flow.
+✅ [Plan 7.5] Implemented `KarmaMarketplaceScreen` and `redeemKarma` logic to complete the gamification loop.
+✅ [Plan 7.6] Developed `TeamModel`, `TeamNotifier`, and `TeamChallengeScreen` for social health competition.
 
 ### Phase 6 Completed Tasks:
 ✅ [Plan 6.1] Built `DoshaQuizScreen` with 15-question diagnostic repository mapping results to `DoshaResult` models.

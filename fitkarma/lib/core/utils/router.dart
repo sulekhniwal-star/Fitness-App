@@ -12,6 +12,7 @@ import '../../presentation/screens/home/splash_screen.dart';
 import '../../presentation/screens/home/community_tab.dart';
 import '../../presentation/screens/home/activity_tracking_screen.dart';
 import '../../presentation/screens/home/festival_calendar_screen.dart';
+import '../../presentation/screens/home/team_challenge_screen.dart';
 import '../../presentation/screens/food/meal_planner_screen.dart';
 import '../../presentation/screens/food/food_logging_screen.dart';
 import '../../presentation/screens/workouts/workout_list_screen.dart';
@@ -110,6 +111,11 @@ final routerProvider = Provider<GoRouter>((ref) {
                     path: 'festival-calendar',
                     name: 'festival-calendar',
                     builder: (context, state) => const FestivalCalendarScreen(),
+                  ),
+                  GoRoute(
+                    path: 'team-challenge',
+                    name: 'team-challenge',
+                    builder: (context, state) => const TeamChallengeScreen(),
                   ),
                 ],
               ),

@@ -46,6 +46,33 @@ class KarmaNotifier extends StateNotifier<int> {
       data: {'karma_points': newKarma},
     );
   }
+
+  bool redeemKarma(int amount) {
+    if (amount <= 0 || state < amount) return false;
+
+    final authState = _ref.read(authStateProvider);
+    final currentUser = authState.user;
+    if (currentUser == null) return false;
+
+    final newKarma = currentUser.karmaPoints - amount;
+
+    // Update local state and auth model
+    state = newKarma;
+    final updatedUser = currentUser.copyWith(karmaPoints: newKarma);
+
+    // Update AuthNotifier to save to Hive & notify overarching UI
+    _ref.read(authStateProvider.notifier).updateUser(updatedUser);
+
+    // Queue update operation to SyncService
+    _ref.read(syncServiceProvider).enqueueAction(
+      collection: 'users',
+      operation: 'update',
+      recordId: updatedUser.id,
+      data: {'karma_points': newKarma},
+    );
+
+    return true;
+  }
 }
 
 final karmaProvider = StateNotifierProvider<KarmaNotifier, int>((ref) {

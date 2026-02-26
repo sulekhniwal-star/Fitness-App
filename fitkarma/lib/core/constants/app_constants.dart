@@ -25,6 +25,8 @@ class AppConstants {
   static const String settingsBox = 'settingsBox';
   static const String medicalBox = 'medicalBox';
   static const String insightsBox = 'insightsBox';
+  static const String teamsBox = 'teamsBox';
+  static const String challengesBox = 'challengesBox';
 
   // Sync Configuration
   static const int maxSyncRetries = 3;
