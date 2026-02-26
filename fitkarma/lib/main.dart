@@ -35,7 +35,7 @@ void main() async {
 
       // Read initial pocketbase auth config from secure storage
       const secureStorage = FlutterSecureStorage(
-        aOptions: AndroidOptions(encryptedSharedPreferences: true),
+        aOptions: AndroidOptions(),
       );
       final initialAuth = await secureStorage.read(key: 'pb_auth');
 

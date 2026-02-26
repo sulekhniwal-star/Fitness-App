@@ -11,7 +11,7 @@ final initialPbAuthProvider = Provider<String?>((ref) => null);
 final pocketBaseProvider = Provider<PocketBase>((ref) {
   final initialAuth = ref.watch(initialPbAuthProvider);
   const secureStorage = FlutterSecureStorage(
-    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+    aOptions: AndroidOptions(),
   );
 
   final authStore = AsyncAuthStore(
