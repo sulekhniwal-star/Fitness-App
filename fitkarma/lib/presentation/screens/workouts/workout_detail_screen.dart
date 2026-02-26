@@ -8,6 +8,7 @@ import '../../../data/models/workout_model.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/providers/karma_provider.dart';
 import '../../../core/sync/sync_service.dart';
+import '../../../core/storage/hive_service.dart';
 
 class WorkoutDetailScreen extends ConsumerStatefulWidget {
   final WorkoutModel workout;
@@ -155,6 +156,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
     };
 
     // Save offline & queue for sync
+    HiveService.workoutLogBox.put(logData['id'], logData);
     ref.read(syncServiceProvider).enqueueAction(
           collection: 'workout_logs',
           operation: 'create',
