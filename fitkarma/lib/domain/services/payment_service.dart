@@ -51,12 +51,26 @@ class PaymentService {
     // Update subscription provider state
     _ref.read(subscriptionProvider.notifier).setSuccess();
 
-    // Sync to backend
+    // Sync user tier upgrade to backend
     _ref.read(syncServiceProvider).enqueueAction(
       collection: 'users',
       operation: 'update',
       recordId: user.id,
       data: {'subscription_tier': 'premium'},
+    );
+
+    // Track explicit ledger details for analytics
+    _ref.read(syncServiceProvider).enqueueAction(
+      collection: 'subscriptions',
+      operation: 'create',
+      data: {
+        'user': user.id,
+        'payment_id': response.paymentId ?? 'mocked_transaction_id',
+        'plan_name': 'premium',
+        'status': 'active',
+        'amount':
+            0, // In production, pass the explicit captured amount from notes caching
+      },
     );
   }
 
