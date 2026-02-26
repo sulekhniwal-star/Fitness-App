@@ -51,11 +51,20 @@ class _MedicalScannerScreenState extends ConsumerState<MedicalScannerScreen> {
       if (!mounted) return;
 
       if (parsedData.isEmpty) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content:
-                  Text('No recognizable medical data found in the image.')),
+            content:
+                Text('No exact matches found. Please enter data manually.'),
+          ),
         );
+        _showEditableDialog({
+          'hba1c': '',
+          'bp': '',
+          'cholesterol': '',
+          'glucose': '',
+          'hemoglobin': '',
+        });
         return;
       }
 
