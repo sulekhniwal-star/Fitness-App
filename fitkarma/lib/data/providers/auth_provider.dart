@@ -174,6 +174,42 @@ class AuthNotifier extends StateNotifier<AuthState> {
       rethrow;
     }
   }
+
+  Future<void> requestPhoneOTP(String phone) async {
+    try {
+      final pb = _ref.read(pocketBaseProvider);
+      // For MVP, sending via custom PocketBase route or mock if unsupported locally
+      await pb.send('/api/otp/request', method: 'POST', body: {'phone': phone});
+    } catch (e) {
+      print('OTP Request Error: $e');
+    }
+  }
+
+  Future<void> verifyPhoneOTP(String phone, String otp) async {
+    state = state.copyWith(status: AuthStatus.loading, error: null);
+
+    try {
+      final pb = _ref.read(pocketBaseProvider);
+      // Custom endpoint for OTP or authWithPassword fallback for MVP mock
+      await pb.send('/api/otp/verify',
+          method: 'POST', body: {'phone': phone, 'otp': otp});
+
+      // Alternatively, try authWithPassword if the phone is registered as username/email for mock testing
+      /*
+      final authData = await pb.collection('users').authWithPassword(phone, otp);
+      final user = UserModel.fromJson(authData.record.toJson());
+      */
+
+      // Assuming response gives us token/user locally or we fetch it:
+      await _checkAuth(); // Refresh auth logic after successful OTP
+    } catch (e) {
+      state = AuthState(
+        status: AuthStatus.unauthenticated,
+        error: e.toString(),
+      );
+      rethrow;
+    }
+  }
 }
 
 /// Auth state provider

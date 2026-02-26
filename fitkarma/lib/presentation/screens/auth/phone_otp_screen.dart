@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../data/providers/auth_provider.dart';
+import 'package:go_router/go_router.dart';
 
 class PhoneOtpScreen extends ConsumerStatefulWidget {
   final String phoneNumber;
@@ -17,7 +19,8 @@ class PhoneOtpScreen extends ConsumerStatefulWidget {
 }
 
 class _PhoneOtpScreenState extends ConsumerState<PhoneOtpScreen> {
-  final List<TextEditingController> _controllers = List.generate(6, (_) => TextEditingController());
+  final List<TextEditingController> _controllers =
+      List.generate(6, (_) => TextEditingController());
   final List<FocusNode> _focusNodes = List.generate(6, (_) => FocusNode());
   bool _isLoading = false;
 
@@ -44,10 +47,23 @@ class _PhoneOtpScreenState extends ConsumerState<PhoneOtpScreen> {
 
     setState(() => _isLoading = true);
 
-    // TODO: Implement OTP verification with PocketBase
-    await Future.delayed(const Duration(seconds: 1));
+    try {
+      await ref
+          .read(authStateProvider.notifier)
+          .verifyPhoneOTP(widget.phoneNumber, _otp);
 
-    setState(() => _isLoading = false);
+      if (!mounted) return;
+      context.go('/');
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Verification failed: $e')),
+      );
+    }
+
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   @override
@@ -138,10 +154,14 @@ class _PhoneOtpScreenState extends ConsumerState<PhoneOtpScreen> {
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   TextButton(
-                    onPressed: () {
-                      // TODO: Implement resend OTP
+                    onPressed: () async {
+                      await ref
+                          .read(authStateProvider.notifier)
+                          .requestPhoneOTP(widget.phoneNumber);
+                      if (!mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('OTP resent successfully')),
+                        const SnackBar(
+                            content: Text('OTP resent successfully')),
                       );
                     },
                     child: const Text('Resend'),
