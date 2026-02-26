@@ -6,24 +6,24 @@ updated: 2026-02-25
 
 # FitKarma Roadmap
 
-> **Current Phase:** 1 - MVP Development
+> **Current Phase:** 2 - Health & Community
 > **Status:** planning
 
 ## Must-Haves (from SPEC)
 
-- [ ] Offline-first architecture with Hive + PocketBase sync
-- [ ] Zero API costs in MVP
-- [ ] Basic Authentication (Email, Google, Phone, Apple)
-- [ ] Core Features: Step Tracking, Food Logging (Search/Barcode), Workouts
-- [ ] Karma gamification system
-- [ ] Dashboard loading < 1 sec
+- [x] Offline-first architecture with Hive + PocketBase sync
+- [x] Zero API costs in MVP
+- [x] Basic Authentication (Email, Google, Phone, Apple)
+- [x] Core Features: Step Tracking, Food Logging (Search/Barcode), Workouts
+- [x] Karma gamification system
+- [x] Dashboard loading < 1 sec
 
 ---
 
 ## Phases
 
 ### Phase 1: MVP Development
-**Status:** 🔄 In Progress
+**Status:** ✅ Complete
 **Objective:** Establish core architecture, auth, food logging, workouts, and the foundational karma system.
 **Requirements:** Offline-first syncing, secure storage, fast dashboard.
 
@@ -61,7 +61,7 @@ updated: 2026-02-25
 
 | Phase | Status | Plans | Complete |
 |-------|--------|-------|----------|
-| 1 | 🔄 | 0/5 | 0 |
+| 1 | ✅ | 5/5 | 5 |
 | 2 | ⬜ | 0/0 | 0 |
 | 3 | ⬜ | 0/0 | 0 |
 | 4 | ⬜ | 0/0 | 0 |
