@@ -37,7 +37,7 @@ updated: 2026-02-25
 ---
 
 ### Phase 2: Health & Community
-**Status:** ⬜ Not Started
+**Status:** 🔄 In Progress
 **Objective:** Enhance health features with OCR tracking and introduce community challenge/social interactions.
 **Depends on:** Phase 1
 
@@ -62,6 +62,6 @@ updated: 2026-02-25
 | Phase | Status | Plans | Complete |
 |-------|--------|-------|----------|
 | 1 | ✅ | 5/5 | 5 |
-| 2 | ⬜ | 0/0 | 0 |
+| 2 | 🔄 | 0/4 | 0 |
 | 3 | ⬜ | 0/0 | 0 |
 | 4 | ⬜ | 0/0 | 0 |
