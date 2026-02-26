@@ -24,13 +24,14 @@ class WorkoutModelAdapter extends TypeAdapter<WorkoutModel> {
       estimatedCaloriesPerMin: fields[4] as double,
       durationMins: fields[5] as int,
       imageUrl: fields[6] as String,
+      routePolyline: fields[7] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, WorkoutModel obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.id)
       ..writeByte(1)
@@ -44,7 +45,9 @@ class WorkoutModelAdapter extends TypeAdapter<WorkoutModel> {
       ..writeByte(5)
       ..write(obj.durationMins)
       ..writeByte(6)
-      ..write(obj.imageUrl);
+      ..write(obj.imageUrl)
+      ..writeByte(7)
+      ..write(obj.routePolyline);
   }
 
   @override

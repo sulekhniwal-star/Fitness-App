@@ -25,6 +25,9 @@ class WorkoutModel extends HiveObject {
   @HiveField(6)
   final String imageUrl;
 
+  @HiveField(7)
+  final String? routePolyline;
+
   WorkoutModel({
     required this.id,
     required this.title,
@@ -33,6 +36,7 @@ class WorkoutModel extends HiveObject {
     required this.estimatedCaloriesPerMin,
     required this.durationMins,
     required this.imageUrl,
+    this.routePolyline,
   });
 
   factory WorkoutModel.fromJson(Map<String, dynamic> json) {
@@ -45,6 +49,7 @@ class WorkoutModel extends HiveObject {
           (json['estimated_calories_per_min'] as num).toDouble(),
       durationMins: json['duration_mins'] as int,
       imageUrl: json['image_url'] as String? ?? '',
+      routePolyline: json['route_polyline'] as String?,
     );
   }
 
@@ -57,6 +62,7 @@ class WorkoutModel extends HiveObject {
       'estimated_calories_per_min': estimatedCaloriesPerMin,
       'duration_mins': durationMins,
       'image_url': imageUrl,
+      if (routePolyline != null) 'route_polyline': routePolyline,
     };
   }
 }
