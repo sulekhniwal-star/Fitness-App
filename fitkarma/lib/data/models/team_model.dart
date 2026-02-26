@@ -47,4 +47,26 @@ class TeamModel extends HiveObject {
       description: description ?? this.description,
     );
   }
+
+  factory TeamModel.fromJson(Map<String, dynamic> json) {
+    return TeamModel(
+      id: json['id'] ?? '',
+      name: json['name'] ?? 'Unnamed Team',
+      memberIds: List<String>.from(json['members'] ?? []),
+      totalKarma: json['total_karma'] ?? 0,
+      logoUrl: json['logo_url'],
+      description: json['description'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'members': memberIds,
+      'total_karma': totalKarma,
+      'logo_url': logoUrl,
+      'description': description,
+    };
+  }
 }

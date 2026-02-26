@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/storage/hive_service.dart';
 import '../models/team_model.dart';
+import '../../core/network/pocketbase_client.dart';
 import 'auth_provider.dart';
 
 class TeamState {
@@ -36,10 +37,34 @@ class TeamNotifier extends StateNotifier<TeamState> {
 
   void _loadTeams() {
     final teams = HiveService.teamsBox.values.toList();
-    if (teams.isEmpty) {
-      _seedMockTeams();
-    } else {
+    if (teams.isNotEmpty) {
       _updateState(teams);
+    }
+    fetchTeams();
+  }
+
+  Future<void> fetchTeams() async {
+    state = state.copyWith(isLoading: true);
+    try {
+      final pb = _ref.read(pocketBaseProvider);
+      final result = await pb.collection('teams').getList(sort: '-total_karma');
+
+      final fetchedTeams = result.items
+          .map((item) => TeamModel.fromJson(item.toJson()))
+          .toList();
+
+      await HiveService.teamsBox.clear();
+      await HiveService.teamsBox.addAll(fetchedTeams);
+
+      _updateState(fetchedTeams);
+    } catch (e) {
+      // Offline mock fallback if collection not found yet
+      final teams = HiveService.teamsBox.values.toList();
+      if (teams.isEmpty) {
+        _seedMockTeams();
+      } else {
+        _updateState(teams);
+      }
     }
   }
 
@@ -101,16 +126,27 @@ class TeamNotifier extends StateNotifier<TeamState> {
     final user = _ref.read(authStateProvider).user;
     if (user == null) return;
 
-    final newTeam = TeamModel(
-      id: 'team_${DateTime.now().millisecondsSinceEpoch}',
-      name: name,
-      description: description,
-      memberIds: [user.id],
-      totalKarma: user.karmaPoints,
-    );
-
-    await HiveService.teamsBox.put(newTeam.id, newTeam);
-    _loadTeams();
+    try {
+      final pb = _ref.read(pocketBaseProvider);
+      await pb.collection('teams').create(body: {
+        'name': name,
+        'description': description,
+        'members': [user.id],
+        'total_karma': user.karmaPoints,
+      });
+      await fetchTeams();
+    } catch (e) {
+      // Fallback offline optimistic
+      final newTeam = TeamModel(
+        id: 'team_${DateTime.now().millisecondsSinceEpoch}',
+        name: name,
+        description: description,
+        memberIds: [user.id],
+        totalKarma: user.karmaPoints,
+      );
+      await HiveService.teamsBox.put(newTeam.id, newTeam);
+      _loadTeams();
+    }
   }
 
   Future<void> joinTeam(String teamId) async {
@@ -119,13 +155,23 @@ class TeamNotifier extends StateNotifier<TeamState> {
 
     final team = HiveService.teamsBox.get(teamId);
     if (team != null && !team.memberIds.contains(user.id)) {
-      final updatedMembers = [...team.memberIds, user.id];
-      final updatedTeam = team.copyWith(
-        memberIds: updatedMembers,
-        totalKarma: team.totalKarma + user.karmaPoints,
-      );
-      await HiveService.teamsBox.put(teamId, updatedTeam);
-      _loadTeams();
+      try {
+        final pb = _ref.read(pocketBaseProvider);
+        await pb.collection('teams').update(teamId, body: {
+          'members+': user.id,
+          'total_karma+': user.karmaPoints,
+        });
+        await fetchTeams();
+      } catch (e) {
+        // Fallback optimistic
+        final updatedMembers = [...team.memberIds, user.id];
+        final updatedTeam = team.copyWith(
+          memberIds: updatedMembers,
+          totalKarma: team.totalKarma + user.karmaPoints,
+        );
+        await HiveService.teamsBox.put(teamId, updatedTeam);
+        _loadTeams();
+      }
     }
   }
 }

@@ -78,7 +78,7 @@ class ChallengeNotifier extends StateNotifier<ChallengeState> {
       if (!participants.contains(userId)) {
         participants.add(userId);
         await pb.collection('challenges').update(challengeId, body: {
-          'participants': participants,
+          'participants+': userId,
         });
 
         // Optimistic UI update
