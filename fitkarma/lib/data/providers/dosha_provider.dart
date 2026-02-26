@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/dosha_model.dart';
 import 'auth_provider.dart';
-import '../../../core/network/pocketbase_client.dart';
+import '../../../core/sync/sync_service.dart';
 
 class DoshaState {
   final DoshaResult? result;
@@ -28,18 +28,20 @@ class DoshaNotifier extends StateNotifier<DoshaState> {
     state = state.copyWith(result: result, isLoading: true);
 
     try {
-      final pb = _ref.read(pocketBaseProvider);
       final user = _ref.read(authStateProvider).user;
 
       if (user != null) {
-        // 1. Update PocketBase
-        await pb.collection('users').update(user.id, body: {
-          'dosha': result.dominantDosha.name,
-        });
-
-        // 2. Update Local State & Hive
+        // 1. Update Local State & Hive
         final updatedUser = user.copyWith(dosha: result.dominantDosha.name);
         _ref.read(authStateProvider.notifier).updateUser(updatedUser);
+
+        // 2. Queue PocketBase sync operation asynchronously
+        await _ref.read(syncServiceProvider).enqueueAction(
+          collection: 'users',
+          operation: 'update',
+          recordId: updatedUser.id,
+          data: {'dosha': result.dominantDosha.name},
+        );
       }
 
       state = state.copyWith(isLoading: false);
