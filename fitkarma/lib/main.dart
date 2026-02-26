@@ -16,33 +16,33 @@ import 'core/monitoring/analytics_service.dart';
 import 'data/providers/locale_provider.dart';
 
 void main() async {
+  // Ensure we bind framework prior to attempting directory accesses for Hive.
+  WidgetsFlutterBinding.ensureInitialized();
+
   await SentryFlutter.init(
     (options) {
-      options.dsn = ''; // Using empty DSN to prevent crashes while inactive
+      // Typically inject via String.fromEnvironment or dotenv in production
+      options.dsn = '';
       options.tracesSampleRate = 1.0;
     },
     appRunner: () async {
-      WidgetsFlutterBinding.ensureInitialized();
-
-      // Initialize Hive
+      // Initialize Hive Framework
       await Hive.initFlutter();
 
-      // Initialize Hive boxes
+      // Initialize Application local schemas
       await HiveService.initBoxes();
 
-      // Initialize Analytics
+      // Initialize Mixpanel / core tracking
       await analyticsService.init();
 
-      // Read initial pocketbase auth config from secure storage
-      const secureStorage = FlutterSecureStorage(
-        aOptions: AndroidOptions(),
-      );
-      final initialAuth = await secureStorage.read(key: 'pb_auth');
+      // Extract Auth status
+      const secureStorage = FlutterSecureStorage();
+      final pbAuthStr = await secureStorage.read(key: 'pb_auth');
 
       runApp(
         ProviderScope(
           overrides: [
-            initialPbAuthProvider.overrideWithValue(initialAuth),
+            initialPbAuthProvider.overrideWithValue(pbAuthStr),
           ],
           child: const FitKarmaApp(),
         ),
