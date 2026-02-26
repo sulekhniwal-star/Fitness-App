@@ -56,30 +56,46 @@ class HealthTwinService {
 
   Future<void> _analyzeWeekendSlump(UserModel user) async {
     final now = DateTime.now();
-    // Simplified weekend check for demo purposes
-    // In a real app, we'd compare weekday avg steps vs weekend avg steps
 
-    const weekdaySteps = [8000.0, 7500.0, 9000.0, 8200.0, 7800.0];
-    final weekdayAvg =
-        weekdaySteps.reduce((a, b) => a + b) / weekdaySteps.length;
-
-    // Check Saturday steps (mocking data if not present)
-    // For now, let's just trigger it if current day is Sunday and steps are low
+    // Only analyze on Sundays
     if (now.weekday == DateTime.sunday) {
-      // Mocked check
-      const todaySteps = 2500.0; // This should come from stepProvider
-      if (todaySteps < (weekdayAvg * 0.5)) {
-        final insight = HealthInsight(
-          id: 'weekend_slump_${now.day}_${now.month}',
-          type: InsightType.suggestion,
-          title: 'Weekend Inactivity',
-          description:
-              'Your activity level drops significantly on weekends. A short 20-minute walk can help maintain your momentum.',
-          category: InsightCategory.activity,
-          createdAt: now,
-          score: 0.7,
-        );
-        await _ref.read(insightProvider.notifier).addInsight(insight);
+      final box = HiveService.stepsBox;
+      double totalWeekdaySteps = 0;
+      int daysFound = 0;
+
+      // Calculate last 5 weekdays (Monday to Friday)
+      for (int i = 2; i <= 6; i++) {
+        final date = now.subtract(Duration(days: i));
+        final dateStr =
+            '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
+        final stepCount = box.get('history_$dateStr') as int?;
+
+        if (stepCount != null) {
+          totalWeekdaySteps += stepCount;
+          daysFound++;
+        }
+      }
+
+      // We need at least 3 valid weekdays to form a baseline
+      if (daysFound >= 3) {
+        final weekdayAvg = totalWeekdaySteps / daysFound;
+        final todayStr =
+            '${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}';
+        final todaySteps = (box.get('history_$todayStr') as int?) ?? 0;
+
+        if (todaySteps < (weekdayAvg * 0.5)) {
+          final insight = HealthInsight(
+            id: 'weekend_slump_${now.day}_${now.month}_${now.year}',
+            type: InsightType.suggestion,
+            title: 'Weekend Inactivity',
+            description:
+                'Your activity level drops significantly on weekends. A short 20-minute walk can help maintain your momentum.',
+            category: InsightCategory.activity,
+            createdAt: now,
+            score: 0.7,
+          );
+          await _ref.read(insightProvider.notifier).addInsight(insight);
+        }
       }
     }
   }
