@@ -29,9 +29,7 @@ class ProfileScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () {
-              // TODO: Navigate to settings
-            },
+            onPressed: () => context.push('/profile/settings'),
           ),
         ],
       ),
@@ -143,7 +141,7 @@ class ProfileScreen extends ConsumerWidget {
               context,
               icon: Icons.person_outline,
               title: 'Edit Profile',
-              onTap: () {},
+              onTap: () => context.push('/profile/edit'),
             ),
             _buildMenuItem(
               context,

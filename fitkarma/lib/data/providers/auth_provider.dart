@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:pocketbase/pocketbase.dart';
+
 
 import '../models/user_model.dart';
 import '../../core/network/pocketbase_client.dart';
@@ -181,8 +183,9 @@ class AuthNotifier extends StateNotifier<AuthState> {
       // For MVP, sending via custom PocketBase route or mock if unsupported locally
       await pb.send('/api/otp/request', method: 'POST', body: {'phone': phone});
     } catch (e) {
-      print('OTP Request Error: $e');
+      debugPrint('OTP Request Error: $e');
     }
+
   }
 
   Future<void> verifyPhoneOTP(String phone, String otp) async {

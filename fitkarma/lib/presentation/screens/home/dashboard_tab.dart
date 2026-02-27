@@ -14,6 +14,7 @@ import '../profile/subscription_screen.dart';
 import '../../widgets/voice_assistant_sheet.dart';
 import '../../../core/utils/voice_service.dart';
 import '../../widgets/health_twin_card.dart';
+import '../../widgets/macro_summary_card.dart';
 import '../../../domain/services/health_twin_service.dart';
 
 class DashboardTab extends ConsumerWidget {
@@ -79,33 +80,58 @@ class DashboardTab extends ConsumerWidget {
                       ],
                     ),
                   ),
-                  // Karma Points Badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 6,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppTheme.saffronColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.stars,
-                          color: AppTheme.saffronColor,
-                          size: 20,
+                  Row(
+                    children: [
+                      // Karma Points Badge
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '${user?.karmaPoints ?? 0}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: AppTheme.saffronColor,
+                        decoration: BoxDecoration(
+            color: AppTheme.saffronColor.withValues(alpha: 0.1),
+
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.stars,
+                              color: AppTheme.saffronColor,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${user?.karmaPoints ?? 0}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: AppTheme.saffronColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Notification Bell
+                      InkWell(
+                        onTap: () => context.push('/home/notifications'),
+                        borderRadius: BorderRadius.circular(20),
+                        child: Container(
+                          padding: const EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color:
+                                AppTheme.primaryColor.withValues(alpha: 0.08),
+
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Icon(
+                            Icons.notifications_outlined,
+                            color: AppTheme.primaryColor,
+                            size: 22,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -149,6 +175,8 @@ class DashboardTab extends ConsumerWidget {
               // Festival Banner
               _buildFestivalBanner(context, ref),
               const HealthTwinCard(),
+              // Macro Summary
+              const MacroSummaryCard(),
               // Quick Actions
               _buildQuickActions(context, l10n),
               const SizedBox(height: 24),
@@ -218,7 +246,8 @@ class DashboardTab extends ConsumerWidget {
         gradient: LinearGradient(
           colors: [
             AppTheme.primaryColor,
-            AppTheme.primaryColor.withOpacity(0.8),
+            AppTheme.primaryColor.withValues(alpha: 0.8),
+
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -226,7 +255,8 @@ class DashboardTab extends ConsumerWidget {
         borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
         boxShadow: [
           BoxShadow(
-            color: AppTheme.primaryColor.withOpacity(0.3),
+            color: AppTheme.primaryColor.withValues(alpha: 0.3),
+
             blurRadius: 15,
             offset: const Offset(0, 8),
           ),
@@ -250,9 +280,10 @@ class DashboardTab extends ConsumerWidget {
                   vertical: 4,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
+                  color: Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
+
                 child: Text(
                   '${stepState.overs} overs 🏏',
                   style: const TextStyle(
@@ -284,10 +315,11 @@ class DashboardTab extends ConsumerWidget {
                       ),
                       PieChartSectionData(
                         value: (goal - todaySteps).clamp(0, goal).toDouble(),
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha: 0.2),
                         radius: 25,
                         showTitle: false,
                       ),
+
                     ],
                   ),
                 ),
@@ -305,7 +337,8 @@ class DashboardTab extends ConsumerWidget {
                     Text(
                       'of $goal',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha: 0.8),
+
                         fontSize: 14,
                       ),
                     ),
@@ -318,7 +351,8 @@ class DashboardTab extends ConsumerWidget {
           Text(
             '${(progress * 100).toInt()}% of daily goal',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
+              color: Colors.white.withValues(alpha: 0.9),
+
               fontSize: 14,
             ),
           ),
@@ -336,7 +370,7 @@ class DashboardTab extends ConsumerWidget {
             icon: Icons.restaurant_menu,
             label: l10n.food,
             color: AppTheme.secondaryColor,
-            onTap: () {},
+            onTap: () => context.go('/food'),
           ),
         ),
         const SizedBox(width: 12),
@@ -346,7 +380,7 @@ class DashboardTab extends ConsumerWidget {
             icon: Icons.fitness_center,
             label: l10n.workouts,
             color: AppTheme.accentColor,
-            onTap: () {},
+            onTap: () => context.go('/workouts'),
           ),
         ),
         const SizedBox(width: 12),
@@ -356,7 +390,7 @@ class DashboardTab extends ConsumerWidget {
             icon: Icons.water_drop,
             label: l10n.waterIntake,
             color: AppTheme.mintColor,
-            onTap: () {},
+            onTap: () => context.push('/home/water-tracking'),
           ),
         ),
         const SizedBox(width: 12),
@@ -386,7 +420,8 @@ class DashboardTab extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.all(AppConstants.paddingMedium),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
+
           borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
         ),
         child: Column(
@@ -394,7 +429,8 @@ class DashboardTab extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.2),
+              color: color.withValues(alpha: 0.2),
+
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 28),
@@ -436,6 +472,7 @@ class DashboardTab extends ConsumerWidget {
         boxShadow: [
           BoxShadow(
             color: AppTheme.saffronColor.withValues(alpha: 0.3),
+
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -509,7 +546,8 @@ class DashboardTab extends ConsumerWidget {
         borderRadius: BorderRadius.circular(AppConstants.cardBorderRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
+
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),

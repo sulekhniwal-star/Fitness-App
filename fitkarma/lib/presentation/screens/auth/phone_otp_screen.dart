@@ -7,12 +7,13 @@ import '../../../data/providers/auth_provider.dart';
 import 'package:go_router/go_router.dart';
 
 class PhoneOtpScreen extends ConsumerStatefulWidget {
-  final String phoneNumber;
+  final String? phoneNumber;
 
   const PhoneOtpScreen({
     super.key,
-    required this.phoneNumber,
+    this.phoneNumber,
   });
+
 
   @override
   ConsumerState<PhoneOtpScreen> createState() => _PhoneOtpScreenState();
@@ -45,12 +46,20 @@ class _PhoneOtpScreenState extends ConsumerState<PhoneOtpScreen> {
       return;
     }
 
+    if (widget.phoneNumber == null || widget.phoneNumber!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Phone number not available')),
+      );
+      return;
+    }
+
     setState(() => _isLoading = true);
 
     try {
       await ref
           .read(authStateProvider.notifier)
-          .verifyPhoneOTP(widget.phoneNumber, _otp);
+          .verifyPhoneOTP(widget.phoneNumber!, _otp);
+
 
       if (!mounted) return;
       context.go('/');
@@ -87,12 +96,15 @@ class _PhoneOtpScreenState extends ConsumerState<PhoneOtpScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'We sent a 6-digit code to ${widget.phoneNumber}',
+                widget.phoneNumber != null && widget.phoneNumber!.isNotEmpty
+                    ? 'We sent a 6-digit code to ${widget.phoneNumber}'
+                    : 'Enter the 6-digit code sent to your phone',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                       color: AppTheme.textSecondary,
                     ),
                 textAlign: TextAlign.center,
               ),
+
               const SizedBox(height: 32),
               // OTP Input
               Row(
@@ -154,18 +166,21 @@ class _PhoneOtpScreenState extends ConsumerState<PhoneOtpScreen> {
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   TextButton(
-                    onPressed: () async {
-                      await ref
-                          .read(authStateProvider.notifier)
-                          .requestPhoneOTP(widget.phoneNumber);
-                      if (!mounted) return;
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('OTP resent successfully')),
-                      );
-                    },
+                    onPressed: widget.phoneNumber != null && widget.phoneNumber!.isNotEmpty
+                        ? () async {
+                            await ref
+                                .read(authStateProvider.notifier)
+                                .requestPhoneOTP(widget.phoneNumber!);
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                  content: Text('OTP resent successfully')),
+                            );
+                          }
+                        : null,
                     child: const Text('Resend'),
                   ),
+
                 ],
               ),
             ],

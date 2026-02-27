@@ -10,9 +10,7 @@ final initialPbAuthProvider = Provider<String?>((ref) => null);
 /// A provider that exposes the PocketBase client.
 final pocketBaseProvider = Provider<PocketBase>((ref) {
   final initialAuth = ref.watch(initialPbAuthProvider);
-  const secureStorage = FlutterSecureStorage(
-    aOptions: AndroidOptions(),
-  );
+  const secureStorage = FlutterSecureStorage();
 
   final authStore = AsyncAuthStore(
     save: (String data) async {

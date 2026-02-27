@@ -14,9 +14,11 @@ class AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Listen for real-time notifications
-    ref.listen(notificationStreamProvider, (previous, next) {
-      if (next.hasValue && next.value != null) {
-        final notification = next.value!;
+    final notificationService = ref.watch(notificationServiceProvider);
+    
+    // Subscribe to notification stream
+    notificationService.notificationStream.listen((notification) {
+      if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Column(
@@ -27,7 +29,7 @@ class AppShell extends ConsumerWidget {
                   notification.title,
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
-                Text(notification.message),
+                Text(notification.body),
               ],
             ),
             backgroundColor: _getColorForType(notification.type),

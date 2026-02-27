@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 
 import '../../data/providers/auth_provider.dart';
@@ -34,8 +36,9 @@ class PaymentService {
     try {
       _razorpay.open(options);
     } catch (e) {
-      print('Error launching Razorpay: $e');
+      debugPrint('Error launching Razorpay: $e');
     }
+
   }
 
   void _handlePaymentSuccess(PaymentSuccessResponse response) {
@@ -75,15 +78,17 @@ class PaymentService {
   }
 
   void _handlePaymentError(PaymentFailureResponse response) {
-    print("Payment Failed: ${response.message}");
+    debugPrint("Payment Failed: ${response.message}");
+
     _ref
         .read(subscriptionProvider.notifier)
         .setError(response.message ?? 'Payment failed');
   }
 
   void _handleExternalWallet(ExternalWalletResponse response) {
-    print("External Wallet Selected: ${response.walletName}");
+    debugPrint("External Wallet Selected: ${response.walletName}");
   }
+
 
   void dispose() {
     _razorpay.clear();

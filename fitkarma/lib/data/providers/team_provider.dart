@@ -116,6 +116,7 @@ class TeamNotifier extends StateNotifier<TeamState> {
           a.totalKarma / (a.memberIds.isNotEmpty ? a.memberIds.length : 1);
       final avgB =
           b.totalKarma / (b.memberIds.isNotEmpty ? b.memberIds.length : 1);
+
       return avgB.compareTo(avgA);
     });
 

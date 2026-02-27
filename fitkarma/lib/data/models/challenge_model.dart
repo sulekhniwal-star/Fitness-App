@@ -96,7 +96,7 @@ class ChallengeModel extends HiveObject {
       startDate: startDate,
       endDate: endDate,
       participants: participants ?? this.participants,
-      imageUrl: imageUrl ?? imageUrl,
+      imageUrl: imageUrl,
       isTeamChallenge: isTeamChallenge,
     );
   }

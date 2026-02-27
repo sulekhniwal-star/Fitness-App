@@ -11,14 +11,19 @@ import '../../presentation/screens/home/onboarding_screen.dart';
 import '../../presentation/screens/home/splash_screen.dart';
 import '../../presentation/screens/home/community_tab.dart';
 import '../../presentation/screens/home/activity_tracking_screen.dart';
+import '../../presentation/screens/home/water_tracking_screen.dart';
 import '../../presentation/screens/home/festival_calendar_screen.dart';
 import '../../presentation/screens/home/team_challenge_screen.dart';
+import '../../presentation/screens/home/activity_log_screen.dart';
 import '../../presentation/screens/food/meal_planner_screen.dart';
 import '../../presentation/screens/food/food_logging_screen.dart';
 import '../../presentation/screens/workouts/workout_list_screen.dart';
 import '../../presentation/screens/profile/profile_screen.dart';
 import '../../presentation/screens/profile/dosha_quiz_screen.dart';
 import '../../presentation/screens/profile/leaderboard_screen.dart';
+import '../../presentation/screens/profile/edit_profile_screen.dart';
+import '../../presentation/screens/profile/settings_screen.dart';
+import '../../presentation/screens/home/notification_centre_screen.dart';
 import '../../shared/widgets/app_shell.dart';
 import '../monitoring/analytics_service.dart';
 
@@ -46,15 +51,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       final isOnAuthPage = state.matchedLocation == '/login' ||
           state.matchedLocation == '/register' ||
           state.matchedLocation == '/phone-otp';
-      final isOnboarding = state.matchedLocation == '/onboarding';
-      final isOnSplash = state.matchedLocation == '/';
 
-      // If not logged in and not on auth/onboarding/splash pages, redirect to login
-      if (!isLoggedIn && !isOnAuthPage && !isOnboarding && !isOnSplash) {
+      if (!isLoggedIn && !isOnAuthPage) {
         return '/login';
       }
 
-      // If logged in and on auth page, redirect to home
       if (isLoggedIn && isOnAuthPage) {
         return '/home';
       }
@@ -66,11 +67,6 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/',
         name: 'splash',
         builder: (context, state) => const SplashScreen(),
-      ),
-      GoRoute(
-        path: '/onboarding',
-        name: 'onboarding',
-        builder: (context, state) => const OnboardingScreen(),
       ),
       GoRoute(
         path: '/login',
@@ -85,10 +81,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/phone-otp',
         name: 'phone-otp',
-        builder: (context, state) {
-          final phone = state.extra as String? ?? '';
-          return PhoneOtpScreen(phoneNumber: phone);
-        },
+        builder: (context, state) => const PhoneOtpScreen(),
+      ),
+      GoRoute(
+        path: '/onboarding',
+        name: 'onboarding',
+        builder: (context, state) => const OnboardingScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) {
@@ -108,6 +106,11 @@ final routerProvider = Provider<GoRouter>((ref) {
                     builder: (context, state) => const ActivityTrackingScreen(),
                   ),
                   GoRoute(
+                    path: 'water-tracking',
+                    name: 'water-tracking',
+                    builder: (context, state) => const WaterTrackingScreen(),
+                  ),
+                  GoRoute(
                     path: 'festival-calendar',
                     name: 'festival-calendar',
                     builder: (context, state) => const FestivalCalendarScreen(),
@@ -116,6 +119,16 @@ final routerProvider = Provider<GoRouter>((ref) {
                     path: 'team-challenge',
                     name: 'team-challenge',
                     builder: (context, state) => const TeamChallengeScreen(),
+                  ),
+                  GoRoute(
+                    path: 'activity-log',
+                    name: 'activity-log',
+                    builder: (context, state) => const ActivityLogScreen(),
+                  ),
+                  GoRoute(
+                    path: 'notifications',
+                    name: 'notifications',
+                    builder: (context, state) => const NotificationCentreScreen(),
                   ),
                 ],
               ),
@@ -171,6 +184,16 @@ final routerProvider = Provider<GoRouter>((ref) {
                     path: 'dosha-quiz',
                     name: 'dosha-quiz',
                     builder: (context, state) => const DoshaQuizScreen(),
+                  ),
+                  GoRoute(
+                    path: 'edit',
+                    name: 'edit-profile',
+                    builder: (context, state) => const EditProfileScreen(),
+                  ),
+                  GoRoute(
+                    path: 'settings',
+                    name: 'settings',
+                    builder: (context, state) => const SettingsScreen(),
                   ),
                 ],
               ),

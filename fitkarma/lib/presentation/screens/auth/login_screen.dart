@@ -255,10 +255,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           .signInWithGoogle();
                       final authState = ref.read(authStateProvider);
                       if (authState.status == AuthStatus.authenticated &&
-                          mounted) {
+                          context.mounted) {
                         context.go('/home');
                       }
                     },
+
                     icon: const Icon(Icons.g_mobiledata, size: 28),
                     label: const Text('Continue with Google'),
                   ),

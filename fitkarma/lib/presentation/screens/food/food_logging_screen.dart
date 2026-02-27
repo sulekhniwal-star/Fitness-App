@@ -233,7 +233,9 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
     try {
       var result = await BarcodeScanner.scan();
       if (result.type == ResultType.Barcode && result.rawContent.isNotEmpty) {
+        if (!mounted) return;
         // Search by barcode using provider
+
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Scanning barcode: ${result.rawContent}')),
         );
@@ -246,11 +248,14 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
         );
       }
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
+
         const SnackBar(content: Text('Failed to scan barcode.')),
       );
     }
   }
+
 
   void _scanOCR() {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -267,10 +272,12 @@ class _FoodLoggingScreenState extends ConsumerState<FoodLoggingScreen> {
     if (result != null && mounted) {
       // Trigger search with recognized label
       showSearch(
+
         context: context,
         delegate: FoodSearchDelegate(ref: ref, mealType: _selectedMealType),
         query: result,
       );
     }
   }
+
 }

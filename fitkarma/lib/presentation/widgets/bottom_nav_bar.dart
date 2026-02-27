@@ -19,7 +19,8 @@ class BottomNavBar extends StatelessWidget {
         color: Theme.of(context).cardColor,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
+
             blurRadius: 10,
             offset: const Offset(0, -5),
           ),
@@ -83,9 +84,10 @@ class BottomNavBar extends StatelessWidget {
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isActive
-              ? AppTheme.primaryColor.withOpacity(0.1)
-              : Colors.transparent,
+              color: isActive
+                  ? AppTheme.primaryColor.withValues(alpha: 0.1)
+                  : Colors.transparent,
+
           borderRadius: BorderRadius.circular(12),
         ),
         child: Column(

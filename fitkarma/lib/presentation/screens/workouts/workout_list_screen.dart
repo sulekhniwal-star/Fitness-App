@@ -128,7 +128,8 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen>
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.7),
+                        color: Colors.black.withValues(alpha: 0.7),
+
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(

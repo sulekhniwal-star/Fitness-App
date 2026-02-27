@@ -61,7 +61,8 @@ class ActivityTrackingScreen extends ConsumerWidget {
                           border: Border.all(color: Colors.white, width: 3),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.2),
+                              color: Colors.black.withValues(alpha: 0.2),
+
                               blurRadius: 5,
                             ),
                           ],
@@ -131,7 +132,8 @@ class ActivityTrackingScreen extends ConsumerWidget {
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
+
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -230,7 +232,8 @@ class ActivityTrackingScreen extends ConsumerWidget {
           borderRadius: BorderRadius.circular(30),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha: 0.3),
+
               blurRadius: 10,
               offset: const Offset(0, 5),
             ),
