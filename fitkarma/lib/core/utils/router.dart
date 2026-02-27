@@ -23,6 +23,13 @@ import '../../presentation/screens/profile/dosha_quiz_screen.dart';
 import '../../presentation/screens/profile/leaderboard_screen.dart';
 import '../../presentation/screens/profile/edit_profile_screen.dart';
 import '../../presentation/screens/profile/settings_screen.dart';
+import '../../presentation/screens/profile/karma_marketplace_screen.dart';
+import '../../presentation/screens/profile/medical_scanner_screen.dart';
+import '../../presentation/screens/profile/subscription_screen.dart';
+import '../../presentation/screens/profile/health_tab.dart';
+import '../../presentation/screens/food/food_scanner_screen.dart';
+
+import '../../presentation/screens/workouts/workout_detail_screen.dart';
 import '../../presentation/screens/home/notification_centre_screen.dart';
 import '../../shared/widgets/app_shell.dart';
 import '../monitoring/analytics_service.dart';
@@ -146,6 +153,11 @@ final routerProvider = Provider<GoRouter>((ref) {
                     name: 'meal-planner',
                     builder: (context, state) => const MealPlannerScreen(),
                   ),
+                  GoRoute(
+                    path: 'scanner',
+                    name: 'food-scanner',
+                    builder: (context, state) => const FoodScannerScreen(),
+                  ),
                 ],
               ),
             ],
@@ -156,6 +168,16 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: '/workouts',
                 name: 'workouts',
                 builder: (context, state) => const WorkoutListScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'detail',
+                    name: 'workout-detail',
+                    builder: (context, state) {
+                      final workoutId = state.uri.queryParameters['id'] ?? '';
+                      return WorkoutDetailScreen(workoutId: workoutId);
+                    },
+                  ),
+                ],
               ),
             ],
           ),
@@ -194,6 +216,26 @@ final routerProvider = Provider<GoRouter>((ref) {
                     path: 'settings',
                     name: 'settings',
                     builder: (context, state) => const SettingsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'karma-marketplace',
+                    name: 'karma-marketplace',
+                    builder: (context, state) => const KarmaMarketplaceScreen(),
+                  ),
+                  GoRoute(
+                    path: 'medical-scanner',
+                    name: 'medical-scanner',
+                    builder: (context, state) => const MedicalScannerScreen(),
+                  ),
+                  GoRoute(
+                    path: 'subscription',
+                    name: 'subscription',
+                    builder: (context, state) => const SubscriptionScreen(),
+                  ),
+                  GoRoute(
+                    path: 'health',
+                    name: 'health',
+                    builder: (context, state) => const HealthTab(),
                   ),
                 ],
               ),

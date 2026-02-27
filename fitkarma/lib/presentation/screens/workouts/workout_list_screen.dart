@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../data/models/workout_model.dart';
 import '../../../data/providers/workout_provider.dart';
-import 'workout_detail_screen.dart';
 
 class WorkoutListScreen extends ConsumerStatefulWidget {
   const WorkoutListScreen({super.key});
@@ -90,9 +90,7 @@ class _WorkoutListScreenState extends ConsumerState<WorkoutListScreen>
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: () {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (ctx) => WorkoutDetailScreen(workout: workout),
-          ));
+          context.push('/workouts/detail?id=${workout.id}');
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

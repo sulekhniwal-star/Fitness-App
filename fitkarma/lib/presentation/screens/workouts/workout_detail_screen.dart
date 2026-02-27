@@ -7,13 +7,15 @@ import '../../../core/theme/app_theme.dart';
 import '../../../data/models/workout_model.dart';
 import '../../../data/providers/auth_provider.dart';
 import '../../../data/providers/karma_provider.dart';
+import '../../../data/providers/workout_provider.dart';
 import '../../../core/sync/sync_service.dart';
 import '../../../core/storage/hive_service.dart';
 
 class WorkoutDetailScreen extends ConsumerStatefulWidget {
-  final WorkoutModel workout;
+  final WorkoutModel? workout;
+  final String? workoutId;
 
-  const WorkoutDetailScreen({super.key, required this.workout});
+  const WorkoutDetailScreen({super.key, this.workout, this.workoutId});
 
   @override
   ConsumerState<WorkoutDetailScreen> createState() =>
@@ -21,23 +23,43 @@ class WorkoutDetailScreen extends ConsumerStatefulWidget {
 }
 
 class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
-  late YoutubePlayerController _controller;
+  YoutubePlayerController? _controller;
   bool _isPlayerReady = false;
+  bool _isLoading = true;
+  WorkoutModel? _workout;
 
   @override
   void initState() {
     super.initState();
-    _controller = YoutubePlayerController(
-      initialVideoId: widget.workout.youtubeId,
-      flags: const YoutubePlayerFlags(
-        autoPlay: false,
-        mute: false,
-      ),
-    )..addListener(listener);
+    _initializeWorkout();
+  }
+
+  Future<void> _initializeWorkout() async {
+    if (widget.workout != null) {
+      _workout = widget.workout;
+    } else if (widget.workoutId != null) {
+      // Fetch from provider
+      final workoutRepo = ref.read(workoutRepositoryProvider);
+      _workout = workoutRepo.getWorkoutById(widget.workoutId!);
+    }
+
+    if (_workout != null) {
+      _controller = YoutubePlayerController(
+        initialVideoId: _workout!.youtubeId,
+        flags: const YoutubePlayerFlags(
+          autoPlay: false,
+          mute: false,
+        ),
+      )..addListener(listener);
+    }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   void listener() {
-    if (_isPlayerReady && mounted && !_controller.value.isFullScreen) {
+    if (_isPlayerReady && mounted && _controller != null && !_controller!.value.isFullScreen) {
       setState(() {});
     }
   }
@@ -45,22 +67,35 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
   @override
   void deactivate() {
     // Pauses video while navigating to next page.
-    _controller.pause();
+    _controller?.pause();
     super.deactivate();
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
+    if (_workout == null) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('Workout')),
+        body: const Center(child: Text('Workout not found')),
+      );
+    }
+
     return YoutubePlayerBuilder(
       onExitFullScreen: () {},
       player: YoutubePlayer(
-        controller: _controller,
+        controller: _controller!,
         showVideoProgressIndicator: true,
         progressIndicatorColor: AppTheme.primaryColor,
         onReady: () {
@@ -70,7 +105,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
       builder: (context, player) {
         return Scaffold(
           appBar: AppBar(
-            title: Text(widget.workout.title),
+            title: Text(_workout!.title),
           ),
           body: SingleChildScrollView(
             child: Column(
@@ -83,7 +118,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        widget.workout.title,
+                        _workout!.title,
                         style:
                             Theme.of(context).textTheme.headlineSmall?.copyWith(
                                   fontWeight: FontWeight.bold,
@@ -95,17 +130,17 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
                           Icon(Icons.category,
                               size: 16, color: Colors.grey.shade600),
                           const SizedBox(width: 4),
-                          Text(widget.workout.category),
+                          Text(_workout!.category),
                           const SizedBox(width: 16),
                           Icon(Icons.timer,
                               size: 16, color: Colors.grey.shade600),
                           const SizedBox(width: 4),
-                          Text('${widget.workout.durationMins} min'),
+                          Text('${_workout!.durationMins} min'),
                         ],
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Estimated Burn: ${(widget.workout.durationMins * widget.workout.estimatedCaloriesPerMin).toInt()} Calories',
+                        'Estimated Burn: ${(_workout!.durationMins * _workout!.estimatedCaloriesPerMin).toInt()} Calories',
                         style: const TextStyle(
                           fontSize: 16,
                           color: AppTheme.errorColor,
@@ -143,14 +178,14 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
     }
 
     final totalCalories =
-        widget.workout.durationMins * widget.workout.estimatedCaloriesPerMin;
+        _workout!.durationMins * _workout!.estimatedCaloriesPerMin;
 
     final logData = {
       'id': const Uuid().v4(),
       'user_id': user.id,
-      'workout_id': widget.workout.id,
-      'title': widget.workout.title,
-      'duration_mins': widget.workout.durationMins,
+      'workout_id': _workout!.id,
+      'title': _workout!.title,
+      'duration_mins': _workout!.durationMins,
       'calories_burned': totalCalories,
       'completed_at': DateTime.now().toIso8601String(),
     };
@@ -166,7 +201,7 @@ class _WorkoutDetailScreenState extends ConsumerState<WorkoutDetailScreen> {
     // Grant Karma
     ref
         .read(karmaProvider.notifier)
-        .earnKarma(15, 'Completed ${widget.workout.title}');
+        .earnKarma(15, 'Completed ${_workout!.title}');
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(

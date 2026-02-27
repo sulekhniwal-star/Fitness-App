@@ -76,6 +76,9 @@ class UserModel extends HiveObject {
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
+    // PocketBase returns 'created'/'updated'; local Hive cache may use 'created_at'/'updated_at'
+    final createdRaw = (json['created'] ?? json['created_at']) as String?;
+    final updatedRaw = (json['updated'] ?? json['updated_at']) as String?;
     return UserModel(
       id: json['id'] as String,
       email: json['email'] as String,
@@ -93,8 +96,8 @@ class UserModel extends HiveObject {
       lastLoginDate: json['last_login_date'] != null
           ? DateTime.parse(json['last_login_date'] as String)
           : null,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
+      createdAt: createdRaw != null ? DateTime.parse(createdRaw) : DateTime.now(),
+      updatedAt: updatedRaw != null ? DateTime.parse(updatedRaw) : DateTime.now(),
       profileImageUrl: json['profile_image_url'] as String?,
     );
   }

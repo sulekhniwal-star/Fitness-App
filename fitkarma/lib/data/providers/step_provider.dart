@@ -110,7 +110,7 @@ class StepNotifier extends StateNotifier<StepState> {
     int newMilestones = (todaySteps ~/ 1000);
     if (newMilestones > previousMilestones) {
       try {
-        importKarmaAndAward(newMilestones - previousMilestones);
+        _importKarmaAndAward(newMilestones - previousMilestones);
       } catch (_) {}
     }
 
@@ -123,7 +123,7 @@ class StepNotifier extends StateNotifier<StepState> {
     state = state.copyWith(steps: todaySteps);
   }
 
-  void importKarmaAndAward(int milestonesCrossed) {
+  void _importKarmaAndAward(int milestonesCrossed) {
     if (milestonesCrossed <= 0) return;
     try {
       final karmaPoints = milestonesCrossed * 5; // 5 Karma per 1,000 steps
