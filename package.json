@@ -8,6 +8,7 @@
     "db:lint": "node scripts/validate_migrations.js",
     "db:validate": "node scripts/validate_migrations.js",
     "test:db": "supabase test db",
+    "test:edge": "node --experimental-strip-types --test supabase/functions/tests/edge_foundation_test.ts",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:reset": "supabase db reset"

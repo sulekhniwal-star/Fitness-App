@@ -98,3 +98,16 @@
 All concrete physical columns are recorded as `PROPOSED` specifications in `Brain/data_model.md` to avoid inferring unconfirmed historic schemas.  
 **Reason:** Enforces least-privilege tenant isolation, prevents IDOR vulnerabilities, and establishes the verifiable foundation for DPDP cascading erasure.
 
+## ADR-019 — Supabase Edge Function Architecture & API Contract Envelopes
+**Status:** Accepted (Task 012C)  
+**Decision:** Standardize Edge Functions under `supabase/functions/` in TypeScript using:
+1. Strict Request Envelope (`request_id`, `idempotency_key`, `payload`) and Response Envelope (`request_id`, `data`, `warnings`, `error`).
+2. Error envelopes mapped directly to the `FK-xxxx` taxonomy from `Brain/error_handling.md`.
+3. Standardized JWT/Auth verification (`verifyAuthToken`) rejecting unauthenticated access with `FK-1001`.
+4. Idempotency storage and replay helper (`withIdempotency`) preventing duplicate side-effects.
+5. Provider-agnostic signed-webhook verification (`verifyWebhookSignature`) using constant-time HMAC comparison.
+6. Rate-limit bucket interface (`RateLimiter` / `InMemoryTokenBucket`) with thresholds documented as `OPEN DECISION`.
+7. Least-privilege credential extraction (`getServiceCredentials`) preventing leakage of service role secrets.
+8. Only the `health-check` function is instantiated; all concrete application routes remain `PROPOSED` until their respective feature tasks.  
+**Reason:** Enforces a clean, observable serverless boundary preventing contract drift, replay attacks, and secret leakage across mobile client and third-party provider integrations.
+

@@ -184,3 +184,18 @@
 - Updated `Brain/data_model.md` explicitly classifying all concrete physical columns as PROPOSED specifications.
 - Recorded ADR-018 in `Brain/decisions.md`.
 - Updated `scripts/validate_migrations.js` to assert RLS, cascading foreign keys, pgTAP suites, and private storage buckets in CI.
+
+## 2026-10-08 — TASK 012C: Edge Function scaffold and API contract baseline
+
+- Established shared Deno/TypeScript Edge Function modules under `supabase/functions/_shared/`:
+  - `types.ts`: Defined `RequestEnvelope`, `ResponseEnvelope`, `ErrorEnvelope`, `RateLimitBucket`, `JwtClaims`, and `AppErrorCode` taxonomy (`FK-1001` through `FK-9999`).
+  - `envelopes.ts`: Implemented `parseRequestEnvelope`, `createSuccessResponse`, `createErrorResponse`, and `mapErrorCodeToHttpStatus` adhering to `Brain/api_contract.md`.
+  - `auth_helper.ts`: Implemented `verifyAuthToken` extracting Bearer JWTs, parsing claims, enforcing expiration checks, and denying unauthenticated access with `FK-1001`.
+  - `idempotency.ts`: Implemented `withIdempotency` wrapper with `InMemoryIdempotencyStore` caching mutating operation responses and safely replaying duplicates.
+  - `webhook_verifier.ts`: Implemented provider-agnostic `verifyWebhookSignature` using constant-time HMAC-SHA256 comparison for signed provider webhooks.
+  - `rate_limiter.ts`: Implemented `RateLimiter` interface with `InMemoryTokenBucket` token bucket, explicitly marking rate limit thresholds as OPEN DECISION.
+  - `credentials.ts`: Implemented `getServiceCredentials` enforcing least privilege and preventing server secrets from leaking into client payloads or logs.
+- Created standalone `health-check` function in `supabase/functions/health-check/index.ts` handling `GET`, `OPTIONS`, and `POST` using standard envelopes. All concrete application endpoints remain PROPOSED until their respective feature tasks.
+- Added 18 function-level unit tests in `supabase/functions/tests/edge_foundation_test.ts` wired to `npm run test:edge`.
+- Recorded ADR-019 in `Brain/decisions.md`.
+- Completed Phase 1 (Backend, Database, and Data Access Foundation).
