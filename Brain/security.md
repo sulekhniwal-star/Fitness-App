@@ -59,4 +59,4 @@ Apply provider/webhook verification plus per-user/IP controls for authentication
 
 ## 11. Deletion
 
-The existing documentation specifies a `delete_user_data` cascade across 28 tables and storage assets. The physical implementation must be re-verified against the live schema. Deletion must include local cache invalidation where appropriate and family-access revocation.
+The existing documentation specifies a `delete_user_data` cascade across 28 tables and storage assets. This claim is classified as **UNVERIFIED** until implemented and tested in this greenfield repository. Deletion must include local cache invalidation where appropriate and family-access revocation.

@@ -3,7 +3,7 @@
 ## 2026-10-08 — Documentation architecture expansion
 
 - Preserved the main master documentation as the high-level source.
-- Created dedicated domain specifications under `/docs`.
+- Created dedicated domain specifications under `Brain/`.
 - Incorporated India-first nutrition, WhatsApp, family health, fasting, AQI, Ayurveda, women's health and DIP strategy from the competitive analysis.
 - Moved adaptive TDEE earlier in the strategic roadmap.
 - Formalized Razorpay + UPI + UPI AutoPay as the active payment direction.
@@ -18,3 +18,12 @@
 - Audited toolchain: Flutter 3.47.6, Dart 3.13.5, Android SDK 37.0.0, OpenJDK 25.0.3, Node v24.18.0.
 - Synchronized `Todo.md` with v1.1 build plan and restored `.agent/skills/SKILL.md`.
 - Marked all historical source baseline claims as UNVERIFIED.
+
+## 2026-10-08 — TASK 001A: Documentation wiring and doc-lint gate
+
+- Verified all 18 Brain documentation files, `.agent/skills/SKILL.md`, and `FitKarma_Master_Documentation_v1.md` resolve correctly.
+- Reconciled documentation folder naming (legacy docs path updated to `Brain/`).
+- Added automated link-check and doc-lint script in `scripts/doc_lint.js` (microtasks DOC-001, DOC-002), wired to `npm run doc:lint`.
+- Validated RevenueCat exclusion: isolated strictly to historical migration context in `decisions.md` and `changelog.md`.
+- Explicitly documented historical baseline claims (160/160 tests, zero analyzer issues, 28-table deletion cascade, pgTAP validation) as UNVERIFIED across `testing.md`, `security.md`, and `implementation_audit.md`.
+- Ran doc-lint check: 67/67 checks passed.

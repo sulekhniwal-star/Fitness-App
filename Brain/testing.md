@@ -82,4 +82,10 @@ Test Hinglish/Hindi/Tamil/Telugu content where supported, text overflow, screen 
 
 ## Baseline verification
 
-The source documentation reports 160/160 unit/widget tests and zero static-analysis issues. Treat those as historical/source-reported until rerun against the actual repository.
+The source documentation reports:
+- 160/160 automated unit/widget tests passing
+- zero static-analyzer issues
+- `delete_user_data` cascading deletion across 28 tables
+- pgTAP-validated Postgres RLS policies
+
+All of these claims are officially classified as **UNVERIFIED** until implemented and executed directly within this greenfield repository.

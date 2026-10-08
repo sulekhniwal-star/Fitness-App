@@ -1,0 +1,9 @@
+{
+  "name": "fitkarma",
+  "version": "1.0.0",
+  "private": true,
+  "description": "FitKarma — India's Intelligent Health Operating System",
+  "scripts": {
+    "doc:lint": "node scripts/doc_lint.js"
+  }
+}
