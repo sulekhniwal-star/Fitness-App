@@ -35,3 +35,11 @@
 - Created minimal dark-theme bootstrap shell in `lib/main.dart` with zero business logic or unnecessary packages.
 - Added and verified bootstrap smoke test in `test/widget_test.dart`.
 - Passed `flutter pub get`, `dart format`, `flutter analyze` (0 issues), `flutter test` (all tests passed), and `flutter build bundle`.
+
+## 2026-10-08 — TASK 003: Establish Git ignore, environment, and secret boundaries
+
+- Updated `.gitignore` with comprehensive rules ignoring all `.env*` files (preserving `.env.example`), signing keys, keystores, platform secrets, node_modules, and local Supabase runtime files.
+- Created `.env.example` defining client-safe configuration (`APP_ENV`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SENTRY_DSN`) while documenting strict server-side quarantine for server secrets.
+- Implemented strongly-typed `AppConfig` in `lib/core/config/app_config.dart` with programmatic validation and `SecurityViolationException` rejecting any server secret keys (`SUPABASE_SERVICE_ROLE_KEY`, `RAZORPAY_KEY_SECRET`, `GROQ_API_KEY`, etc.).
+- Added unit tests in `test/core/config/app_config_test.dart` asserting configuration validation and secret boundary enforcement (8/8 tests passing).
+- Documented environment and secret boundaries in `Brain/security.md`.

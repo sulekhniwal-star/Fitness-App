@@ -12,21 +12,23 @@
 .swiftpm/
 migrate_working_dir/
 
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
 # IntelliJ related
 *.iml
 *.ipr
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
 # Flutter/Dart/Pub related
 **/doc/api/
 **/ios/Flutter/.last_build_id
 .dart_tool/
+.flutter-plugins
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
@@ -43,6 +45,34 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Android & iOS Signing, Keystores, Certificates
+*.jks
+*.keystore
+key.properties
+*.p8
+*.p12
+*.mobileprovision
+*.cer
+*.cert
+*.pem
+*.key
+
+# Firebase / Platform Service Configs
+**/android/app/google-services.json
+**/ios/Runner/GoogleService-Info.plist
+
+# Environment & Secrets (NEVER commit secrets)
+.env
+.env.*
+!.env.example
+*.local
+*.local.env
+secrets/
+
+# Supabase Local Runtime
+.supabase/
+supabase/.temp/
 
 # Widget Preview related
 .widget_preview/

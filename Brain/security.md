@@ -23,23 +23,27 @@ Use Supabase Auth as the application identity layer. Never bypass authorization 
 - TLS for data in transit
 - private storage buckets for sensitive media
 
-## 5. Payment security
+## 5. Environment configuration and secret boundaries
+
+Client builds strictly ingest public configuration (`APP_ENV`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`, `SENTRY_DSN`) via `AppConfig`. Privileged server secrets (`SUPABASE_SERVICE_ROLE_KEY`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, `GROQ_API_KEY`, `WHATSAPP_ACCESS_TOKEN`, `WHATSAPP_WEBHOOK_VERIFY_TOKEN`) are strictly prohibited in the client and enforced at compile-time/runtime via `SecurityViolationException`. All `.env` and credential files are ignored by git with template definitions in `.env.example`.
+
+## 6. Payment security
 
 Do not store UPI PINs, card CVVs, full card details or bank credentials. Keep provider secrets server-side. Verify webhook signatures and compute entitlements server-side.
 
-## 6. AI/WhatsApp security
+## 7. AI/WhatsApp security
 
 Minimize payloads. Apply retention controls to audio, images and prompts. Do not log raw health content in general application logs. Scrub PII in monitoring.
 
-## 7. Family security
+## 8. Family security
 
 Explicit affirmative consent is mandatory before sharing selected health observations. Revocation must be immediate at the authorization layer.
 
-## 8. DPDP considerations
+## 9. DPDP considerations
 
 Provide purpose-aware collection, consent/notice where required, export/access mechanisms, deletion pathways, and auditable cascading erasure. Product implementation does not by itself constitute legal compliance; launch should include legal review.
 
-## 9. Threat model
+## 10. Threat model
 
 Primary threats:
 
@@ -53,10 +57,10 @@ Primary threats:
 - secrets in client/logs
 - abusive automated API usage
 
-## 10. Rate limiting and abuse prevention
+## 11. Rate limiting and abuse prevention
 
 Apply provider/webhook verification plus per-user/IP controls for authentication, AI, WhatsApp and export/deletion operations. Exact thresholds are `OPEN DECISION`.
 
-## 11. Deletion
+## 12. Deletion
 
 The existing documentation specifies a `delete_user_data` cascade across 28 tables and storage assets. This claim is classified as **UNVERIFIED** until implemented and tested in this greenfield repository. Deletion must include local cache invalidation where appropriate and family-access revocation.
