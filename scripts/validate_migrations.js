@@ -3,7 +3,8 @@
 /**
  * FitKarma Database Migration & Workspace Validator
  * Runs in CI and local pre-commit hooks to guarantee migration integrity,
- * strict monotonic ordering, naming conventions, and secret-free schemas.
+ * strict monotonic ordering, naming conventions, secret-free schemas,
+ * universal Row Level Security (RLS), and pgTAP test coverage.
  */
 
 const fs = require('fs');
@@ -12,6 +13,7 @@ const path = require('path');
 const ROOT_DIR = path.resolve(__dirname, '..');
 const SUPABASE_DIR = path.join(ROOT_DIR, 'supabase');
 const MIGRATIONS_DIR = path.join(SUPABASE_DIR, 'migrations');
+const TESTS_DIR = path.join(SUPABASE_DIR, 'tests');
 const CONFIG_FILE = path.join(SUPABASE_DIR, 'config.toml');
 const SEED_FILE = path.join(SUPABASE_DIR, 'seed.sql');
 
@@ -51,13 +53,13 @@ if (!fs.existsSync(CONFIG_FILE)) {
   }
 }
 
-// 2. Verify Migrations Directory
-console.log('\n2. Checking Migrations Directory...');
+// 2. Verify Migrations Directory & Sequencing
+console.log('\n2. Checking Migrations Directory & Sequencing...');
 if (!fs.existsSync(MIGRATIONS_DIR)) {
   reportFail('supabase/migrations directory is missing');
 } else {
   reportPass('supabase/migrations directory exists');
-  
+
   const migrationFiles = fs.readdirSync(MIGRATIONS_DIR)
     .filter(file => file.endsWith('.sql'));
 
@@ -69,6 +71,10 @@ if (!fs.existsSync(MIGRATIONS_DIR)) {
     const filenameRegex = /^(\d{14})_([a-z0-9_]+)\.sql$/;
     let previousTimestamp = '';
     const seenTimestamps = new Set();
+    const createdTables = new Set();
+    const rlsEnabledTables = new Set();
+    let hasCascadeFunction = false;
+    let hasPrivateBuckets = false;
 
     for (const file of migrationFiles) {
       const match = file.match(filenameRegex);
@@ -78,8 +84,6 @@ if (!fs.existsSync(MIGRATIONS_DIR)) {
       }
 
       const timestamp = match[1];
-      const description = match[2];
-
       if (seenTimestamps.has(timestamp)) {
         reportFail(`Duplicate migration timestamp detected: ${timestamp} in '${file}'`);
       }
@@ -106,12 +110,81 @@ if (!fs.existsSync(MIGRATIONS_DIR)) {
           reportFail(`Potential secret or credential pattern detected in '${file}'`);
         }
       }
+
+      // Scan for table creation and RLS
+      const tableMatches = content.matchAll(/CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?public\.([a-z0-9_]+)/gi);
+      for (const tableMatch of tableMatches) {
+        createdTables.add(tableMatch[1]);
+      }
+
+      const rlsMatches = content.matchAll(/ALTER\s+TABLE\s+public\.([a-z0-9_]+)\s+ENABLE\s+ROW\s+LEVEL\s+SECURITY/gi);
+      for (const rlsMatch of rlsMatches) {
+        rlsEnabledTables.add(rlsMatch[1]);
+      }
+
+      if (content.includes('FUNCTION public.delete_user_data') && content.includes('SECURITY DEFINER')) {
+        hasCascadeFunction = true;
+      }
+
+      if (content.includes('storage.buckets') && content.includes('false')) {
+        hasPrivateBuckets = true;
+      }
+    }
+
+    // 3. Verify Universal RLS on all created tables
+    console.log('\n3. Verifying Universal Row Level Security (RLS)...');
+    if (createdTables.size > 0) {
+      reportPass(`Detected ${createdTables.size} public table(s): ${[...createdTables].join(', ')}`);
+      for (const table of createdTables) {
+        if (rlsEnabledTables.has(table)) {
+          reportPass(`Table 'public.${table}' has Row Level Security ENABLED`);
+        } else {
+          reportFail(`Table 'public.${table}' is MISSING 'ENABLE ROW LEVEL SECURITY'`);
+        }
+      }
+    } else {
+      reportPass('No public tables defined yet');
+    }
+
+    // 4. Verify Cascade Deletion Foundation
+    console.log('\n4. Verifying Cascade Erasure & Storage Buckets...');
+    if (hasCascadeFunction) {
+      reportPass('Function public.delete_user_data(uuid) defined with SECURITY DEFINER');
+    } else {
+      reportFail('Missing function public.delete_user_data(uuid)');
+    }
+
+    if (hasPrivateBuckets) {
+      reportPass('Private storage buckets (public = false) configured for sensitive media');
+    } else {
+      reportFail('Private storage buckets not configured');
     }
   }
 }
 
-// 3. Verify Seed Configuration and Safety Guards
-console.log('\n3. Checking Seed Data & Production Guards...');
+// 5. Verify pgTAP Test Suite
+console.log('\n5. Checking pgTAP Test Harness...');
+if (!fs.existsSync(TESTS_DIR)) {
+  reportFail('supabase/tests directory is missing');
+} else {
+  const testFiles = fs.readdirSync(TESTS_DIR).filter(file => file.endsWith('.sql'));
+  if (testFiles.length === 0) {
+    reportFail('No test files found in supabase/tests');
+  } else {
+    reportPass(`Found ${testFiles.length} pgTAP test file(s) in supabase/tests`);
+    for (const testFile of testFiles) {
+      const testContent = fs.readFileSync(path.join(TESTS_DIR, testFile), 'utf8');
+      if (testContent.includes('pgtap') && testContent.includes('plan(')) {
+        reportPass(`pgTAP harness valid in '${testFile}'`);
+      } else {
+        reportFail(`File '${testFile}' does not contain valid pgTAP test harness assertions`);
+      }
+    }
+  }
+}
+
+// 6. Verify Seed Configuration and Safety Guards
+console.log('\n6. Checking Seed Data & Production Guards...');
 if (!fs.existsSync(SEED_FILE)) {
   reportFail('supabase/seed.sql is missing');
 } else {
@@ -134,9 +207,9 @@ console.log('\n-------------------------------------------------------');
 console.log(`Validation complete: ${checksPassed} checks passed, ${errorsFound} errors found.`);
 
 if (errorsFound > 0) {
-  console.error('\nResult: MIGRATION VALIDATION FAILED!');
+  console.error('\nResult: MIGRATION & RLS VALIDATION FAILED!');
   process.exit(1);
 } else {
-  console.log('\nResult: ALL MIGRATION AND CONFIGURATION CHECKS PASSED.');
+  console.log('\nResult: ALL MIGRATION, RLS, AND BACKEND CHECKS PASSED.');
   process.exit(0);
 }

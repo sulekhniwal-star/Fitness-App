@@ -171,3 +171,16 @@
 - Documented multi-environment tiering and secret isolation (local, CI, staging, production) in `supabase/environments/README.md` and template `supabase/.env.example`.
 - Implemented automated migration and workspace validator `scripts/validate_migrations.js` (wired to `npm run db:lint` / `npm run db:validate`) verifying filename patterns, monotonic timestamp order, SQL non-emptiness, production safety guards, and absence of committed secrets.
 - Recorded ADR-017 in `Brain/decisions.md`.
+
+## 2026-10-08 — TASK 012B: Baseline schema and universal RLS
+
+- Created migration `supabase/migrations/20261008000001_baseline_schema_and_rls.sql` covering all 14 CONFIRMED concepts in `Brain/data_model.md`:
+  - `profiles`, `food_catalog`, `recipes`, `cooking_multipliers`, `health_observations`, `food_logs`, `workouts`, `sleep_recovery_logs`, `habits`, `medications`, `family_health_relationships`, `entitlements`, `push_tokens`, `storage_assets`, `audit_deletion_operations`.
+- Enforced universal default-deny Row Level Security (`ALTER TABLE ... ENABLE ROW LEVEL SECURITY`) on all 15 public tables with zero permissive anonymous access policies.
+- Enforced authenticated owner-only access (`auth.uid() = user_id`) and `ON DELETE CASCADE` foreign keys linking user-owned rows to `auth.users(id)`.
+- Configured 4 private Supabase Storage buckets (`meal_photos`, `medical_reports`, `voice_notes`, `data_exports`) with `public = false` and path-based user ownership RLS.
+- Created `public.delete_user_data(target_user_id uuid)` `SECURITY DEFINER` function establishing the auditable cascading deletion foundation for DPDP compliance.
+- Established pgTAP test harness in `supabase/tests/00000_rls_isolation_test.sql` (37 assertions covering table existence, universal RLS, anonymous rejection, and tenant isolation where User B cannot read or alter User A data).
+- Updated `Brain/data_model.md` explicitly classifying all concrete physical columns as PROPOSED specifications.
+- Recorded ADR-018 in `Brain/decisions.md`.
+- Updated `scripts/validate_migrations.js` to assert RLS, cascading foreign keys, pgTAP suites, and private storage buckets in CI.

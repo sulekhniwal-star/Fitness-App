@@ -86,3 +86,15 @@
 **Decision:** Standardize on Supabase CLI (`supabase/config.toml`, `project_id = "fitkarma"`) with strictly versioned timestamped migrations (`<YYYYMMDDHHMMSS>_<name>.sql` in `supabase/migrations/`), zero manual remote schema mutations, production-guarded seed fixtures (`supabase/seed.sql` and `supabase/seeds/`), strict multi-environment separation (local/dev, CI, staging, production with zero server secrets in client binaries), and automated CI migration validation (`npm run db:lint`). Product tables are intentionally deferred to TASK 012B.  
 **Reason:** Guarantees deterministic database deployments, prevents configuration drift across team/CI/production environments, and enforces strict secret boundaries in alignment with DPDP and security architecture.
 
+## ADR-018 — Baseline Relational Schema, Universal Default-Deny RLS & Cascading Erasure
+**Status:** Accepted (Task 012B)  
+**Decision:** Establish 15 baseline tables in `supabase/migrations/20261008000001_baseline_schema_and_rls.sql` covering all 14 CONFIRMED concepts in `Brain/data_model.md`. Enforce:
+1. Universal default-deny Row Level Security on every table with zero permissive anonymous access.
+2. Owner-only isolation (`auth.uid() = user_id`) for authenticated users.
+3. Every user-owned table carries `user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE`.
+4. Dedicated private Supabase Storage buckets (`meal_photos`, `medical_reports`, `voice_notes`, `data_exports`) with path-based owner RLS.
+5. `public.delete_user_data(target_user_id uuid)` function implementing auditable cascading erasure foundation for DPDP compliance.
+6. pgTAP test harness (`supabase/tests/00000_rls_isolation_test.sql`) verifying schema existence, universal RLS, anonymous denial, and multi-tenant isolation.
+All concrete physical columns are recorded as `PROPOSED` specifications in `Brain/data_model.md` to avoid inferring unconfirmed historic schemas.  
+**Reason:** Enforces least-privilege tenant isolation, prevents IDOR vulnerabilities, and establishes the verifiable foundation for DPDP cascading erasure.
+
