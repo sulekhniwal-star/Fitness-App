@@ -86,3 +86,14 @@
 - Scaffolded `SentryCrashReportingBoundary` in `lib/core/observability/crash_reporting_service.dart` with client-side scrubbing hooks for breadcrumbs and exception extras, safely operating without production secrets.
 - Wired `dataRedactorProvider` and `crashReportingServiceProvider` into Riverpod core providers.
 - Added comprehensive unit tests in `test/core/observability/redaction_and_observability_test.dart` (10 tests; total 34/34 tests green).
+
+## 2026-10-08 — TASK 008A: Feature flags and backend-configurable remote config
+
+- Implemented dynamic commercial subscription models in `lib/core/config/remote_config.dart` (`SubscriptionPlan`, `BillingCadence`) ensuring plan names, prices, and entitlements are never hard-coded architectural constants.
+- Created `RemoteConfig` supporting feature flags, emergency kill switches, safe deterministic offline defaults (`RemoteConfig.defaults()`), and JSON serialization with runtime secret detection (`SecurityViolationException`).
+- Implemented `ConfigCacheStorage` and `RemoteConfigService` in `lib/core/config/remote_config_service.dart` providing offline-cached remote config restoration, dynamic feature-flag resolution, and emergency kill switches (`kill_switch_ai_routing`, `kill_switch_whatsapp_logging`, `kill_switch_external_providers`) that immediately disable associated capabilities.
+- Gated P1/P2/PROPOSED capabilities by default (`photo_food_logging`, `aqi_weather_context`, `tamil_telugu_support`, `family_care_dashboard`, `cgm_pipeline`).
+- Exposed `remoteConfigServiceProvider` in `lib/core/providers/core_providers.dart` for Riverpod dependency injection.
+- Added comprehensive unit tests in `test/core/config/remote_config_test.dart` (13 tests verifying defaults, serialization, secret rejection, caching, offline fallback, flag evaluation, kill switch overrides, and Riverpod registration; total 47/47 tests green).
+- Completed Phase 0 engineering foundation gate.
+

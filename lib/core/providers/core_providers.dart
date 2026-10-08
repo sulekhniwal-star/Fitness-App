@@ -1,4 +1,5 @@
 import 'package:fitkarma/core/config/app_config.dart';
+import 'package:fitkarma/core/config/remote_config_service.dart';
 import 'package:fitkarma/core/database/database_boundary.dart';
 import 'package:fitkarma/core/observability/crash_reporting_service.dart';
 import 'package:fitkarma/core/observability/logging_service.dart';
@@ -20,6 +21,11 @@ final appConfigProvider = Provider<AppConfig>((ref) {
 final dataRedactorProvider = Provider<DataRedactor>((ref) {
   return const DataRedactor();
 }, name: 'dataRedactorProvider');
+
+/// Provider for remote configuration and feature flags.
+final remoteConfigServiceProvider = Provider<RemoteConfigService>((ref) {
+  return RemoteConfigService();
+}, name: 'remoteConfigServiceProvider');
 
 /// Provider for crash reporting service (defaults to Sentry boundary in production, Noop in tests).
 final crashReportingServiceProvider = Provider<CrashReportingService>((ref) {
