@@ -52,3 +52,11 @@
 - Established feature domain modules (`auth/`, `profile/`, `dashboard/`, `nutrition/`, `health_tracking/`, `family/`, `payments/`, `data_vault/`).
 - Added testing helper `test/helpers/pump_app.dart`.
 - Documented folder hierarchy and strict dependency-direction rules in `Brain/architecture.md`.
+
+## 2026-10-08 — TASK 005: Riverpod application architecture
+
+- Integrated `flutter_riverpod: ^2.6.1` adhering to the TRD and Master Documentation v1 Riverpod 2.x baseline.
+- Implemented root dependency injection via `ProviderScope` and `bootstrap.dart`.
+- Created core providers in `lib/core/providers/core_providers.dart`: `appConfigProvider`, `loggingServiceProvider`, `localDatabaseProvider`, and `syncEngineProvider`.
+- Implemented `AppProviderObserver` for centralized lifecycle monitoring, diagnostic logging, and error capture with PII redaction.
+- Created `test/core/providers/provider_architecture_test.dart` asserting that all root dependencies are cleanly overridable in tests and that UI widgets observe provider state changes without hard-coded external clients.
