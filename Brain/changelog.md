@@ -27,3 +27,11 @@
 - Validated RevenueCat exclusion: isolated strictly to historical migration context in `decisions.md` and `changelog.md`.
 - Explicitly documented historical baseline claims (160/160 tests, zero analyzer issues, 28-table deletion cascade, pgTAP validation) as UNVERIFIED across `testing.md`, `security.md`, and `implementation_audit.md`.
 - Ran doc-lint check: 67/67 checks passed.
+
+## 2026-10-08 — TASK 002: Bootstrap Flutter application
+
+- Initialized clean Flutter application with package ID `com.sulekhniwal.fitkarma` and Android/iOS targets.
+- Configured application metadata with Dart 3.13.5 / Flutter 3.47.6.
+- Created minimal dark-theme bootstrap shell in `lib/main.dart` with zero business logic or unnecessary packages.
+- Added and verified bootstrap smoke test in `test/widget_test.dart`.
+- Passed `flutter pub get`, `dart format`, `flutter analyze` (0 issues), `flutter test` (all tests passed), and `flutter build bundle`.
