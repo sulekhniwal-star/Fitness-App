@@ -69,3 +69,11 @@
 - Created modular placeholder shells in `lib/core/routing/placeholder_screens.dart` with semantic test keys for every top-level area.
 - Added comprehensive navigation tests in `test/core/routing/app_router_test.dart` asserting auth-guard redirects and traversal to all product areas (17/17 tests passing).
 - Documented the confirmed route skeleton and guard behavior in `Brain/ui_spec.md`.
+
+## 2026-10-08 — TASK 007: Error and result primitives
+
+- Implemented `AppFailure` sealed class taxonomy in `lib/core/errors/failures.dart` mapping all `FK-xxxx` codes from `Brain/error_handling.md` (`FK-1001` to `FK-7001` and `FK-9999`).
+- Created standard JSON serialization and deserialization matching the documented error envelope (`code`, `message`, `retryable`, `request_id`).
+- Implemented user message sanitization logic stripping stack traces, SQL error substrings, and credential leaks.
+- Implemented functional `Result<T>` container in `lib/core/errors/result.dart` with `Success<T>` and `FailureResult<T>`, supporting pattern-matching (`when`), `map`, `flatMap`, and `getOrElse`.
+- Added unit test suite in `test/core/errors/failures_and_result_test.dart` (7 tests covering code mapping, recovery rules, serialization, message sanitization, and Result mechanics; total 24/24 tests green).
