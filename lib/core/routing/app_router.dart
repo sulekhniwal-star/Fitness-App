@@ -1,6 +1,7 @@
 import 'package:fitkarma/core/routing/app_routes.dart';
 import 'package:fitkarma/core/routing/auth_nav_state.dart';
 import 'package:fitkarma/core/routing/placeholder_screens.dart';
+import 'package:fitkarma/shared/presentation/showcase/design_system_showcase_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -80,6 +81,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           subtitle: 'Enter verification code',
           semanticKey: Key('screen_otp'),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.showcase,
+        builder: (context, state) => const DesignSystemShowcaseScreen(),
       ),
       GoRoute(
         path: AppRoutes.dashboard,

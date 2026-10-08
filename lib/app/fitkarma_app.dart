@@ -1,5 +1,6 @@
 import 'package:fitkarma/core/constants/app_constants.dart';
 import 'package:fitkarma/core/routing/app_router.dart';
+import 'package:fitkarma/shared/presentation/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,15 +16,7 @@ class FitKarmaApp extends ConsumerWidget {
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
       routerConfig: router,
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0D0F12),
-        colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF00E599),
-          surface: Color(0xFF161A22),
-        ),
-        useMaterial3: true,
-      ),
+      theme: FitKarmaTheme.darkTheme,
     );
   }
 }

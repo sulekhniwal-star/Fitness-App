@@ -97,3 +97,24 @@
 - Added comprehensive unit tests in `test/core/config/remote_config_test.dart` (13 tests verifying defaults, serialization, secret rejection, caching, offline fallback, flag evaluation, kill switch overrides, and Riverpod registration; total 47/47 tests green).
 - Completed Phase 0 engineering foundation gate.
 
+## 2026-10-08 — TASK 009: FitKarma design system
+
+- Created centralized design tokens under `lib/shared/presentation/theme/`:
+  - `AppColors`: Primary dark background (`#0D0F12`), dark surfaces (`#161A22`, `#1F2430`), Neon Mint (`#00E599`), Saffron Gold (`#FF9933`), Tech Blue (`#38BDF8`), and high-contrast text (`#F8FAFC`, `#94A3B8`).
+  - `AppTypography`: High-contrast, mobile-first font scale with tabular metric numerals.
+  - `AppSpacing`: 8dp layout scale with WCAG 2.1 compliant 48dp minimum touch target (`minTouchTarget`).
+  - `AppRadii`: Bento standard radii (`roundedMd: 16`, `roundedLg: 24`, `roundedFull: 999`).
+  - `AppMotion`: Tactile spring-physics curves and durations (`fast: 150ms`, `normal: 250ms`, `slow: 400ms`).
+  - `FitKarmaTheme`: Complete dark Material 3 theme configuration applied across `FitKarmaApp`.
+- Implemented accessible shared UI primitives under `lib/shared/presentation/widgets/`:
+  - `AppButton`: Tactile spring feedback, primary mint / secondary / saffron / ghost variants, loading spinner, and 48dp accessible touch target.
+  - `AppTextField`: Dark styled text input with glass border, prefix/suffix icons, helper/error states.
+  - `GlassContainer` & `BentoCard`: Frosted glass blur container (`BackdropFilter`) and modular Bento grid card primitive with headers, icons, trailing widgets, and spring touch animations.
+  - `AppChip` & `AppStatusBadge`: Multi-selection filter chip and non-color-only accessible status badges.
+  - `AppProgressBar`: Smooth animated progress bar with clamped values and nutrient / step meter gradients.
+  - `StateViews`: `AppLoadingView`, `AppEmptyStateView`, and `AppErrorStateView` with `FK-xxxx` error code support and retry action.
+- Built internal Storybook showcase screen in `lib/shared/presentation/showcase/design_system_showcase_screen.dart` wired to public route `/showcase`.
+- Added unit and widget tests in `test/shared/presentation/theme_and_components_test.dart` (15 tests covering tokens, touch target accessibility, component interactions, and showcase rendering; total 62/62 tests green).
+- Finalized design tokens in `Brain/ui_spec.md` and recorded ADR-016 in `Brain/decisions.md`. Offline bundled brand font files noted as OPEN DECISION until pre-launch packaging in Phase 13.
+
+

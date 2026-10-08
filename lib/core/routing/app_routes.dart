@@ -1,10 +1,11 @@
 /// Centralized route paths and names for the FitKarma application.
 abstract final class AppRoutes {
-  // Unauthenticated / Onboarding
+  // Unauthenticated / Onboarding / Dev
   static const String root = '/';
   static const String onboarding = '/onboarding';
   static const String login = '/auth/login';
   static const String otp = '/auth/otp';
+  static const String showcase = '/showcase';
 
   // Authenticated Top-Level Product Areas
   static const String dashboard = '/dashboard';
@@ -25,6 +26,7 @@ abstract final class AppRoutes {
     onboarding,
     login,
     otp,
+    showcase,
   };
 
   /// Returns true if the route is public / does not require authentication.
