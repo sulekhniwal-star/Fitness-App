@@ -4,6 +4,9 @@ import 'package:fitkarma/app/fitkarma_app.dart';
 import 'package:fitkarma/core/config/app_config.dart';
 import 'package:fitkarma/core/providers/core_providers.dart';
 import 'package:fitkarma/core/services/console_logging_service.dart';
+import 'package:fitkarma/core/supabase/supabase_client_service.dart';
+import 'package:fitkarma/core/supabase/supabase_providers.dart';
+import 'package:fitkarma/core/supabase/supabase_service_boundary.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,6 +18,7 @@ Future<void> bootstrap(
   FutureOr<Widget> Function() builder, {
   List<Override> overrides = const [],
   AppConfig? initialConfig,
+  ISupabaseService? supabaseService,
 }) async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -23,10 +27,17 @@ Future<void> bootstrap(
     isDebug: config.environment == AppEnvironment.development,
   );
 
+  final supabase =
+      supabaseService ?? await SupabaseClientService.initialize(config: config);
+
   runApp(
     ProviderScope(
       observers: [AppProviderObserver(logger: logger)],
-      overrides: [appConfigProvider.overrideWithValue(config), ...overrides],
+      overrides: [
+        appConfigProvider.overrideWithValue(config),
+        supabaseServiceProvider.overrideWithValue(supabase),
+        ...overrides,
+      ],
       child: await builder(),
     ),
   );

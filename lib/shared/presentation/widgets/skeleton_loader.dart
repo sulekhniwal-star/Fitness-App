@@ -113,8 +113,7 @@ class SkeletonCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints:
-          height != null ? BoxConstraints(minHeight: height!) : null,
+      constraints: height != null ? BoxConstraints(minHeight: height!) : null,
       padding: AppSpacing.cardPadding,
       decoration: BoxDecoration(
         color: AppColors.surface,

@@ -111,3 +111,12 @@ All concrete physical columns are recorded as `PROPOSED` specifications in `Brai
 8. Only the `health-check` function is instantiated; all concrete application routes remain `PROPOSED` until their respective feature tasks.  
 **Reason:** Enforces a clean, observable serverless boundary preventing contract drift, replay attacks, and secret leakage across mobile client and third-party provider integrations.
 
+## ADR-020 — Client-Side Supabase Integration Boundary & Offline Mock Bootstrap
+**Status:** Accepted (Task 013)  
+**Decision:** Wrap the Flutter Supabase SDK in a typed service boundary (`ISupabaseService`, `ISupabaseAuthService`, `ISupabaseFunctionsService`, `ISupabaseStorageService`) backed by `SupabaseClientService` for production and `MockSupabaseService` for testing and offline development. Enforce:
+1. Safe bootstrap fallback: app boots gracefully against placeholder credentials or without network.
+2. Zero privileged server secrets in client binaries (enforced via `AppConfig.assertNoServerSecrets`).
+3. Centralized failure mapping (`SupabaseFailureMapper`) translating SDK exceptions into user-safe `AppFailure` codes (`FK-1001` to `FK-9999`) and scrubbing technical database internals.
+4. Reactive Riverpod auth providers (`supabaseServiceProvider`, `supabaseAuthServiceProvider`, `supabaseAuthStateProvider`, `currentUserProvider`, `isAuthenticatedProvider`).  
+**Reason:** Enables testable, offline-first mobile client architecture without coupling development or automated testing to live hosted Supabase infrastructure, while maintaining strict secret boundaries.
+

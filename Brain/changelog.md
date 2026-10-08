@@ -199,3 +199,16 @@
 - Added 18 function-level unit tests in `supabase/functions/tests/edge_foundation_test.ts` wired to `npm run test:edge`.
 - Recorded ADR-019 in `Brain/decisions.md`.
 - Completed Phase 1 (Backend, Database, and Data Access Foundation).
+
+## 2026-10-08 — TASK 013: Supabase client foundation
+
+- Added `supabase_flutter: ^2.8.0` integration to `pubspec.yaml`.
+- Created typed client service boundary under `lib/core/supabase/`:
+  - `supabase_service_boundary.dart`: Defined `ISupabaseService`, `ISupabaseAuthService`, `ISupabaseFunctionsService`, `ISupabaseStorageService`, and normalized models (`FitKarmaUser`, `FitKarmaAuthSession`, `FitKarmaAuthState`).
+  - `supabase_failure_mapper.dart`: Implemented `SupabaseFailureMapper` translating SDK exceptions (`AuthException`, `PostgrestException`, `FunctionException`, `StorageException`, `SocketException`, `TimeoutException`) into standard `AppFailure` taxonomy (`FK-1001` through `FK-9999`) and scrubbing database internals.
+  - `mock_supabase_service.dart`: Created full offline mock service (`MockSupabaseService`) allowing tests and local preview to boot cleanly without production credentials or live network.
+  - `supabase_client_service.dart`: Implemented production wrapper (`SupabaseClientService`) integrating PKCE auth flow, auto-token refresh, and graceful fallback to mock mode on placeholder configurations.
+  - `supabase_providers.dart`: Exposed Riverpod providers (`supabaseServiceProvider`, `supabaseAuthServiceProvider`, `supabaseAuthStateProvider`, `currentUserProvider`, `isAuthenticatedProvider`).
+- Updated `lib/app/bootstrap.dart` initializing `supabaseServiceProvider` during root startup with automatic mock fallback.
+- Added comprehensive unit and widget test suite in `test/core/supabase/supabase_client_test.dart` (17 tests verifying mock fallback, server-key rejection, auth state stream transitions, function/storage simulation, error taxonomy mapping, and offline app boot).
+- Recorded ADR-020 in `Brain/decisions.md`.
