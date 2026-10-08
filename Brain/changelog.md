@@ -132,5 +132,19 @@
 - Enhanced `DesignSystemShowcaseScreen` with interactive live language switcher and localization showcase section (Section 9).
 - Added comprehensive unit and widget tests in `test/core/localization/localization_test.dart` (10 tests asserting locale enumeration, string parity, fallback behavior, immediate widget updates without app restart, and strict separation between UI i18n and AI conversational directives; total 72/72 tests green).
 
+## 2026-10-08 — TASK 011: Accessibility foundation
+
+- Implemented reusable accessibility utilities and wrappers under `lib/shared/presentation/accessibility/`:
+  - `AccessibilityHelpers`: WCAG 2.1 AA luminance contrast calculations (`meetsWcagAa`), minimum 48x48dp touch target constraints (`minTouchTargetConstraints`), and system reduced-motion duration resolution (`getAccessibleDuration`).
+  - `AccessibleTouchTarget`: Widget wrapper guaranteeing 48x48dp minimum bounds without altering child layout.
+  - `SemanticReadingOrder`: Traversal ordering wrapper attaching `OrdinalSortKey` for logical screen-reader navigation across Bento tiles and health cards.
+  - `AdaptiveTextScaleContainer`: Layout protection wrapper clamping dynamic text scaling gracefully (up to 200%) and preventing layout clipping.
+  - `AccessibleFocusIndicator`: Accessible focus decoration wrapping interactive elements with a distinct high-contrast Neon Mint border and glow for keyboard and switch-access navigation.
+- Enhanced shared UI components for accessibility compliance:
+  - `AppButton` & `BentoCard`: Integrated system reduced-motion checks (`AccessibilityHelpers.getAccessibleDuration`) collapsing tap animations to `Duration.zero` when `disableAnimations` is active.
+  - `BentoCard`: Expanded title and subtitle wrapping (`maxLines: 2`) to eliminate truncation and RenderFlex overflow at 200% text scale.
+- Added comprehensive accessibility tests in `test/shared/presentation/accessibility_test.dart` (13 tests verifying WCAG contrast ratios, 48dp touch bounds, screen-reader semantics, reading order traversal, focus indicator behavior, reduced motion compliance, and RenderFlex safety at 2.0x text scale; total 85/85 tests green).
+
+
 
 

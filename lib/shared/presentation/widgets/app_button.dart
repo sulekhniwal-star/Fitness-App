@@ -1,3 +1,4 @@
+import 'package:fitkarma/shared/presentation/accessibility/accessibility_helpers.dart';
 import 'package:fitkarma/shared/presentation/theme/app_colors.dart';
 import 'package:fitkarma/shared/presentation/theme/app_motion.dart';
 import 'package:fitkarma/shared/presentation/theme/app_radii.dart';
@@ -40,6 +41,10 @@ class _AppButtonState extends State<AppButton> {
   @override
   Widget build(BuildContext context) {
     final effectiveSemanticLabel = widget.semanticLabel ?? widget.label;
+    final animationDuration = AccessibilityHelpers.getAccessibleDuration(
+      context,
+      AppMotion.fast,
+    );
 
     return Semantics(
       button: true,
@@ -54,7 +59,7 @@ class _AppButtonState extends State<AppButton> {
         onTap: _isEnabled ? widget.onPressed : null,
         child: AnimatedScale(
           scale: _isPressed ? 0.97 : 1.0,
-          duration: AppMotion.fast,
+          duration: animationDuration,
           curve: AppMotion.springBounce,
           child: Container(
             constraints: BoxConstraints(

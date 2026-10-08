@@ -14,3 +14,6 @@ export 'app_text_field.dart';
 export 'bento_card.dart';
 export 'glass_container.dart';
 export 'state_views.dart';
+
+// Accessibility primitives
+export '../accessibility/accessibility.dart';

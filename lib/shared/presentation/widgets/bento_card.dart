@@ -1,3 +1,4 @@
+import 'package:fitkarma/shared/presentation/accessibility/accessibility_helpers.dart';
 import 'package:fitkarma/shared/presentation/theme/app_colors.dart';
 import 'package:fitkarma/shared/presentation/theme/app_motion.dart';
 import 'package:fitkarma/shared/presentation/theme/app_radii.dart';
@@ -44,6 +45,10 @@ class _BentoCardState extends State<BentoCard> {
   Widget build(BuildContext context) {
     final effectivePadding = widget.padding ?? AppSpacing.cardPadding;
     final content = _buildCardContent(effectivePadding);
+    final animationDuration = AccessibilityHelpers.getAccessibleDuration(
+      context,
+      AppMotion.fast,
+    );
 
     final cardWidget = widget.isGlass
         ? GlassContainer(
@@ -76,7 +81,7 @@ class _BentoCardState extends State<BentoCard> {
               onTap: widget.onTap,
               child: AnimatedScale(
                 scale: _isPressed ? 0.98 : 1.0,
-                duration: AppMotion.fast,
+                duration: animationDuration,
                 curve: AppMotion.springBounce,
                 child: cardWidget,
               ),
@@ -126,7 +131,7 @@ class _BentoCardState extends State<BentoCard> {
                         Text(
                           widget.title!,
                           style: AppTypography.titleMedium,
-                          maxLines: 1,
+                          maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                         if (widget.subtitle != null) ...[
@@ -134,7 +139,7 @@ class _BentoCardState extends State<BentoCard> {
                           Text(
                             widget.subtitle!,
                             style: AppTypography.bodySmall,
-                            maxLines: 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
                         ],
