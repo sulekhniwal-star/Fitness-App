@@ -51,6 +51,28 @@ abstract interface class AppStrings {
   String get offlinePreserved;
   String get noWorkoutsToday;
   String get noMealsLogged;
+
+  // --- Authentication ---
+  String get phoneEntryTitle;
+  String get phoneEntrySubtitle;
+  String get phoneInputLabel;
+  String get phoneInputHint;
+  String get sendOtp;
+  String get invalidPhoneError;
+  String get authTermsNotice;
+  String get otpVerificationTitle;
+  String get otpVerificationSubtitle;
+  String get changePhone;
+  String get otpInputLabel;
+  String get verifyOtp;
+  String get resendOtp;
+  String resendInSeconds(int seconds);
+  String get otpSentSuccess;
+  String get invalidOtpError;
+  String get continueWithGoogle;
+  String get orDivider;
+  String get signOut;
+  String get googleSignInCancelled;
 }
 
 /// English string catalog implementation (default source of truth).
@@ -142,6 +164,52 @@ class EnglishStrings implements AppStrings {
   String get noWorkoutsToday => 'No workouts logged today';
   @override
   String get noMealsLogged => 'No meals logged yet';
+
+  // --- Authentication ---
+  @override
+  String get phoneEntryTitle => 'Enter your phone number';
+  @override
+  String get phoneEntrySubtitle =>
+      'We will send a 6-digit verification code via SMS.';
+  @override
+  String get phoneInputLabel => 'Phone Number';
+  @override
+  String get phoneInputHint => '98765 43210';
+  @override
+  String get sendOtp => 'Get OTP';
+  @override
+  String get invalidPhoneError =>
+      'Please enter a valid 10-digit mobile number';
+  @override
+  String get authTermsNotice =>
+      'By continuing, you agree to FitKarma\'s Terms of Service and Privacy Policy.';
+  @override
+  String get otpVerificationTitle => 'Verify Phone';
+  @override
+  String get otpVerificationSubtitle => 'Enter the 6-digit code sent to';
+  @override
+  String get changePhone => 'Change';
+  @override
+  String get otpInputLabel => 'Verification Code';
+  @override
+  String get verifyOtp => 'Verify & Continue';
+  @override
+  String get resendOtp => 'Resend Code';
+  @override
+  String resendInSeconds(int seconds) => 'Resend code in ${seconds}s';
+  @override
+  String get otpSentSuccess => 'Verification code sent successfully.';
+  @override
+  String get invalidOtpError =>
+      'Invalid verification code. Please check and try again.';
+  @override
+  String get continueWithGoogle => 'Continue with Google';
+  @override
+  String get orDivider => 'or';
+  @override
+  String get signOut => 'Sign Out';
+  @override
+  String get googleSignInCancelled => 'Google Sign-In was cancelled.';
 }
 
 /// Hindi (हिन्दी) string catalog implementation.
@@ -233,4 +301,50 @@ class HindiStrings implements AppStrings {
   String get noWorkoutsToday => 'आज कोई व्यायाम दर्ज नहीं किया गया';
   @override
   String get noMealsLogged => 'अभी तक कोई भोजन दर्ज नहीं किया गया';
+
+  // --- Authentication ---
+  @override
+  String get phoneEntryTitle => 'अपना फ़ोन नंबर दर्ज करें';
+  @override
+  String get phoneEntrySubtitle =>
+      'हम एसएमएस के जरिए 6 अंकों का सत्यापन कोड भेजेंगे।';
+  @override
+  String get phoneInputLabel => 'फ़ोन नंबर';
+  @override
+  String get phoneInputHint => '98765 43210';
+  @override
+  String get sendOtp => 'ओटीपी प्राप्त करें';
+  @override
+  String get invalidPhoneError =>
+      'कृपया एक मान्य 10 अंकों का मोबाइल नंबर दर्ज करें';
+  @override
+  String get authTermsNotice =>
+      'आगे बढ़कर आप फिटकर्मा की सेवा की शर्तों और गोपनीयता नीति से सहमत होते हैं।';
+  @override
+  String get otpVerificationTitle => 'फ़ोन सत्यापित करें';
+  @override
+  String get otpVerificationSubtitle => 'भेजा गया 6 अंकों का कोड दर्ज करें';
+  @override
+  String get changePhone => 'बदलें';
+  @override
+  String get otpInputLabel => 'सत्यापन कोड';
+  @override
+  String get verifyOtp => 'सत्यापित करें और आगे बढ़ें';
+  @override
+  String get resendOtp => 'कोड पुनः भेजें';
+  @override
+  String resendInSeconds(int seconds) => '$seconds सेकंड में पुनः भेजें';
+  @override
+  String get otpSentSuccess => 'सत्यापन कोड सफलतापूर्वक भेजा गया।';
+  @override
+  String get invalidOtpError =>
+      'अमान्य सत्यापन कोड। कृपया जांचें और पुनः प्रयास करें।';
+  @override
+  String get continueWithGoogle => 'गूगल के साथ आगे बढ़ें';
+  @override
+  String get orDivider => 'या';
+  @override
+  String get signOut => 'साइन आउट';
+  @override
+  String get googleSignInCancelled => 'गूगल साइन-इन रद्द कर दिया गया।';
 }

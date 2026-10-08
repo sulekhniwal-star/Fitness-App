@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:fitkarma/core/config/app_config.dart';
+import 'package:fitkarma/core/errors/failures.dart';
 import 'package:fitkarma/core/errors/result.dart';
 import 'package:fitkarma/core/supabase/mock_supabase_service.dart';
 import 'package:fitkarma/core/supabase/supabase_failure_mapper.dart';
@@ -245,6 +246,71 @@ class _SupabaseAuthServiceImpl implements ISupabaseAuthService {
           user: fitKarmaUser,
         ),
       );
+    } catch (e, st) {
+      return FailureResult(SupabaseFailureMapper.map(e, st));
+    }
+  }
+
+  @override
+  Future<Result<FitKarmaAuthSession>> signInWithGoogle({
+    String? redirectTo,
+    String? idToken,
+    String? accessToken,
+  }) async {
+    try {
+      if (idToken != null) {
+        final res = await _auth.signInWithIdToken(
+          provider: OAuthProvider.google,
+          idToken: idToken,
+          accessToken: accessToken,
+        );
+        final session = res.session;
+        final user = res.user;
+        if (session == null || user == null) {
+          return FailureResult(
+            SupabaseFailureMapper.map('Missing session after Google Sign-In'),
+          );
+        }
+        final fitKarmaUser = FitKarmaUser(
+          id: user.id,
+          email: user.email,
+          phone: user.phone,
+          createdAt: DateTime.tryParse(user.createdAt) ?? DateTime.now(),
+          userMetadata: user.userMetadata ?? const {},
+        );
+        return Success(
+          FitKarmaAuthSession(
+            accessToken: session.accessToken,
+            refreshToken: session.refreshToken,
+            expiresAt: session.expiresAt != null
+                ? DateTime.fromMillisecondsSinceEpoch(session.expiresAt! * 1000)
+                : null,
+            user: fitKarmaUser,
+          ),
+        );
+      } else {
+        final hasLaunched = await _auth.signInWithOAuth(
+          OAuthProvider.google,
+          redirectTo: redirectTo,
+        );
+        if (!hasLaunched) {
+          return const FailureResult(
+            AuthFailure(
+              message: 'Google Sign-In was cancelled by the user.',
+              details: {'cancelled': true},
+            ),
+          );
+        }
+        final current = currentSession;
+        if (current != null) {
+          return Success(current);
+        }
+        return const FailureResult(
+          AuthFailure(
+            message: 'Waiting for OAuth browser callback to complete.',
+          ),
+        );
+      }
     } catch (e, st) {
       return FailureResult(SupabaseFailureMapper.map(e, st));
     }

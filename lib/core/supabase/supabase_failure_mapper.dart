@@ -79,6 +79,20 @@ class SupabaseFailureMapper {
       );
     }
 
+    if (msg.contains('cancel') || msg.contains('cancelled') || msg.contains('user cancelled')) {
+      return const AuthFailure(
+        message: 'Google Sign-In was cancelled by the user.',
+        details: {'cancelled': true},
+      );
+    }
+
+    if (msg.contains('provider') || msg.contains('oauth') || msg.contains('external')) {
+      return AuthFailure(
+        message: AppFailure.sanitizeUserMessage(error.message),
+        details: {'provider_error': true},
+      );
+    }
+
     return AuthFailure(
       message: AppFailure.sanitizeUserMessage(error.message),
     );

@@ -1,6 +1,8 @@
 import 'package:fitkarma/core/routing/app_routes.dart';
 import 'package:fitkarma/core/routing/auth_nav_state.dart';
 import 'package:fitkarma/core/routing/placeholder_screens.dart';
+import 'package:fitkarma/features/auth/presentation/screens/otp_verification_screen.dart';
+import 'package:fitkarma/features/auth/presentation/screens/phone_entry_screen.dart';
 import 'package:fitkarma/shared/presentation/showcase/design_system_showcase_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -68,19 +70,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.login,
-        builder: (context, state) => const AreaPlaceholderScreen(
-          title: 'Login',
-          subtitle: 'Sign in to FitKarma',
-          semanticKey: Key('screen_login'),
-        ),
+        builder: (context, state) => const PhoneEntryScreen(),
       ),
       GoRoute(
         path: AppRoutes.otp,
-        builder: (context, state) => const AreaPlaceholderScreen(
-          title: 'OTP Verification',
-          subtitle: 'Enter verification code',
-          semanticKey: Key('screen_otp'),
-        ),
+        builder: (context, state) => const OtpVerificationScreen(),
       ),
       GoRoute(
         path: AppRoutes.showcase,

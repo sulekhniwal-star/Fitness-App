@@ -38,8 +38,22 @@ class MockSupabaseAuthService implements ISupabaseAuthService {
   FitKarmaUser? _currentUser;
   FitKarmaAuthSession? _currentSession;
 
+  // Identity registries ensuring zero duplicate user records
+  final Map<String, FitKarmaUser> _usersByEmail = {};
+  final Map<String, FitKarmaUser> _usersByPhone = {};
+
+  bool simulateCancellation = false;
+  bool simulateProviderError = false;
+  AppFailure? nextAuthFailure;
+
   MockSupabaseAuthService({FitKarmaUser? initialUser}) {
     if (initialUser != null) {
+      if (initialUser.email != null) {
+        _usersByEmail[initialUser.email!] = initialUser;
+      }
+      if (initialUser.phone != null) {
+        _usersByPhone[initialUser.phone!] = initialUser;
+      }
       simulateSignIn(initialUser);
     } else {
       _authStateController.add(FitKarmaAuthState.unauthenticated);
@@ -104,11 +118,15 @@ class MockSupabaseAuthService implements ISupabaseAuthService {
       );
     }
 
-    final user = FitKarmaUser(
-      id: '00000000-0000-0000-0000-000000000001',
-      phone: phone,
-      createdAt: DateTime.now(),
-      userMetadata: const {'role': 'user'},
+    // Reuse existing user record to prevent duplicates
+    final user = _usersByPhone.putIfAbsent(
+      phone,
+      () => FitKarmaUser(
+        id: '00000000-0000-0000-0000-${(_usersByPhone.length + 1).toString().padLeft(12, '0')}',
+        phone: phone,
+        createdAt: DateTime.now(),
+        userMetadata: const {'role': 'user', 'provider': 'phone'},
+      ),
     );
 
     simulateSignIn(user);
@@ -126,14 +144,69 @@ class MockSupabaseAuthService implements ISupabaseAuthService {
       );
     }
 
-    final user = FitKarmaUser(
-      id: '00000000-0000-0000-0000-000000000001',
-      email: email,
-      createdAt: DateTime.now(),
-      userMetadata: const {'role': 'user'},
+    // Reuse existing user record to prevent duplicates
+    final user = _usersByEmail.putIfAbsent(
+      email,
+      () => FitKarmaUser(
+        id: '00000000-0000-0000-0000-${(_usersByEmail.length + 1).toString().padLeft(12, '0')}',
+        email: email,
+        createdAt: DateTime.now(),
+        userMetadata: const {'role': 'user', 'provider': 'email'},
+      ),
     );
 
     simulateSignIn(user);
+    return Success(_currentSession!);
+  }
+
+  @override
+  Future<Result<FitKarmaAuthSession>> signInWithGoogle({
+    String? redirectTo,
+    String? idToken,
+    String? accessToken,
+  }) async {
+    if (nextAuthFailure != null) {
+      final fail = nextAuthFailure!;
+      nextAuthFailure = null;
+      return FailureResult(fail);
+    }
+
+    if (simulateCancellation || idToken == 'cancel') {
+      return const FailureResult(
+        AuthFailure(
+          message: 'Google Sign-In was cancelled by the user.',
+          details: {'cancelled': true},
+        ),
+      );
+    }
+
+    if (simulateProviderError || idToken == 'provider_error') {
+      return const FailureResult(
+        AuthFailure(
+          message: 'Google authentication provider error occurred.',
+          details: {'provider_error': true},
+        ),
+      );
+    }
+
+    const email = 'user.fitkarma@gmail.com';
+
+    // Retrieve or register user — never duplicates user records with same email
+    final user = _usersByEmail.putIfAbsent(
+      email,
+      () => FitKarmaUser(
+        id: '00000000-0000-0000-0000-000000000002',
+        email: email,
+        createdAt: DateTime.now(),
+        userMetadata: const {
+          'full_name': 'FitKarma Google User',
+          'provider': 'google',
+          'avatar_url': 'https://fitkarma.app/avatar.png',
+        },
+      ),
+    );
+
+    simulateSignIn(user, 'mock_google_token');
     return Success(_currentSession!);
   }
 

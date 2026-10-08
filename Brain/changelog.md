@@ -212,3 +212,32 @@
 - Updated `lib/app/bootstrap.dart` initializing `supabaseServiceProvider` during root startup with automatic mock fallback.
 - Added comprehensive unit and widget test suite in `test/core/supabase/supabase_client_test.dart` (17 tests verifying mock fallback, server-key rejection, auth state stream transitions, function/storage simulation, error taxonomy mapping, and offline app boot).
 - Recorded ADR-020 in `Brain/decisions.md`.
+
+## 2026-10-09 — TASK 014: FitKarma Phone OTP Authentication
+
+- Implemented phone OTP authentication flow using Supabase Auth SMS OTP (`signInWithOtp`, `verifyOtp`):
+  - `phone_auth_controller.dart`: Created `PhoneAuthController` with `PhoneAuthState` state machine managing Indian phone number normalization (`^[6-9]\d{9}$`), 30-second resend cooldown timer, loading states, and error handling (`FK-1001`, `FK-2001`).
+  - `otp_pin_input.dart`: Built accessible 6-cell Bento PIN display with focus glow, paste support, and screen-reader semantics.
+  - `phone_entry_screen.dart`: Implemented phone entry UI at `/auth/login` with `+91 🇮🇳` country badge, inline validation, Get OTP trigger button, and DPDP-compliant privacy notice.
+  - `otp_verification_screen.dart`: Implemented OTP verification UI at `/auth/otp` with masked phone display, "Change" phone navigation link, resend cooldown timer/button, inline error banner, and Verify & Continue action.
+- Bound `authNavStatusProvider` in `lib/core/routing/auth_nav_state.dart` directly to `isAuthenticatedProvider` from the Supabase service boundary, providing automatic authenticated session persistence and declarative GoRouter redirection to `/dashboard`.
+- Connected routes `/auth/login` and `/auth/otp` in `lib/core/routing/app_router.dart`.
+- Extended localization catalogs (`EnglishStrings` and `HindiStrings`) with phone OTP UI strings and updated localization unit tests.
+- Added comprehensive unit, widget, and integration tests in `test/features/auth/phone_auth_test.dart` (17 tests covering normalization, state transitions, invalid code errors, timer cooldown, resend behavior, widget rendering, and end-to-end dashboard redirection).
+- Verified with 131/131 passing Flutter tests, 0 analyzer issues, and 67/67 passing doc-lint checks.
+- Recorded ADR-021 in `Brain/decisions.md`.
+
+## 2026-10-09 — TASK 015: Google Sign-In & Session Logout
+
+- Integrated Google authentication into the Supabase authentication layer:
+  - `supabase_service_boundary.dart`: Added `signInWithGoogle` method to `ISupabaseAuthService`.
+  - `supabase_failure_mapper.dart`: Added mapping for OAuth cancellations (`details: {'cancelled': true}`) and external provider errors (`details: {'provider_error': true}`).
+  - `supabase_client_service.dart`: Implemented `signInWithGoogle` supporting both native Google ID tokens (`signInWithIdToken`) and browser PKCE OAuth (`signInWithOAuth`).
+  - `mock_supabase_service.dart`: Built identity registry ensuring zero duplicate user records on repeated Google logins with the same email address, with cancellation and provider error simulation.
+- Created `GoogleAuthController` with `GoogleAuthState` in `lib/features/auth/presentation/controllers/google_auth_controller.dart` managing sign-in, voluntary cancellation, provider errors, and sign-out.
+- Updated `PhoneEntryScreen` at `/auth/login` with an "or" divider and accessible "Continue with Google" button.
+- Updated `AreaPlaceholderScreen` adding an accessible logout button in the `AppBar` when authenticated.
+- Extended localization catalogs (`EnglishStrings` and `HindiStrings`) with `continueWithGoogle`, `orDivider`, `signOut`, and `googleSignInCancelled` strings.
+- Added comprehensive unit, widget, and integration tests in `test/features/auth/google_auth_test.dart` (10 tests covering successful session establishment, user deduplication, cancellation handling, provider error toasts, and end-to-end logout with GoRouter redirection).
+- Verified with 141/141 passing Flutter tests, 0 analyzer issues, and 67/67 passing doc-lint checks.
+- Recorded ADR-022 in `Brain/decisions.md`.

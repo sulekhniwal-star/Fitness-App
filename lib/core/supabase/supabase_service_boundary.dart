@@ -109,6 +109,13 @@ abstract interface class ISupabaseAuthService {
     required String password,
   });
 
+  /// Authenticates using Google OAuth or Native Google Sign-In via Supabase Auth.
+  Future<Result<FitKarmaAuthSession>> signInWithGoogle({
+    String? redirectTo,
+    String? idToken,
+    String? accessToken,
+  });
+
   /// Signs out the current user session and clears local credentials.
   Future<Result<void>> signOut();
 }

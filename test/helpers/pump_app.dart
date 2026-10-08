@@ -1,6 +1,9 @@
 import 'package:fitkarma/core/config/app_config.dart';
+import 'package:fitkarma/core/localization/localization.dart';
 import 'package:fitkarma/core/providers/core_providers.dart';
+import 'package:fitkarma/shared/presentation/theme/app_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -10,6 +13,7 @@ extension PumpApp on WidgetTester {
   Future<void> pumpFitKarmaWidget(
     Widget widget, {
     List<Override> overrides = const [],
+    Locale locale = const Locale('en'),
   }) async {
     final defaultConfig = AppConfig.fromMap({
       'APP_ENV': 'development',
@@ -24,15 +28,15 @@ extension PumpApp on WidgetTester {
           ...overrides,
         ],
         child: MaterialApp(
-          theme: ThemeData(
-            brightness: Brightness.dark,
-            scaffoldBackgroundColor: const Color(0xFF0D0F12),
-            colorScheme: const ColorScheme.dark(
-              primary: Color(0xFF00E599),
-              surface: Color(0xFF161A22),
-            ),
-            useMaterial3: true,
-          ),
+          theme: FitKarmaTheme.darkTheme,
+          locale: locale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: AppSupportedLocale.supportedLocales,
           home: widget,
         ),
       ),

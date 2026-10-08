@@ -120,3 +120,23 @@ All concrete physical columns are recorded as `PROPOSED` specifications in `Brai
 4. Reactive Riverpod auth providers (`supabaseServiceProvider`, `supabaseAuthServiceProvider`, `supabaseAuthStateProvider`, `currentUserProvider`, `isAuthenticatedProvider`).  
 **Reason:** Enables testable, offline-first mobile client architecture without coupling development or automated testing to live hosted Supabase infrastructure, while maintaining strict secret boundaries.
 
+## ADR-021 — Phone OTP Authentication Architecture & Session Persistence
+**Status:** Accepted (Task 014)  
+**Decision:** Implement phone OTP authentication using Supabase Auth SMS OTP (`signInWithOtp`, `verifyOtp`) backed by:
+1. Strict Indian E.164 phone normalization (`+91` prefix, 10 national digits starting with 6-9, `^[6-9]\d{9}$`).
+2. Reactive state controller (`PhoneAuthController`, `PhoneAuthState`) with 30-second resend cooldown timer and granular error state tracking (`FK-1001` AuthFailure, `FK-2001` ValidationFailure).
+3. Dedicated accessible screens (`PhoneEntryScreen` and `OtpVerificationScreen`) utilizing `OtpPinInput` 6-cell Bento PIN display, spring physics, and inline error feedback.
+4. Reactive router integration linking `authNavStatusProvider` to `isAuthenticatedProvider`, enabling automatic session persistence and route redirection to `/dashboard`.
+5. Strict scope boundary: Google Sign-In is deferred to Task 015.  
+**Reason:** Delivers a secure, India-first, privacy-compliant, accessible authentication flow with deterministic error handling, session persistence, and zero credential leakage.
+
+## ADR-022 — Google Sign-In Architecture, User Deduplication & Logout
+**Status:** Accepted (Task 015)  
+**Decision:** Integrate Google authentication with the Supabase Auth architecture:
+1. `ISupabaseAuthService.signInWithGoogle` supporting both native Google ID tokens and browser OAuth redirection via PKCE.
+2. Strict user deduplication: accounts authenticating with the same verified email address reuse existing user records across multiple sign-in sessions and auth providers, preventing orphaned user profiles and split history.
+3. User cancellation handling: voluntary dismissal of the Google account picker is categorized as a non-fatal cancellation state rather than an error condition.
+4. Provider error mapping: OAuth failures and connectivity errors are scrubbed and translated via `SupabaseFailureMapper` into standard `FK-1001` or `FK-6001` error envelopes.
+5. Unified session logout (`signOut`): invalidates local tokens, clears authentication state, and triggers declarative GoRouter redirection back to unauthenticated public routes.  
+**Reason:** Ensures seamless, reliable Google authentication alongside phone OTP without duplicating user identities or fragmenting health telemetry.
+

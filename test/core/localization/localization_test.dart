@@ -74,6 +74,14 @@ void main() {
       // Error and recovery
       expect(en.offlinePreserved, isNotEmpty);
       expect(en.genericError, isNotEmpty);
+
+      // Auth
+      expect(en.phoneEntryTitle, equals('Enter your phone number'));
+      expect(en.sendOtp, equals('Get OTP'));
+      expect(en.otpVerificationTitle, equals('Verify Phone'));
+      expect(en.resendInSeconds(25), equals('Resend code in 25s'));
+      expect(en.continueWithGoogle, equals('Continue with Google'));
+      expect(en.signOut, equals('Sign Out'));
     });
 
     test(
@@ -97,6 +105,14 @@ void main() {
         // Error and recovery
         expect(hi.offlinePreserved, contains('सुरक्षित'));
         expect(hi.genericError, equals('कुछ गड़बड़ हुई'));
+
+        // Auth
+        expect(hi.phoneEntryTitle, equals('अपना फ़ोन नंबर दर्ज करें'));
+        expect(hi.sendOtp, equals('ओटीपी प्राप्त करें'));
+        expect(hi.otpVerificationTitle, equals('फ़ोन सत्यापित करें'));
+        expect(hi.resendInSeconds(25), equals('25 सेकंड में पुनः भेजें'));
+        expect(hi.continueWithGoogle, equals('गूगल के साथ आगे बढ़ें'));
+        expect(hi.signOut, equals('साइन आउट'));
       },
     );
   });
