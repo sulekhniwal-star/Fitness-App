@@ -43,3 +43,12 @@
 - Implemented strongly-typed `AppConfig` in `lib/core/config/app_config.dart` with programmatic validation and `SecurityViolationException` rejecting any server secret keys (`SUPABASE_SERVICE_ROLE_KEY`, `RAZORPAY_KEY_SECRET`, `GROQ_API_KEY`, etc.).
 - Added unit tests in `test/core/config/app_config_test.dart` asserting configuration validation and secret boundary enforcement (8/8 tests passing).
 - Documented environment and secret boundaries in `Brain/security.md`.
+
+## 2026-10-08 — TASK 004: Establish project folder architecture
+
+- Structured modular directory boundaries (`app/`, `core/`, `shared/`, `features/`) adhering to `Brain/architecture.md`.
+- Implemented bootstrap architecture in `lib/app/bootstrap.dart` and `lib/app/fitkarma_app.dart`, cleanly separating entry point orchestration from UI definitions.
+- Scaffolded core boundaries (`constants/`, `errors/`, `services/`, `database/`, `sync/`) and shared presentation primitives.
+- Established feature domain modules (`auth/`, `profile/`, `dashboard/`, `nutrition/`, `health_tracking/`, `family/`, `payments/`, `data_vault/`).
+- Added testing helper `test/helpers/pump_app.dart`.
+- Documented folder hierarchy and strict dependency-direction rules in `Brain/architecture.md`.

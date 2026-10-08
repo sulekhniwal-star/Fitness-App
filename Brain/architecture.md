@@ -26,6 +26,40 @@ flowchart TD
 - Sync: outbox worker with idempotent operations.
 - Integrations: platform health APIs and secure backend bridges.
 
+## 2.1 Project folder architecture & dependency direction
+
+```text
+lib/
+├── app/                  # Application bootstrap, root widget, global observers
+│   ├── bootstrap.dart
+│   └── fitkarma_app.dart
+├── core/                 # Shared foundational primitives & contracts (no feature imports)
+│   ├── config/           # AppConfig, environment flags, secret validation
+│   ├── constants/        # AppConstants, package identifiers
+│   ├── database/         # Local database boundaries (Drift + SQLCipher contracts)
+│   ├── errors/           # Failure primitives and FK-xxxx taxonomy
+│   ├── services/         # Logging, telemetry, platform abstractions
+│   └── sync/             # SyncEngine contracts and outbox boundaries
+├── shared/               # Reusable UI primitives, theme tokens, Bento cards
+│   └── presentation/     # Generic widgets, cards, dialogs (no feature imports)
+└── features/             # Feature-driven modular domains
+    ├── auth/             # Phone OTP, Google OAuth, session management
+    ├── profile/          # User baseline, fitness goals, wellness/Dosha
+    ├── dashboard/        # Daily Intelligence Package (DIP), home surface
+    ├── nutrition/        # Indian food DB, portions, raw/cooked, Tadka, recipes
+    ├── health_tracking/  # Steps, sleep, weight, mood, water, medications, vitals
+    ├── family/           # Family Care Dashboard, consent, remote view
+    ├── payments/         # Razorpay checkout, UPI AutoPay, entitlement state
+    └── data_vault/       # DPDP privacy vault, export, cascading erasure
+```
+
+### Dependency direction rules
+
+1. **Domain Isolation**: Domain entities, value objects, and repository interfaces must have zero dependencies on Flutter UI, data sources, or third-party SDKs.
+2. **Inward Dependencies**: Presentation and Data layers depend on Domain. Presentation handles UI and Riverpod providers; Data implements Domain repository interfaces.
+3. **Module Encapsulation**: A feature module must NEVER directly import internal implementations from a sibling feature module. Inter-feature coordination occurs via Domain interfaces, public facades, or shared application routing.
+4. **Core / Shared Independence**: `core/` and `shared/` are strictly downstream foundations and must never import from `features/`.
+
 ## 3. Backend boundaries
 
 ### Supabase Postgres

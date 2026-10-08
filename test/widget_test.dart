@@ -1,5 +1,5 @@
+import 'package:fitkarma/app/fitkarma_app.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:fitkarma/main.dart';
 
 void main() {
   testWidgets('FitKarma application bootstrap smoke test', (
