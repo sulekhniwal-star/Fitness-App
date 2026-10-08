@@ -11,7 +11,12 @@
 
 ## 2. Navigation
 
-`PROPOSED`: Home / Log / Insights / Activity / Family / Profile, subject to product validation. Do not treat this as an existing screen map unless confirmed in the repository.
+The application uses declarative routing via `GoRouter` coordinated with Riverpod (`appRouterProvider`, `authNavStatusProvider`):
+
+- **Auth boundaries**:
+  - Unauthenticated routes: `/onboarding`, `/auth/login`, `/auth/otp`.
+  - Authenticated top-level areas: `/dashboard` (home/DIP), `/nutrition`, `/nutrition/log`, `/workouts`, `/sleep`, `/recovery`, `/ai/meal-analyze`, `/family`, `/subscriptions`, `/settings`, `/data-vault`.
+- **Reactive redirection**: Unauthenticated access to protected routes redirects to `/onboarding`; authenticated sessions redirect to `/dashboard`.
 
 ## 3. Onboarding
 

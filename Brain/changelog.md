@@ -60,3 +60,12 @@
 - Created core providers in `lib/core/providers/core_providers.dart`: `appConfigProvider`, `loggingServiceProvider`, `localDatabaseProvider`, and `syncEngineProvider`.
 - Implemented `AppProviderObserver` for centralized lifecycle monitoring, diagnostic logging, and error capture with PII redaction.
 - Created `test/core/providers/provider_architecture_test.dart` asserting that all root dependencies are cleanly overridable in tests and that UI widgets observe provider state changes without hard-coded external clients.
+
+## 2026-10-08 — TASK 006: Navigation and route architecture
+
+- Integrated `go_router: ^18.0.2` and wired declarative routing through Riverpod (`appRouterProvider`, `authNavStatusProvider`, `routerNotifierProvider`).
+- Established centralized route paths in `lib/core/routing/app_routes.dart` covering both unauthenticated entry points (`/onboarding`, `/auth/login`, `/auth/otp`) and authenticated top-level product areas (`/dashboard`, `/nutrition`, `/nutrition/log`, `/workouts`, `/sleep`, `/recovery`, `/ai/meal-analyze`, `/family`, `/subscriptions`, `/settings`, `/data-vault`).
+- Implemented reactive auth-aware route guarding (unauthenticated access redirects to onboarding; authenticated sessions route to dashboard).
+- Created modular placeholder shells in `lib/core/routing/placeholder_screens.dart` with semantic test keys for every top-level area.
+- Added comprehensive navigation tests in `test/core/routing/app_router_test.dart` asserting auth-guard redirects and traversal to all product areas (17/17 tests passing).
+- Documented the confirmed route skeleton and guard behavior in `Brain/ui_spec.md`.
