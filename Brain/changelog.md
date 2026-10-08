@@ -77,3 +77,12 @@
 - Implemented user message sanitization logic stripping stack traces, SQL error substrings, and credential leaks.
 - Implemented functional `Result<T>` container in `lib/core/errors/result.dart` with `Success<T>` and `FailureResult<T>`, supporting pattern-matching (`when`), `map`, `flatMap`, and `getOrElse`.
 - Added unit test suite in `test/core/errors/failures_and_result_test.dart` (7 tests covering code mapping, recovery rules, serialization, message sanitization, and Result mechanics; total 24/24 tests green).
+
+## 2026-10-08 — TASK 008: Logging and observability foundation
+
+- Implemented DPDP-compliant `DataRedactor` in `lib/core/observability/redaction.dart` providing recursive sanitization across maps, lists, and strings for authentication credentials, payment details, raw sensitive health observations (glucose, BP, HR, medications), and personal data (phones, emails, Aadhaar, PAN).
+- Created `LoggingService` contract and `DiagnosticEvent` model in `lib/core/observability/logging_service.dart`.
+- Enhanced `ConsoleLoggingService` with environment-awareness (suppressing debug logs in production) and parameter scrubbing.
+- Scaffolded `SentryCrashReportingBoundary` in `lib/core/observability/crash_reporting_service.dart` with client-side scrubbing hooks for breadcrumbs and exception extras, safely operating without production secrets.
+- Wired `dataRedactorProvider` and `crashReportingServiceProvider` into Riverpod core providers.
+- Added comprehensive unit tests in `test/core/observability/redaction_and_observability_test.dart` (10 tests; total 34/34 tests green).

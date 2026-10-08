@@ -1,12 +1,18 @@
 import 'dart:developer' as developer;
 
-import 'package:fitkarma/core/services/logging_service.dart';
+import 'package:fitkarma/core/observability/logging_service.dart';
+import 'package:fitkarma/core/observability/redaction.dart';
 
-/// Console-based logging service implementation with secret and PII awareness.
+/// Console-based logging service implementation with comprehensive PII, health,
+/// and secret redaction.
 class ConsoleLoggingService implements LoggingService {
   final bool isDebug;
+  final DataRedactor redactor;
 
-  const ConsoleLoggingService({this.isDebug = true});
+  const ConsoleLoggingService({
+    this.isDebug = true,
+    this.redactor = const DataRedactor(),
+  });
 
   @override
   void log(
@@ -18,13 +24,30 @@ class ConsoleLoggingService implements LoggingService {
   }) {
     if (!isDebug && level == LogLevel.debug) return;
 
-    final sanitizedData = _sanitize(data);
+    final sanitizedMessage = redactor.redactString(message);
+    final sanitizedData = data != null ? redactor.redactMap(data) : null;
+
     developer.log(
-      '[$level] $message ${sanitizedData != null ? '| data: $sanitizedData' : ''}',
+      '[$level] $sanitizedMessage ${sanitizedData != null ? '| data: $sanitizedData' : ''}',
       name: 'FitKarma',
       error: error,
       stackTrace: stackTrace,
       level: _toDeveloperLevel(level),
+    );
+  }
+
+  @override
+  void recordEvent(DiagnosticEvent event) {
+    if (!isDebug) return;
+
+    final sanitizedParams = event.parameters != null
+        ? redactor.redactMap(event.parameters!)
+        : null;
+
+    developer.log(
+      '[EVENT] ${event.name} (category: ${event.category}) ${sanitizedParams != null ? '| params: $sanitizedParams' : ''}',
+      name: 'FitKarma.Telemetry',
+      level: 700,
     );
   }
 
@@ -53,24 +76,6 @@ class ConsoleLoggingService implements LoggingService {
     error: error,
     stackTrace: stackTrace,
   );
-
-  Map<String, dynamic>? _sanitize(Map<String, dynamic>? data) {
-    if (data == null) return null;
-    final sanitized = <String, dynamic>{};
-    for (final entry in data.entries) {
-      final key = entry.key.toLowerCase();
-      if (key.contains('secret') ||
-          key.contains('password') ||
-          key.contains('token') ||
-          key.contains('key') ||
-          key.contains('pin')) {
-        sanitized[entry.key] = '[REDACTED]';
-      } else {
-        sanitized[entry.key] = entry.value;
-      }
-    }
-    return sanitized;
-  }
 
   int _toDeveloperLevel(LogLevel level) {
     switch (level) {

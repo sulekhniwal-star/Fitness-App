@@ -180,8 +180,7 @@ final class ValidationFailure extends AppFailure {
 /// Operation queued locally in offline mode (FK-3001).
 final class OfflineFailure extends AppFailure {
   const OfflineFailure({
-    super.message =
-        'You are currently offline. Changes are saved locally and will sync when connected.',
+    super.message = 'You are currently offline. Changes are saved locally and will sync when connected.',
     super.requestId,
     super.details,
   }) : super(code: 'FK-3001', retryable: true);
@@ -190,8 +189,7 @@ final class OfflineFailure extends AppFailure {
 /// Transient sync failure (FK-3002).
 final class SyncFailure extends AppFailure {
   const SyncFailure({
-    super.message =
-        'Unable to sync with the cloud. Will automatically retry.',
+    super.message = 'Unable to sync with the cloud. Will automatically retry.',
     super.requestId,
     super.details,
   }) : super(code: 'FK-3002', retryable: true);
@@ -200,8 +198,7 @@ final class SyncFailure extends AppFailure {
 /// Data conflict requiring user reconciliation (FK-3003).
 final class ConflictFailure extends AppFailure {
   const ConflictFailure({
-    super.message =
-        'A conflicting update was detected. Please choose which version to keep.',
+    super.message = 'A conflicting update was detected. Please choose which version to keep.',
     super.requestId,
     super.details,
   }) : super(code: 'FK-3003', retryable: false);
@@ -210,8 +207,7 @@ final class ConflictFailure extends AppFailure {
 /// AI extraction / parse failure (FK-4001).
 final class AiFailure extends AppFailure {
   const AiFailure({
-    super.message =
-        'Could not analyze meal automatically. Please enter your meal details manually.',
+    super.message = 'Could not analyze meal automatically. Please enter your meal details manually.',
     super.requestId,
     super.details,
   }) : super(code: 'FK-4001', retryable: true);
@@ -230,8 +226,7 @@ final class AiConfidenceFailure extends AppFailure {
 /// Payment provider request failure (FK-5001).
 final class PaymentFailure extends AppFailure {
   const PaymentFailure({
-    super.message =
-        'Payment request could not be processed. Please try again.',
+    super.message = 'Payment request could not be processed. Please try again.',
     super.requestId,
     super.details,
   }) : super(code: 'FK-5001', retryable: false);
@@ -240,8 +235,7 @@ final class PaymentFailure extends AppFailure {
 /// Payment verification failure (FK-5002).
 final class PaymentVerificationFailure extends AppFailure {
   const PaymentVerificationFailure({
-    super.message =
-        'Payment verification is pending or failed. Entitlement remains unconfirmed.',
+    super.message = 'Payment verification is pending or failed. Entitlement remains unconfirmed.',
     super.requestId,
     super.details,
   }) : super(code: 'FK-5002', retryable: false);
@@ -250,8 +244,7 @@ final class PaymentVerificationFailure extends AppFailure {
 /// UPI mandate or recurring payment failure (FK-5003).
 final class PaymentMandateFailure extends AppFailure {
   const PaymentMandateFailure({
-    super.message =
-        'UPI recurring mandate could not be authorized. Please review your UPI app.',
+    super.message = 'UPI recurring mandate could not be authorized. Please review your UPI app.',
     super.requestId,
     super.details,
   }) : super(code: 'FK-5003', retryable: false);
@@ -269,8 +262,7 @@ final class PaymentDuplicateFailure extends AppFailure {
 /// Third-party provider or network unavailability (FK-6001).
 final class ExternalServiceFailure extends AppFailure {
   const ExternalServiceFailure({
-    super.message =
-        'External service is temporarily unavailable. Please try again shortly.',
+    super.message = 'External service is temporarily unavailable. Please try again shortly.',
     super.requestId,
     super.details,
   }) : super(code: 'FK-6001', retryable: true);
@@ -279,8 +271,7 @@ final class ExternalServiceFailure extends AppFailure {
 /// DPDP privacy export or deletion failure (FK-7001).
 final class PrivacyFailure extends AppFailure {
   const PrivacyFailure({
-    super.message =
-        'Data privacy request could not be completed. Please retry or contact support.',
+    super.message = 'Data privacy request could not be completed. Please retry or contact support.',
     super.requestId,
     super.details,
   }) : super(code: 'FK-7001', retryable: false);

@@ -1,7 +1,9 @@
 import 'package:fitkarma/core/config/app_config.dart';
 import 'package:fitkarma/core/database/database_boundary.dart';
+import 'package:fitkarma/core/observability/crash_reporting_service.dart';
+import 'package:fitkarma/core/observability/logging_service.dart';
+import 'package:fitkarma/core/observability/redaction.dart';
 import 'package:fitkarma/core/services/console_logging_service.dart';
-import 'package:fitkarma/core/services/logging_service.dart';
 import 'package:fitkarma/core/sync/sync_boundary.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -14,11 +16,23 @@ final appConfigProvider = Provider<AppConfig>((ref) {
   );
 }, name: 'appConfigProvider');
 
+/// Provider for the PII and health data redactor.
+final dataRedactorProvider = Provider<DataRedactor>((ref) {
+  return const DataRedactor();
+}, name: 'dataRedactorProvider');
+
+/// Provider for crash reporting service (defaults to Sentry boundary in production, Noop in tests).
+final crashReportingServiceProvider = Provider<CrashReportingService>((ref) {
+  final redactor = ref.watch(dataRedactorProvider);
+  return SentryCrashReportingBoundary(redactor: redactor);
+}, name: 'crashReportingServiceProvider');
+
 /// Provider for the centralized logging service.
 final loggingServiceProvider = Provider<LoggingService>((ref) {
   final isDebug =
       ref.watch(appConfigProvider).environment == AppEnvironment.development;
-  return ConsoleLoggingService(isDebug: isDebug);
+  final redactor = ref.watch(dataRedactorProvider);
+  return ConsoleLoggingService(isDebug: isDebug, redactor: redactor);
 }, name: 'loggingServiceProvider');
 
 /// Boundary provider for the local encrypted database (Drift + SQLCipher).

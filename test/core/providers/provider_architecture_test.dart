@@ -22,6 +22,11 @@ class _FakeLoggingService implements LoggingService {
   }
 
   @override
+  void recordEvent(DiagnosticEvent event) {
+    logs.add('[EVENT] ${event.name}');
+  }
+
+  @override
   void debug(String message, {Map<String, dynamic>? data}) =>
       log(LogLevel.debug, message, data: data);
 
