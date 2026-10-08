@@ -83,7 +83,3 @@ Test Hinglish/Hindi/Tamil/Telugu content where supported, text overflow, screen 
 ## Baseline verification
 
 The source documentation reports 160/160 unit/widget tests and zero static-analysis issues. Treat those as historical/source-reported until rerun against the actual repository.
-
-> **Implementation Note (2026-10-08 / TASK 001-002 Audit)**:  
-> The active repository at `F:\Fitness App` is established as a clean-slate workspace (ADR-016). Legacy external test suites are not imported. Fresh automated unit, widget, and integration tests will be constructed incrementally starting with Task 003 onwards.
-

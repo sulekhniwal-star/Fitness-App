@@ -1,4 +1,4 @@
-# FitKarma — Master Documentation (v3.1)
+# FitKarma — Master Documentation (v1.0)
 ### India's Intelligent Health Operating System
 **Flutter 3.x · Dart · Riverpod 2.x · Supabase (Postgres, Auth, Storage, Edge Functions, Realtime) · Razorpay (UPI & AutoPay) · Multi-Model AI (Groq)**
 
@@ -8,19 +8,29 @@
 
 ---
 
+## Document Version
+
+| Field | Value |
+|---|---|
+| Version | **1.0** (baseline release of this master document) |
+| Scope | Complete feature map — all features, requirements, roadmap items and deferred items from the source specification are retained; none removed |
+| Source | Consolidated from `FitKarma_Master_Documentation_v1.0.md` (v1.0) |
+
+---
+
 ## Documentation Architecture
 
 This document is the high-level master specification for FitKarma.
 
-Detailed technical and product specifications are maintained in `/docs`.
+Detailed technical and product specifications are maintained in `/Brain`.
 
 Before implementing any feature, agents should consult:
 
-1. `docs/master_rules.md`
-2. `docs/pdr.md`
-3. `docs/trd.md`
-4. `docs/architecture.md`
-5. `docs/decisions.md`
+1. `Brain/master_rules.md`
+2. `Brain/pdr.md`
+3. `Brain/trd.md`
+4. `Brain/architecture.md`
+5. `Brain/decisions.md`
 6. The relevant domain specification
 
 ### Documentation ownership
@@ -115,7 +125,7 @@ The competitive analysis identifies the strongest moat as the combination of **D
 | Monitoring | Sentry with PII scrubbing | Confirmed |
 | CI/CD | GitHub Actions | Confirmed |
 
-Exact third-party API versions, endpoint paths, secrets, quotas and legal terms are domain-controlled in `/docs`; undefined items are marked `PROPOSED` or `OPEN DECISION`.
+Exact third-party API versions, endpoint paths, secrets, quotas and legal terms are domain-controlled in `/Brain`; undefined items are marked `PROPOSED` or `OPEN DECISION`.
 
 ---
 
@@ -406,24 +416,23 @@ For future implementation work:
 ```text
 Master Documentation
         │
-        ├── docs/master_rules.md
-        ├── docs/pdr.md
-        ├── docs/trd.md
-        ├── docs/architecture.md
-        ├── docs/data_model.md
-        ├── docs/api_contract.md
-        ├── docs/data_sources.md
-        ├── docs/ui_spec.md
-        ├── docs/security.md
-        ├── docs/error_handling.md
-        ├── docs/testing.md
-        ├── docs/production_checklist.md
-        ├── docs/github_actions.md
-        ├── docs/admob_spec.md
-        ├── docs/scrapping_spec.md
-        ├── docs/decisions.md
-        ├── docs/changelog.md
-        ├── docs/microtasks.md
-        └── docs/SKILL.md
+        ├── Brain/master_rules.md
+        ├── Brain/pdr.md
+        ├── Brain/trd.md
+        ├── Brain/architecture.md
+        ├── Brain/data_model.md
+        ├── Brain/api_contract.md
+        ├── Brain/data_sources.md
+        ├── Brain/ui_spec.md
+        ├── Brain/security.md
+        ├── Brain/error_handling.md
+        ├── Brain/testing.md
+        ├── Brain/production_checklist.md
+        ├── Brain/github_actions.md
+        ├── Brain/admob_spec.md
+        ├── Brain/scrapping_spec.md
+        ├── Brain/decisions.md
+        ├── Brain/changelog.md
+        ├── Brain/microtasks.md
+        └── .agent/skills/SKILL.md
 ```
-

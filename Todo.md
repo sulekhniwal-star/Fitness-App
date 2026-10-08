@@ -1,251 +1,1003 @@
-# FitKarma — Antigravity IDE Implementation TODO
+# FitKarma — From-Scratch Implementation TODO
+## Version 1.0 — Greenfield Build Plan
 
-## How to use this file
-
-Paste **one task prompt at a time** into Antigravity IDE, in order.
-
-After each task:
-1. Let the agent inspect the repository and documentation before changing code.
-2. Review the diff.
-3. Run the requested tests/checks.
-4. Only then continue to the next task.
-
-The prompts intentionally tell the agent to inspect the real codebase first. Do not assume the current implementation exactly matches the documentation.
+> This TODO is for a **completely new FitKarma application built from scratch**.
+> Assume there is currently **no application code** unless the repository inspection proves otherwise.
+>
+> The implementation agent must use:
+>
+> - `.agent/skills/SKILLS.md` as the highest-level agent skill/instruction file
+> - `FitKarma_Master_Documentation_v1.0.md` as the root-level master specification
+> - `Brain/` as the detailed product/technical documentation set
+>
+> Do **not** assume that an old Flutter codebase, database, API layer, widgets, services, migrations, or tests already exist.
+>
+> The agent must inspect the repository before every major phase and implement only the current task.
 
 ---
 
-## TASK 001 — Repository + Documentation Audit
+# HOW TO USE THIS FILE
+
+Paste **one task at a time** into Antigravity IDE.
+
+Recommended first message after the Master Prompt:
 
 ```text
-You are working on the existing FitKarma application repository.
+Execute TASK 001 from Todo.md only.
 
-Before writing code, first inspect the repository structure and enumerate `Brain/`. Then read and follow:
-- `.agent/skills/SKILLS.md`
-- `FitKarma_Master_Documentation_v3.md`
+Read .agent/skills/SKILLS.md, FitKarma_Master_Documentation_v1.0.md, the relevant Brain documentation, and inspect the repository before making changes.
+
+Do not continue to the next task automatically.
+```
+
+After a task finishes, paste the next task.
+
+The agent must never silently implement later tasks.
+
+---
+
+# GLOBAL EXECUTION RULES
+
+Every task must follow this sequence:
+
+1. Read `.agent/skills/SKILLS.md`.
+2. Read the root `FitKarma_Master_Documentation_v1.0.md`.
+3. Read the Brain documents relevant to the task.
+4. Inspect the current repository state.
+5. State the implementation plan briefly.
+6. Implement only the current task.
+7. Add/update tests appropriate to the task.
+8. Run formatting, static analysis, and relevant tests.
+9. Fix issues caused by the task.
+10. Update relevant documentation when implementation decisions change.
+11. Review the final diff for unrelated changes.
+12. Report:
+   - files created/changed
+   - functionality implemented
+   - tests/checks run
+   - failures/blockers
+   - documentation updated
+13. Stop.
+
+### Greenfield rule
+
+Because this project is being built from scratch:
+
+- Prefer a clean architecture over trying to preserve nonexistent legacy code.
+- Do not create compatibility layers for systems that do not exist.
+- Do not invent old behavior.
+- Do not add dependencies without documenting why they are needed.
+- Do not create duplicate abstractions for the same responsibility.
+- Build foundational layers before feature modules.
+- Keep the app shippable after every major phase.
+
+### Documentation rule
+
+The documentation is the product/technical contract, but the repository is the implementation source of truth.
+
+When a documented behavior is not technically defined, do not invent it as fact. Use:
+
+`PROPOSED`
+
+or
+
+`OPEN DECISION`
+
+and update `Brain/decisions.md` when a major architecture decision is made.
+
+### Security rule
+
+Health data, family data, AI data, WhatsApp data, payment data, and authentication data must be treated as sensitive.
+
+Never put secrets in source control.
+
+Never trust the client as the authority for payment entitlements.
+
+Never bypass authorization/RLS merely to make a feature work.
+
+### Offline-first rule
+
+User-created health/nutrition/workout data should be designed around:
+
+Local write
+→ outbox
+→ synchronization
+→ server reconciliation
+
+where the applicable feature is defined as offline-capable.
+
+### Scope rule
+
+Do not turn the first release into a giant feature dump.
+
+The strategic priorities are:
+
+1. foundational offline-first Health OS
+2. Indian nutrition
+3. Health Connect / Apple Health
+4. WhatsApp logging
+5. AI meal analysis
+6. Dynamic TDEE
+7. Family functionality
+8. payments/monetization
+9. privacy/trust
+10. category-leadership integrations
+
+---
+
+# PHASE 0 — REPOSITORY INITIALIZATION & ENGINEERING FOUNDATION
+
+## TASK 001 — Repository and Environment Audit
+
+Prompt:
+
+```text
+Perform a complete greenfield repository audit for FitKarma.
+
+Read:
+- .agent/skills/SKILLS.md
+- FitKarma_Master_Documentation_v1.0.md
 - Brain/master_rules.md
 - Brain/pdr.md
 - Brain/trd.md
 - Brain/architecture.md
 - Brain/decisions.md
-- the relevant domain documents in Brain/
-- the existing source code, database migrations, tests, configuration, and CI files.
+- all other relevant Brain documentation
 
-Do a full implementation-vs-documentation audit.
+Then inspect:
+- repository tree
+- Git state
+- existing files
+- pubspec/package metadata
+- platform folders
+- environment files
+- CI configuration
+- README/configuration
+- available Flutter/Dart versions
+- Android/iOS tooling
+- existing SDK configuration
 
-Your goals:
-1. Identify the actual current Flutter/Dart architecture.
-2. Identify current Supabase schema and migrations.
-3. Identify current API/Edge Function boundaries.
-4. Identify current payment implementation and every RevenueCat reference.
-5. Identify existing nutrition, food logging, AI, health integrations, offline sync, family, women's health, Ayurveda, notification, analytics, and subscription functionality.
-6. Identify what is already implemented, partially implemented, stubbed, or absent.
-7. Detect documentation/code contradictions.
-8. Do NOT implement new product features yet.
+Assume there is no usable application code unless inspection proves otherwise.
 
-Produce:
-- an implementation inventory in the repository (preferably Brain/implementation_audit.md unless an equivalent existing document already exists);
-- a prioritized gap list mapped to the Todo task IDs in Todo.md;
-- a list of open decisions that must be resolved before implementation.
+Do NOT implement product features yet.
 
-Important:
-- Treat PROPOSED and OPEN DECISION documentation as non-authoritative until confirmed.
-- Do not invent endpoints, tables, packages, or providers.
-- Do not delete existing working functionality merely because it is not highlighted in the strategy.
-- Keep changes limited to this audit/documentation task.
+Create a concise Greenfield Repository Audit in the repository documentation describing:
+- what actually exists
+- what is missing
+- detected Flutter/Dart versions
+- detected platform/toolchain constraints
+- immediate blockers
+- recommended bootstrap sequence
 
-Validation:
-- Run the existing test/lint commands if safe.
-- Report exact commands and results.
+If the repository is effectively empty, explicitly record that.
+
+Do not move to TASK 002 automatically.
 ```
+
+Acceptance criteria:
+- repository state is documented
+- toolchain is verified
+- no feature code is introduced
 
 ---
 
-## TASK 002 — Documentation/Code Consistency Foundation
+## TASK 002 — Bootstrap Flutter Application
+
+Prompt:
 
 ```text
-Read .agent/skills/SKILLS.md and the master/domain documentation before coding.
+Create the FitKarma Flutter application from scratch.
 
-Using the implementation audit from TASK 001, establish a clean documentation-to-code baseline.
-
-Fix only documentation inconsistencies that are clearly confirmed by the actual codebase. Do not invent behavior.
+Use the repository audit plus the master/trd/architecture documentation.
 
 Requirements:
-- The master docs remain the high-level source.
-- /docs remain domain-level source of truth.
-- Major architectural changes must be recorded in Brain/decisions.md.
-- Any newly discovered but unresolved architecture point must be marked OPEN DECISION.
-- Keep RevenueCat only as historical migration context; it must not remain an active payment dependency.
+- Android and iOS targets
+- package/bundle identifiers consistent with the master documentation where applicable
+- Flutter/Dart versions compatible with the documented baseline and the installed toolchain
+- clean project generation
+- debug build must launch
+- no unnecessary packages yet
+- maintainable project structure
+- no feature implementation yet
 
-Add or update implementation notes only where they are supported by the repository.
+Do not add business logic.
 
-Run tests/lint after changes.
+Add a minimal smoke test proving the generated application starts.
+
+Run:
+- flutter pub get
+- dart format
+- flutter analyze
+- flutter test
+
+Stop after bootstrap is healthy.
 ```
 
 ---
 
-## TASK 003 — Payment Migration Inventory: RevenueCat → Razorpay
+## TASK 003 — Establish Git Ignore, Environment, and Secret Boundaries
+
+Prompt:
 
 ```text
-Read:
-- .agent/skills/SKILLS.md
-- Brain/master_rules.md
-- Brain/architecture.md
-- Brain/data_model.md
-- Brain/api_contract.md
-- Brain/security.md
-- Brain/decisions.md
-- the existing payment/subscription source code.
-
-Implement only the first stage of the payment migration:
-- remove active RevenueCat package usage and runtime references;
-- preserve historical references only where explicitly required in decisions/changelog;
-- identify all subscription, entitlement, paywall, purchase-restore, webhook, and billing logic that must be migrated;
-- introduce a clean provider boundary if the existing architecture lacks one.
-
-Do NOT implement the complete Razorpay integration in this task.
-Do NOT remove currently working paywall UX unless necessary to remove the provider dependency.
-
-Acceptance:
-- No active RevenueCat dependency remains.
-- No runtime import/reference to RevenueCat remains.
-- Existing app still builds/tests as far as the current environment permits.
-- Migration gaps are clearly recorded.
-```
-
----
-
-## TASK 004 — Razorpay Backend Foundation
-
-```text
-Read the payment, architecture, API, security, and decision documents first.
-
-Implement the Razorpay backend foundation using the actual existing Supabase/Edge Function architecture.
-
-Requirements:
-- Server-side Razorpay API access only.
-- Client receives only public Razorpay identifiers and safe server-issued IDs.
-- Secrets remain server-side.
-- Create a provider service/repository boundary.
-- Define the minimum required server functions/contracts based on the documented architecture and actual codebase.
-- Do not create fake endpoints or tables without documenting them as PROPOSED.
-- Keep entitlement decisions server-authoritative.
-
-Add unit/integration tests around the provider boundary and secret handling.
-Update docs only for behavior actually implemented.
-```
-
----
-
-## TASK 005 — Razorpay Webhook Verification + Idempotency
-
-```text
-Implement the Razorpay webhook pipeline.
-
-Read .agent/skills/SKILLS.md plus payment/security/error/testing documents.
-
-Requirements:
-- verify webhook signatures server-side;
-- reject invalid signatures;
-- process events idempotently;
-- handle duplicate and delayed events safely;
-- persist only the minimum webhook/payment data needed by the documented architecture;
-- update entitlements from verified server events, never from client success callbacks;
-- return safe errors without leaking secrets.
-
-Add tests for:
-- valid webhook;
-- invalid signature;
-- duplicate webhook;
-- delayed/out-of-order webhook;
-- malformed payload;
-- replay attempt.
-```
-
----
-
-## TASK 006 — Subscription State Machine + Entitlements
-
-```text
-Implement the documented subscription state machine using the existing architecture.
-
-States to support where applicable:
-created, pending, mandate_authorized, active, renewal_pending, payment_failed, grace_period, cancelled, expired, refunded.
-
-Requirements:
-- server-authoritative entitlement calculation;
-- idempotent transitions;
-- safe handling of retries;
-- correct downgrade/expiry behavior;
-- no client-side entitlement authority;
-- UI reads entitlement state from the authoritative source.
-
-Do not invent business rules that are not in the docs. For any missing transition rule, mark OPEN DECISION rather than guessing.
-
-Add state-transition tests.
-```
-
----
-
-## TASK 007 — UPI + UPI AutoPay UX and Contract
-
-```text
-Implement the UPI-first subscription flow described in the FitKarma documentation.
-
-Read Brain/pdr.md, Brain/trd.md, Brain/architecture.md, Brain/api_contract.md, Brain/ui_spec.md, Brain/security.md, Brain/decisions.md.
+Set up secure environment/configuration boundaries for the greenfield FitKarma application.
 
 Implement:
-- plan selection;
-- order/subscription creation through backend;
-- UPI authorization flow supported by the chosen Razorpay integration;
-- server confirmation;
-- mandate lifecycle display;
-- safe handling of pending/failed/cancelled states;
-- clear user messaging.
+- .gitignore rules
+- local development environment handling
+- example environment configuration
+- separation between public client configuration and server secrets
+- documentation of required variables
 
-Do not trust the client callback as the final payment truth.
-Do not store UPI PIN, CVV, bank credentials, or full card data.
+Do not place:
+- Supabase service-role keys
+- Razorpay secret keys
+- webhook secrets
+- AI provider secrets
+- WhatsApp secrets
+- other private credentials
 
-Use actual available Razorpay SDK/API capabilities; where provider-specific details are unresolved, document an OPEN DECISION instead of fabricating an API.
+in the Flutter client.
 
-Add widget/integration tests for success, pending, failure, cancellation, and retry flows.
+Add tests/checks where practical and document the configuration model in the appropriate Brain document.
 ```
 
 ---
 
-## TASK 008 — Configurable Pricing + Plan Enforcement
+## TASK 004 — Establish Project Folder Architecture
+
+Prompt:
 
 ```text
-Implement configurable product plans rather than hard-coded pricing logic.
+Implement the agreed greenfield Flutter folder/module architecture from Brain/architecture.md.
 
-Plans documented by FitKarma:
-- Yogi Free
-- Karma Pro
-- FitKarma Elite
-- Sachet Sprints
+Create the structural boundaries for:
+- app/bootstrap
+- core
+- shared UI
+- feature modules
+- data layer
+- domain layer
+- infrastructure/services
+- local persistence
+- synchronization
+- routing
+- configuration
+- testing helpers
 
-Requirements:
-- pricing/config should be backend-driven where architecture permits;
-- enforce entitlements on the server and client UI;
-- support monthly/yearly plan variants where documented;
-- preserve a free path;
-- do not expose premium health/payment features when entitlement is absent.
+Do not implement feature logic yet.
 
-Do not invent exact commercial SKUs if they are not defined.
-Mark unresolved billing SKU/provider details as OPEN DECISION.
+Use dependency-direction rules so feature modules do not become a tangled monolith.
 
-Add tests for entitlement gating and plan configuration.
+Document the final repository structure.
 ```
 
 ---
 
-## TASK 009 — Indian Portion Data Model
+## TASK 005 — Riverpod Application Architecture
+
+Prompt:
 
 ```text
-Implement the Indian nutrition portion model.
+Establish the FitKarma Riverpod architecture.
 
-Read Brain/data_model.md, Brain/pdr.md, Brain/trd.md, Brain/api_contract.md, Brain/ui_spec.md.
+Implement:
+- application-level providers
+- dependency injection pattern
+- environment/config provider
+- repository/service provider boundaries
+- lifecycle-safe provider conventions
+- testable dependency overrides
 
-Support the documented units such as:
+Do not implement actual feature repositories yet.
+
+Add architecture tests or representative provider tests proving:
+- dependencies can be overridden in tests
+- providers do not directly hard-code external clients
+- the app can boot through Riverpod
+```
+
+---
+
+## TASK 006 — Navigation and Route Architecture
+
+Prompt:
+
+```text
+Create the FitKarma navigation foundation.
+
+Implement:
+- authenticated vs unauthenticated navigation boundaries
+- route naming conventions
+- placeholder routes for major top-level product areas
+- deep-link-safe route structure where practical
+- centralized navigation definitions
+
+Do not build full screens yet.
+
+Navigation must be modular so onboarding, dashboard, nutrition, workouts, sleep, recovery, AI, family, subscriptions, settings, and Data Vault can be added without rewriting the navigation system.
+```
+
+---
+
+## TASK 007 — Error and Result Primitives
+
+Prompt:
+
+```text
+Implement the shared application error/result foundation according to Brain/error_handling.md.
+
+Create consistent primitives for:
+- success
+- validation failure
+- authentication failure
+- authorization failure
+- offline failure
+- synchronization failure
+- network failure
+- AI failure
+- third-party provider failure
+- payment failure
+- unknown/internal failure
+
+Do not implement feature-specific error handling yet.
+
+Add unit tests for serialization/mapping/display-safe error behavior.
+
+No sensitive data should leak into user-facing messages or logs.
+```
+
+---
+
+## TASK 008 — Logging and Observability Foundation
+
+Prompt:
+
+```text
+Create the shared logging/observability foundation.
+
+Prepare clean interfaces for:
+- application logs
+- crash reporting
+- structured diagnostic events
+- redaction of sensitive values
+- environment-aware logging
+
+Prepare integration boundaries for Sentry and other documented observability services, but do not activate production secrets.
+
+Add tests proving sensitive-looking fields are redacted from logs where applicable.
+```
+
+---
+
+# PHASE 1 — DESIGN SYSTEM & UI FOUNDATION
+
+## TASK 009 — FitKarma Design System
+
+Prompt:
+
+```text
+Implement the FitKarma design system from Brain/ui_spec.md and the master documentation.
+
+Establish:
+- primary dark theme
+- documented colors
+- typography system
+- spacing scale
+- radius/elevation conventions
+- button styles
+- input styles
+- cards
+- chips
+- progress indicators
+- empty states
+- loading states
+- error states
+- semantic accessibility labels
+
+Respect the documented glassmorphism, spring-physics, Bento-grid visual direction without making every component visually excessive.
+
+Create Storybook-like/internal showcase screens or component tests if appropriate.
+
+Do not build the full product dashboard yet.
+```
+
+---
+
+## TASK 010 — Localization Foundation
+
+Prompt:
+
+```text
+Implement the localization architecture.
+
+Initial languages:
+- English
+- Hindi
+
+Prepare the system for:
+- Hinglish AI-generated conversational content
+- Tamil
+- Telugu
+
+Separate UI localization from AI-generated conversational phrasing.
+
+Add tests for:
+- locale switching
+- missing translation fallback
+- no hard-coded user-facing strings in newly created UI
+```
+
+---
+
+## TASK 011 — Accessibility Foundation
+
+Prompt:
+
+```text
+Implement shared accessibility conventions for FitKarma.
+
+Cover:
+- text scaling
+- contrast
+- semantic labels
+- touch target sizing
+- screen-reader ordering
+- meaningful focus behavior
+- reduced motion considerations
+
+Add reusable accessibility helpers where needed and representative widget tests.
+
+Do not attempt to remediate nonexistent feature screens yet.
+```
+
+---
+
+## TASK 012 — Shared UI States and Components
+
+Prompt:
+
+```text
+Build the reusable UI primitives needed by future FitKarma screens:
+
+- AppScaffold
+- top bars
+- bottom navigation shell
+- section headers
+- Bento cards
+- metric cards
+- action buttons
+- snackbars/toasts
+- loading skeletons
+- offline indicators
+- empty states
+- confirmation dialogs
+- error panels
+- consent dialogs
+
+Ensure components are theme-aware and localization-ready.
+Add widget tests.
+```
+
+---
+
+# PHASE 2 — AUTHENTICATION, USER PROFILE & ONBOARDING
+
+## TASK 013 — Supabase Client Foundation
+
+Prompt:
+
+```text
+Implement the client-side Supabase integration boundary according to Brain/architecture.md and Brain/trd.md.
+
+Set up:
+- client initialization
+- environment configuration
+- auth client access
+- typed service boundary
+- safe failure handling
+
+Do not expose privileged server keys.
+
+Add initialization tests/mocks so the app can boot without production credentials.
+```
+
+---
+
+## TASK 014 — Phone OTP Authentication
+
+Prompt:
+
+```text
+Implement FitKarma phone OTP authentication using Supabase Auth.
+
+Build:
+- phone entry screen
+- OTP screen
+- retry/timeout handling
+- invalid OTP handling
+- resend behavior
+- loading/error states
+- authenticated session persistence
+
+Do not implement Google Sign-In yet.
+
+Add unit/widget/integration coverage for the important auth states.
+```
+
+---
+
+## TASK 015 — Google Sign-In
+
+Prompt:
+
+```text
+Add Google Sign-In through the documented Supabase authentication architecture.
+
+Implement:
+- sign-in flow
+- cancellation handling
+- provider error handling
+- session establishment
+- logout
+
+Do not duplicate user records.
+
+Add integration-oriented tests with mocked auth boundaries.
+```
+
+---
+
+## TASK 016 — User Profile Domain
+
+Prompt:
+
+```text
+Implement the initial user/profile domain model and repository.
+
+Support the documented user information needed for:
+- age
+- sex where required by calculations
+- height
+- weight
+- goals
+- activity level
+- nutrition preferences
+- language
+- dietary identity
+- notification preferences
+
+Respect sensitive-data handling.
+
+Use local-first patterns where appropriate and keep server synchronization behind the repository boundary.
+
+Add validation tests.
+```
+
+---
+
+## TASK 017 — Onboarding Flow
+
+Prompt:
+
+```text
+Build the complete FitKarma onboarding experience from the documented product requirements.
+
+Include:
+- welcome/value proposition
+- account setup
+- basic profile
+- fitness goal
+- dietary identity/preferences
+- activity baseline
+- language selection
+- consent/privacy explanation
+- notification permissions
+- health permission entry point
+- optional Ayurveda/Dosha personalization flow
+
+Do not make unsupported medical claims.
+
+Ensure a new user can complete onboarding and reach the main app.
+Add end-to-end onboarding tests.
+```
+
+---
+
+## TASK 018 — Dosha/W​ellness Profile Foundation
+
+Prompt:
+
+```text
+Implement the documented Ayurveda/Dosha feature as a separate wellness personalization layer.
+
+Important:
+- do not present Ayurveda as medical treatment
+- separate traditional wellness concepts from evidence-based health measurements
+- store answers and calculated profile in a testable domain service
+- allow the user to skip/revisit the profile
+
+Add deterministic tests for the scoring rules that are actually documented.
+```
+
+---
+
+## TASK 019 — Account Lifecycle
+
+Prompt:
+
+```text
+Implement account lifecycle operations:
+
+- logout
+- session restoration
+- account deletion request
+- account recovery hooks
+- local-data wipe on appropriate account removal
+- safe session expiration behavior
+
+Do not implement the full DPDP deletion backend yet; build the client boundary that will later invoke it.
+
+Add tests for session transitions and local cleanup behavior.
+```
+
+---
+
+# PHASE 3 — OFFLINE-FIRST DATA FOUNDATION
+
+## TASK 020 — Drift + SQLCipher Local Database
+
+Prompt:
+
+```text
+Implement the local persistence foundation using Drift + SQLCipher as documented.
+
+Establish:
+- encrypted local database
+- schema/version migration framework
+- repository access boundary
+- test database configuration
+- local transaction support
+
+Do not build every table yet.
+
+Create the minimum foundation tables required by the app shell and profile flow.
+
+Add migration tests and encrypted-store initialization tests where supported.
+```
+
+---
+
+## TASK 021 — Offline Outbox
+
+Prompt:
+
+```text
+Implement the generic offline outbox/sync queue foundation.
+
+Support:
+- operation ID
+- entity type
+- operation type
+- payload
+- created timestamp
+- retry count
+- status
+- last error
+- idempotency key
+- dependency/reference metadata where necessary
+
+Build retry-safe behavior.
+
+Do not connect every feature yet.
+
+Add unit tests for enqueue, retry, success, permanent failure, and duplicate idempotency cases.
+```
+
+---
+
+## TASK 022 — Sync State Machine
+
+Prompt:
+
+```text
+Implement the documented sync state machine:
+
+idle
+→ syncing
+→ synced
+or
+→ error
+or
+→ conflict
+
+Build:
+- sync coordinator
+- connectivity awareness
+- exponential retry/backoff
+- cancellation support
+- safe restart after interruption
+- sync status exposed through Riverpod
+
+Add deterministic tests for state transitions.
+```
+
+---
+
+## TASK 023 — Supabase Sync Repository Pattern
+
+Prompt:
+
+```text
+Create the reusable repository synchronization pattern between Drift and Supabase.
+
+Define:
+- local source of truth
+- remote fetch
+- local merge
+- outbox push
+- server acknowledgement
+- duplicate handling
+- timestamp/version conflict strategy
+
+Where the exact conflict model is not defined, document it as PROPOSED in Brain/decisions.md rather than pretending it was predetermined.
+
+Implement the framework, not every feature.
+```
+
+---
+
+## TASK 024 — Offline Mode UX
+
+Prompt:
+
+```text
+Implement global offline UX.
+
+Show:
+- current connectivity state
+- pending sync count/status
+- unobtrusive offline indicator
+- retry action
+- sync failure explanation
+
+Ensure the core app remains usable without network access wherever documented as offline-first.
+
+Add widget tests.
+```
+
+---
+
+# PHASE 4 — HEALTH DATA CORE
+
+## TASK 025 — Core Health Domain
+
+Prompt:
+
+```text
+Implement the shared health-domain primitives needed by FitKarma.
+
+Create normalized domain types for:
+- timestamp
+- quantity
+- units
+- source
+- confidence
+- measurement metadata
+
+Prepare the architecture for:
+- steps
+- heart rate
+- HRV
+- sleep
+- weight
+- blood pressure
+- glucose/CGM
+
+Do not create unsupported provider-specific assumptions.
+Add serialization and normalization tests.
+```
+
+---
+
+## TASK 026 — Weight Logging
+
+Prompt:
+
+```text
+Implement weight logging end-to-end.
+
+Support:
+- local-first entry
+- unit normalization
+- timestamp
+- edit/delete
+- history
+- basic trend presentation
+- synchronization
+
+Add validation, duplicate protection, offline tests, widget tests, and repository tests.
+```
+
+---
+
+## TASK 027 — Step Logging
+
+Prompt:
+
+```text
+Implement step tracking domain and UI.
+
+Support:
+- daily total
+- historical days
+- source attribution
+- manual fallback where documented
+- local cache
+- synchronization
+
+Do not yet implement Health Connect or Apple Health provider code; create the domain/repository interfaces needed for later integrations.
+```
+
+---
+
+## TASK 028 — Sleep Logging
+
+Prompt:
+
+```text
+Implement the sleep logging domain and UI.
+
+Support documented sleep fields and source attribution.
+
+Include:
+- nightly record
+- duration
+- stages where available
+- quality/readiness inputs where defined
+- local-first storage
+- edit/delete
+- sync
+
+Add tests for overnight boundaries and time zones.
+```
+
+---
+
+## TASK 029 — Mood Logging
+
+Prompt:
+
+```text
+Implement mood logging from the documented product model.
+
+Support:
+- mood selection
+- optional notes
+- timestamp
+- history
+- local-first behavior
+- synchronization
+- deletion
+
+Treat notes as potentially sensitive.
+
+Add tests.
+```
+
+---
+
+## TASK 030 — Water Logging
+
+Prompt:
+
+```text
+Implement water tracking.
+
+Support:
+- quick add
+- custom amount
+- daily total
+- goal
+- history
+- offline use
+- sync
+
+Use localized units and reusable UI components.
+Add widget and domain tests.
+```
+
+---
+
+## TASK 031 — Medication Logging
+
+Prompt:
+
+```text
+Implement the medication logging foundation.
+
+Support the fields defined by the documentation, including schedule/status data where specified.
+
+Treat medication data as sensitive.
+
+Implement:
+- local encryption
+- access control boundary
+- reminders interface
+- history
+- deletion
+- sync
+
+Do not make medical recommendations.
+Add tests.
+```
+
+---
+
+## TASK 032 — Body Measurements
+
+Prompt:
+
+```text
+Implement body measurements.
+
+Support documented measurements such as:
+- waist
+- hip
+- chest
+- arm
+- thigh
+- body-fat estimate if documented
+
+Normalize units and timestamps.
+
+Build history and edit/delete.
+
+Add tests and keep calculations deterministic.
+```
+
+---
+
+# PHASE 5 — INDIAN NUTRITION ENGINE
+
+## TASK 033 — Food Domain and Data Model
+
+Prompt:
+
+```text
+Implement the core Indian nutrition domain.
+
+Model:
+- food item
+- recipe
+- ingredient
+- portion
+- serving
+- unit
+- raw/cooked state
+- preparation method
+- nutrition values
+- source/provenance
+- confidence where relevant
+
+Support Indian examples such as:
+roti, chapati, paratha, rice, dal, rajma, chole, sabzi, poha, upma, idli, dosa, sambar, regional foods, street foods, sweets, festival foods, restaurant foods, and homemade meals.
+
+Do not fabricate authoritative nutritional data.
+
+Use seeded/mock data only where the actual dataset is not yet connected, clearly marked as seed/test data.
+```
+
+---
+
+## TASK 034 — Indian Portion System
+
+Prompt:
+
+```text
+Implement the Indian portion-sizing system.
+
+Support:
 - katori
 - glass
 - spoon
@@ -253,236 +1005,225 @@ Support the documented units such as:
 - serving
 - roti count
 - idli count
-- percentage of a family recipe
+- percentage portion
 
-Requirements:
-- portion definitions are data-driven;
-- units can map to food-specific standard quantities;
-- UI clearly shows the selected portion;
-- nutrition calculations use the normalized quantity;
-- offline persistence works.
+Create deterministic conversion rules where documentation provides them.
 
-Do not invent authoritative nutrition values. Use existing database values or clearly mark missing values for data curation.
+Where a conversion cannot be established safely, mark it PROPOSED and require confirmation.
 
-Add model/calculation tests.
+Add extensive unit tests.
 ```
 
 ---
 
-## TASK 010 — Raw vs Cooked Nutrition + Cooking Multipliers
+## TASK 035 — Raw vs Cooked Nutrition
+
+Prompt:
 
 ```text
-Implement the raw/cooked food model from the FitKarma documentation.
+Implement raw-vs-cooked food handling.
 
-Read Brain/data_model.md and the nutrition sections of pdr/trd/api/ui/testing.
+The system must distinguish:
+- raw
+- cooked
+- preparation method
+- cooking multiplier
+- water absorption
+- evaporation
 
-Requirements:
-- distinguish raw and cooked food states;
-- store preparation/cooking state where needed;
-- support cooking multipliers;
-- account for water absorption and evaporation through documented multipliers;
-- never assume 100 g raw food equals 100 g cooked food;
-- keep calculations deterministic and testable.
+Do not assume 100g raw equals 100g cooked.
 
-Use existing confirmed schema/data where available. If a new schema element is required and only proposed in docs, mark it PROPOSED and document the migration before implementing it.
+Implement the data model, nutrition calculation service, UI selection, and tests.
 
-Add calculation and regression tests.
+All assumptions that are not explicitly documented must be identified as PROPOSED.
 ```
 
 ---
 
-## TASK 011 — Tadka / Tempering Slider
+## TASK 036 — Cooking Multipliers
+
+Prompt:
 
 ```text
-Implement the Tadka/Tempering Slider for Indian meal logging.
+Implement the cooking multiplier engine.
 
 Support:
+- raw quantity
+- cooked yield
+- preparation method
+- multiplier/version
+- provenance
+- deterministic nutrition calculation
+
+Ensure historical logs remain reproducible when a multiplier changes by versioning the applicable calculation input.
+
+Add property/unit tests for representative foods.
+```
+
+---
+
+## TASK 037 — Tadka / Tempering Slider
+
+Prompt:
+
+```text
+Implement the Tadka / Tempering Slider.
+
+Levels:
 - Low
 - Medium
 - High
 
-Use it to estimate added oil/ghee/butter/tempering fat only where the food record is designed to accept an estimate.
+Estimate:
+- oil
+- ghee
+- butter
+- tempering fat
 
-Requirements:
-- the result must be clearly labeled as an estimate;
-- the estimate must be deterministic and testable;
-- the selected level is stored with the log;
-- offline use must work;
-- API/database representations stay consistent.
+The UI must explicitly communicate that the value is an estimate, not an exact measurement.
 
-Do not present the result as a laboratory-accurate measurement.
-Add unit, widget, and nutrition regression tests.
+Implement:
+- data model
+- calculator
+- UI
+- storage
+- sync representation
+- tests
 ```
 
 ---
 
-## TASK 012 — Family Recipe Splitter
+## TASK 038 — Family Recipe Splitter Nutrition Engine
+
+Prompt:
 
 ```text
-Implement Family Recipe Splitter.
+Implement the Family Recipe Splitter.
 
-Concept:
-A user can enter the full household recipe and then record the fraction they personally consumed, such as 25%.
+Example:
+- family raw/cooked recipe
+- total ingredient quantities
+- total nutrition
+- user selects "I ate 25%"
 
-Requirements:
-- household recipe ingredients and total nutrition are calculated;
-- user can choose a consumption percentage;
-- personal nutrition is derived deterministically;
-- works offline;
-- sync is idempotent;
-- the UI makes clear that the allocation is an estimate when inputs are estimated.
+Support percentage-based personal consumption.
 
-Example data from the docs may be used as a test fixture, not as hard-coded product data.
-
-Add model, calculation, offline, sync, and widget tests.
+Ensure:
+- recipe total remains distinct from user portion
+- nutrition calculations are deterministic
+- offline creation works
+- synchronization is idempotent
+- edits recalculate safely
+- tests cover 0%, 25%, 50%, 100%, invalid percentages, and ingredient changes
 ```
 
 ---
 
-## TASK 013 — Nutrition Logging UX Simplification
+## TASK 039 — Food Search
+
+Prompt:
 
 ```text
-Refine the food logging experience around the India-first workflow.
+Implement fast Indian food search.
 
-Read Brain/ui_spec.md plus the nutrition/product documents.
+Support:
+- common names
+- aliases
+- regional names
+- bilingual search
+- transliterated terms where practical
+- category filters
+- portion presets
 
-The logging flow should minimize friction while supporting:
-- Indian food selection;
-- common Indian portion units;
-- raw/cooked state;
-- Tadka estimate;
-- family recipe percentage;
-- manual correction;
-- uncertainty/estimation indicators.
+The feature must work against the local cached food dataset.
 
-Do not redesign the whole application.
-Do not create dashboard bloat.
-Preserve existing working flows unless the docs explicitly replace them.
-
-Add/update widget tests for the affected flows.
+Add search tests and performance checks for the local data path.
 ```
 
 ---
 
-## TASK 014 — WhatsApp Text Logging Backend Contract
+## TASK 040 — Manual Food Logging
+
+Prompt:
 
 ```text
-Implement the WhatsApp text logging backend contract.
-
-Read Brain/architecture.md, Brain/api_contract.md, Brain/data_sources.md, Brain/security.md, Brain/error_handling.md.
+Implement complete manual food logging.
 
 Flow:
-WhatsApp → text processing → language detection → AI extraction → Indian food database → portion estimation → nutrition calculation → user confirmation → food log → DIP.
+Select food
+→ choose portion
+→ choose raw/cooked state where applicable
+→ choose preparation
+→ choose Tadka level when applicable
+→ confirm
+→ save locally
+→ sync
+→ update daily totals
 
-Requirements:
-- authenticated webhook verification where required by the provider;
-- normalize inbound messages;
-- isolate AI provider code behind an adapter;
-- return structured candidates, not free-form database writes;
-- require confirmation when uncertainty is material;
-- make repeated inbound events idempotent;
-- log only data allowed by the privacy specification.
+Support meal categories and edit/delete.
 
-Do not invent Meta API details where the existing codebase/docs do not specify them. Use PROPOSED/OPEN DECISION for unresolved provider details.
+This must be usable offline.
 
-Add fixture/integration tests.
+Add unit, widget, repository, and offline tests.
 ```
 
 ---
 
-## TASK 015 — WhatsApp Voice Logging
+## TASK 041 — Recipe Creation
+
+Prompt:
 
 ```text
-Implement WhatsApp voice-note logging on top of the text logging contract.
+Implement homemade recipe creation.
 
-Requirements:
-- receive/process the voice message through the supported WhatsApp integration;
-- obtain a transcript using the existing/approved audio model adapter;
-- support Hinglish and the documented language set;
-- pass transcript into the same deterministic food extraction pipeline as text;
-- provide confidence/uncertainty;
-- require user confirmation where ambiguity is material;
-- preserve idempotency and privacy.
+Support:
+- recipe name
+- ingredients
+- quantities
+- raw/cooked semantics
+- cooking method
+- serving count
+- estimated nutrition
+- favorite/reuse
+- edit/delete
 
-Do not duplicate business logic between voice and text pipelines.
+Support a family-sized recipe that can later use Family Recipe Splitter.
 
-Add audio fixture tests, parser tests, and integration tests.
+Add validation and deterministic calculation tests.
 ```
 
 ---
 
-## TASK 016 — Hinglish / Indian Language Intelligence
+## TASK 042 — Nutrition Goals
+
+Prompt:
 
 ```text
-Expand conversational food logging to the documented language strategy.
+Implement user nutrition goals.
 
-Prioritize:
-- Hinglish P0
-- Hindi P1
-- Tamil P2
-- Telugu P2
+Support:
+- calorie goal where documented
+- protein goal
+- carbohydrate/fat tracking
+- water goal
+- user override
+- daily progress
 
-Requirements:
-- UI remains consistent with the localization strategy;
-- AI prompts/extraction support bilingual and mixed-language input;
-- food entities are normalized to the Indian food database;
-- user-visible confirmation uses the user's supported language preference;
-- avoid unsupported translation assumptions;
-- keep clinical/evidence-based content distinct from cultural phrasing.
+Do not introduce unsupported medical or nutritional prescriptions.
 
-Add localization and parser fixture tests for representative mixed-language examples.
+Goals must integrate with the local-first data architecture.
 ```
 
 ---
 
-## TASK 017 — AI Meal Analyzer + Confirmation System
+## TASK 043 — Dynamic TDEE Engine
+
+Prompt:
 
 ```text
-Harden the AI meal analyzer.
+Implement the Dynamic TDEE foundation.
 
-Requirements:
-- structured JSON/schema validation;
-- deterministic normalization after model output;
-- confidence/uncertainty fields;
-- human confirmation for materially ambiguous food/portion interpretations;
-- fallback to manual logging on AI failure;
-- no unsupported medical claims;
-- token/cost efficient routing consistent with the Health OS Brain strategy.
-
-Add tests for malformed model output, low confidence, hallucinated food names, missing portions, and provider failure.
-```
-
----
-
-## TASK 018 — AI Food Photo Logging (P1)
-
-```text
-Implement the P1 AI photo food logging flow.
-
-Flow:
-Photo → food detection → Indian dish recognition → portion estimation → nutrition estimation → user confirmation → food log.
-
-Requirements:
-- explicit user confirmation before materially uncertain logs are finalized;
-- show uncertainty clearly;
-- use approved vision model adapter;
-- respect photo retention/deletion policy;
-- provide manual fallback;
-- do not claim perfect recognition;
-- do not expose sensitive images unnecessarily;
-- integrate with existing Indian nutrition/portion model.
-
-Add vision fixture tests, privacy/deletion tests, and widget tests.
-```
-
----
-
-## TASK 019 — Dynamic TDEE Engine
-
-```text
-Implement the adaptive Dynamic TDEE engine.
-
-Inputs documented by FitKarma:
+Inputs:
 - body weight
 - weight trend
 - calorie intake
@@ -492,654 +1233,2103 @@ Inputs documented by FitKarma:
 - goal
 - historical data
 
+Define a deterministic algorithm based only on documented requirements.
+
+The algorithm must provide:
+- estimate
+- confidence/quality indicator
+- adjustment rules
+- user override
+
+If the exact formula is not defined in the documentation, first record the proposed algorithm in Brain/decisions.md before implementing it.
+
+Add extensive time-series tests.
+```
+
+---
+
+## TASK 044 — Nutrition Dashboard
+
+Prompt:
+
+```text
+Build the nutrition overview screen.
+
+Show:
+- calories
+- protein
+- macro progress
+- water relation where relevant
+- today's meals
+- missing/low-confidence logging signals
+- quick add actions
+
+Do not overload the screen with every health feature.
+
+Design it so the Daily Intelligence Package can later select contextual cards.
+```
+
+---
+
+# PHASE 6 — WORKOUT & FITNESS CORE
+
+## TASK 045 — Workout Data Model
+
+Prompt:
+
+```text
+Implement the workout domain.
+
+Support documented entities for:
+- workout
+- exercise
+- session
+- duration
+- intensity
+- calories if available
+- source
+- completion state
+- notes
+
+Use normalized reusable exercise definitions.
+
+Add tests.
+```
+
+---
+
+## TASK 046 — Workout Library
+
+Prompt:
+
+```text
+Implement the initial workout library architecture.
+
+Support:
+- categories
+- equipment
+- difficulty
+- duration
+- home workout suitability
+- muscle focus where documented
+- localization-ready exercise names
+
+Do not build a giant proprietary video library.
+
+Use seed/test content clearly marked as such.
+```
+
+---
+
+## TASK 047 — Workout Planner
+
+Prompt:
+
+```text
+Implement workout planning.
+
+Support:
+- create/select workout
+- schedule
+- goals
+- completion
+- rest/recovery considerations
+- home-friendly filtering
+- history
+
+Integrate with offline-first storage.
+
+Do not implement pose estimation.
+```
+
+---
+
+## TASK 048 — Workout Logging
+
+Prompt:
+
+```text
+Implement workout session logging end-to-end.
+
+Support:
+- start
+- pause/resume where appropriate
+- finish
+- duration
+- perceived exertion where documented
+- completion
+- history
+- local-first save
+- sync
+
+Add tests for interrupted sessions and offline completion.
+```
+
+---
+
+## TASK 049 — Recovery Basics
+
+Prompt:
+
+```text
+Implement the initial recovery/readiness domain.
+
+Use only documented inputs.
+
+Prepare:
+- recovery score model
+- readiness factors
+- daily summary
+- confidence/availability handling
+
+Do not invent medical-grade claims.
+
+Keep provider data and algorithm logic separate.
+```
+
+---
+
+# PHASE 7 — HEALTH CONNECT & APPLE HEALTH
+
+## TASK 050 — Health Integration Abstraction
+
+Prompt:
+
+```text
+Implement the platform health integration abstraction.
+
+Define interfaces for:
+- permissions
+- fetch
+- incremental sync
+- source attribution
+- normalization
+- background sync
+- conflict handling
+- deletion
+
+Create separate adapter boundaries for:
+- Android Health Connect
+- iOS Apple Health / HealthKit
+
+Do not implement direct Garmin/Fitbit integrations yet.
+```
+
+---
+
+## TASK 051 — Android Health Connect
+
+Prompt:
+
+```text
+Implement Android Health Connect integration for the documented P0 health data.
+
+Start with the highest-value data types supported by the documentation, such as steps, sleep, heart rate/HRV, and weight where appropriate.
+
+Implement:
+- permission request
+- permission state
+- initial import
+- incremental import
+- duplicate protection
+- source attribution
+- local normalization
+- error handling
+- revocation behavior
+
+Add Android-specific tests/mocks and document unsupported data types.
+```
+
+---
+
+## TASK 052 — iOS Apple Health / HealthKit
+
+Prompt:
+
+```text
+Implement iOS Apple Health / HealthKit integration for the documented P0 health data.
+
+Mirror the normalized domain model used by Health Connect without leaking platform-specific details into the domain layer.
+
+Implement:
+- permission flow
+- initial import
+- incremental sync
+- source attribution
+- duplicate handling
+- revocation
+- error states
+
+Add iOS-specific tests/mocks where feasible.
+```
+
+---
+
+## TASK 053 — Health Background Sync
+
+Prompt:
+
+```text
+Implement safe background health synchronization.
+
+Support:
+- platform scheduling constraints
+- incremental windows
+- local caching
+- outbox/sync integration
+- battery-conscious behavior
+- retry handling
+
+Do not assume unlimited background execution on either platform.
+
+Add observability for failed sync jobs.
+```
+
+---
+
+# PHASE 8 — DAILY INTELLIGENCE PACKAGE / HEALTH OS BRAIN
+
+## TASK 054 — DIP Domain Contract
+
+Prompt:
+
+```text
+Implement the Daily Intelligence Package (DIP) domain contract.
+
+The DIP should be the central contextual layer that decides which useful insights/actions the user needs today.
+
+Define structured inputs and outputs for:
+- nutrition
+- activity
+- sleep
+- recovery
+- hydration
+- goals
+- adherence
+- relevant alerts
+- contextual actions
+
+Do not implement LLM generation yet.
+
+The output must be deterministic and testable.
+```
+
+---
+
+## TASK 055 — DIP Rule Engine
+
+Prompt:
+
+```text
+Implement the first deterministic DIP rule engine.
+
+Prioritize useful, low-risk micro-actions.
+
+Examples from the strategy:
+- hydration prompt
+- meal logging reminder when appropriate
+- step micro-action
+- indoor workout suggestion when contextually relevant
+
+Do not make unsupported clinical claims.
+
+Add rule-level tests and avoid generating alerts when necessary data is missing.
+```
+
+---
+
+## TASK 056 — Contextual Dashboard Assembly
+
+Prompt:
+
+```text
+Build the FitKarma home dashboard around the DIP.
+
+Do not place every feature on one screen.
+
+Use contextual sections for:
+- today's readiness/health summary
+- recommended micro-action
+- meals
+- activity
+- sleep/recovery
+- quick logging
+- relevant goal progress
+
+The dashboard should change based on available data and user needs.
+
+Add widget tests for several contextual scenarios.
+```
+
+---
+
+## TASK 057 — Daily Readiness Score
+
+Prompt:
+
+```text
+Implement the documented Daily Readiness concept.
+
+Only use validated/documented inputs.
+
+Support:
+- score
+- contributing factors
+- missing-data handling
+- user-friendly explanation
+- trend where supported
+
+Clearly distinguish wellness/readiness scoring from medical diagnosis.
+
+Add deterministic tests.
+```
+
+---
+
+# PHASE 9 — AI FOUNDATION
+
+## TASK 058 — Server-Side AI Gateway
+
+Prompt:
+
+```text
+Implement the server-side AI gateway architecture using Supabase Edge Functions.
+
+Create a safe abstraction for:
+- prompt/task routing
+- provider selection
+- structured output
+- timeout
+- retry policy
+- rate limiting
+- audit metadata
+- PII minimization
+
+Do not call AI providers directly from the Flutter client.
+
+Keep provider-specific implementation isolated.
+```
+
+---
+
+## TASK 059 — AI Structured Output Contracts
+
+Prompt:
+
+```text
+Define and implement validated structured AI output schemas for FitKarma nutrition/coaching tasks.
+
+Require:
+- schema validation
+- confidence/uncertainty fields where appropriate
+- safe fallback
+- no unsupported medical claims
+- deterministic post-processing
+
+Add tests for malformed, incomplete, ambiguous, and adversarial model output.
+```
+
+---
+
+## TASK 060 — AI Meal Analyzer
+
+Prompt:
+
+```text
+Implement the AI Meal Analyzer described in the documentation.
+
+Input:
+- user meal text or structured meal context
+
+Output:
+- identified foods
+- likely portions
+- nutrition interpretation
+- uncertainty
+- contextual coaching insight
+
+Normalize the output against the Indian food database.
+
+Never let raw model output become the authoritative nutrition record without validation/confirmation.
+
+Add mocked AI tests.
+```
+
+---
+
+## TASK 061 — Hinglish Coaching Layer
+
+Prompt:
+
+```text
+Implement the FitKarma conversational coaching layer for Hinglish.
+
+Examples should feel natural rather than formal Hindi.
+
+Keep:
+- language preferences
+- culturally appropriate phrasing
+- respectful tone
+- no unsupported medical claims
+- user-editable notification preferences
+
+Separate language generation from business logic.
+```
+
+---
+
+## TASK 062 — AI Photo Food Logging
+
+Prompt:
+
+```text
+Implement AI photo food logging as the P1 nutrition experience.
+
+Flow:
+photo
+→ upload
+→ image analysis
+→ Indian dish recognition
+→ portion estimation
+→ nutrition estimation
+→ uncertainty
+→ user confirmation
+→ food log
+
 Requirements:
-- deterministic calculation layer separated from AI;
-- documented adjustment rules;
-- confidence level;
-- user override;
-- insufficient-data state;
-- guardrails against extreme recommendations;
-- reproducible calculations.
+- clear privacy messaging
+- image retention policy from documentation
+- deletion behavior
+- failure fallback to manual logging
+- no claim of perfect recognition
 
-Do not invent a medical or scientifically authoritative formula where the documentation leaves it open. First determine whether an existing implementation/formula exists in the repository. If not, document the exact proposed algorithm in Brain/decisions.md before implementation.
-
-Add extensive math/regression tests.
+Add mocked vision tests and UI tests.
 ```
 
 ---
 
-## TASK 020 — Daily Intelligence Package (DIP) Orchestration
+## TASK 063 — AI Safety and Medical Boundary
+
+Prompt:
 
 ```text
-Implement or refine the Daily Intelligence Package as the central orchestration layer.
+Implement AI safety guardrails.
 
-Read Brain/architecture.md, Brain/pdr.md, Brain/ui_spec.md and the current home/dashboard implementation.
+Ensure AI cannot:
+- diagnose disease
+- claim Ayurveda cures disease
+- present uncertain nutrition values as exact
+- give unsafe medical instructions
+- override clinician guidance
 
-Requirements:
-- combine relevant health signals into a concise daily state;
-- avoid redundant AI calls;
-- produce actionable micro-actions;
-- expose readiness/recovery/nutrition information based on context;
-- allow the dashboard to be assembled contextually;
-- avoid showing every module at once.
+Route health-sensitive requests to safe fallback wording where required.
 
-Do not invent new health scoring formulas without documenting them as PROPOSED.
-
-Add deterministic orchestration tests and UI tests.
+Add tests for prohibited/unsafe output patterns.
 ```
 
 ---
 
-## TASK 021 — Health Connect Integration
+# PHASE 10 — WHATSAPP AI LOGGING
+
+## TASK 064 — WhatsApp Integration Contract
+
+Prompt:
 
 ```text
-Implement the documented Android Health Connect integration.
+Implement the FitKarma WhatsApp integration boundary using the documented Meta WhatsApp Business Cloud API architecture.
 
-Read Brain/architecture.md, Brain/data_sources.md, Brain/security.md, Brain/api_contract.md, Brain/testing.md.
+Define:
+- webhook verification interface
+- inbound message model
+- text/voice/media message handling
+- user association
+- message idempotency
+- processing states
+- reply interface
 
-Requirements:
-- explicit permission handling;
-- source attribution;
-- data normalization;
-- incremental/background synchronization according to platform capabilities;
-- offline outbox handling;
-- duplicate detection;
-- conflict handling;
-- deletion/revocation handling;
-- no unnecessary direct wearable integrations when Health Connect is sufficient.
-
-Use real platform capabilities available in the repository. Do not fake background behavior if it is not supported.
-
-Add integration tests/mocks and permission/error tests.
+Do not expose Meta credentials in Flutter.
 ```
 
 ---
 
-## TASK 022 — Apple Health / HealthKit Integration
+## TASK 065 — WhatsApp Text Logging
+
+Prompt:
 
 ```text
-Implement the iOS counterpart using Apple Health/HealthKit.
+Implement WhatsApp text meal logging.
 
-Match the normalized health data contract established by the Android Health Connect implementation.
+Example:
+"Bhai aaj subah 2 parathe aur dahi khaya."
 
-Support the documented data categories only where the current code/docs justify them.
+Pipeline:
+WhatsApp
+→ text processing
+→ language detection
+→ AI extraction
+→ Indian food lookup
+→ portion estimation
+→ nutrition calculation
+→ user confirmation
+→ food log
+→ DIP update
 
-Requirements:
-- permission UX;
-- source attribution;
-- normalization;
-- sync;
-- deletion/revocation;
-- offline persistence where applicable;
-- consistent repository interface across Android/iOS.
-
-Add platform-aware tests and keep unsupported platform code safely isolated.
+Ensure duplicate webhook/message handling.
 ```
 
 ---
 
-## TASK 023 — Health Sync Engine Hardening
+## TASK 066 — WhatsApp Voice Logging
+
+Prompt:
 
 ```text
-Harden the offline-first health synchronization engine.
+Implement WhatsApp voice-note meal logging.
 
-Read Brain/master_rules.md, Brain/architecture.md, Brain/error_handling.md, Brain/testing.md.
+Pipeline:
+voice note
+→ audio retrieval
+→ speech-to-text
+→ language detection
+→ AI extraction
+→ Indian food matching
+→ portion estimation
+→ confirmation
+→ food log
+→ DIP
 
-Requirements:
-- local-first writes;
-- outbox queue;
-- idempotent retries;
-- exponential/backoff strategy where already supported by architecture;
-- duplicate prevention;
-- conflict policy;
-- partial failure recovery;
-- safe resume after app restart;
-- no loss of user-entered health data.
+Support the documented language direction:
+- Hinglish
+- Hindi
+- Tamil
+- Telugu
 
-Do not replace Drift with another persistence system.
-
-Add offline/retry/conflict tests.
+Build graceful fallbacks for:
+- failed transcription
+- unsupported audio
+- ambiguous food
+- low confidence
+- provider timeout
 ```
 
 ---
 
-## TASK 024 — Family Care Dashboard Data Permissions
+## TASK 067 — WhatsApp User Confirmation
+
+Prompt:
 
 ```text
-Implement the Family Care Dashboard foundation.
+Implement confirmation workflows for WhatsApp-generated food logs.
 
-Required security model:
-- explicit affirmative consent;
-- role-based access;
-- revocation;
-- data minimization.
+Users must be able to:
+- confirm
+- correct food
+- correct portion
+- cancel
 
-Potential health data includes steps, weight, sleep, BP, CGM, medication, and activity, but only implement fields supported by the existing data model.
+Ensure confirmations are tied to the correct message/session and are idempotent.
 
-Requirements:
-- clear relationship/permission model;
-- server-side authorization;
-- RLS coverage;
-- easy consent revocation;
-- no silent monitoring;
-- auditability.
-
-Add authorization/RLS tests and widget tests for consent/revocation.
+Add tests for duplicate and delayed responses.
 ```
 
 ---
 
-## TASK 025 — Family Health UX
+## TASK 068 — WhatsApp Coaching Reply
+
+Prompt:
 
 ```text
-Implement the Family Care Dashboard UX around the permission model from TASK 024.
+Implement the personalized WhatsApp response layer.
 
-User experience should support:
-- inviting/linking a family member;
-- consent state;
-- allowed health summaries;
-- alerts only where explicitly configured;
-- revocation;
-- privacy explanation.
+After confirmed logging, return a concise helpful insight based on the DIP/meal analysis.
 
-Do not expose raw health data beyond the granted permission scope.
-Do not add unrelated social-feed functionality.
+Do not send spammy messages.
 
-Add widget/accessibility tests.
+Honor:
+- notification preferences
+- quiet periods
+- fasting mode
+- user language
+- confidence limitations
+
+Add message-template tests.
 ```
 
 ---
 
-## TASK 026 — Festival / Fasting Mode
+# PHASE 11 — FESTIVALS, FASTING, AQI & INDIA-FIRST UX
+
+## TASK 069 — Fasting Mode
+
+Prompt:
 
 ```text
-Implement user-selected fasting/festival modes.
+Implement optional user-selected fasting modes.
 
-Supported documented examples:
+Initial supported examples:
 - Navratri
 - Ramzan
 - Karwa Chauth
-- other user-defined fasting periods where architecture allows.
+- custom fasting periods
 
 Requirements:
-- user opt-in only;
-- never infer religion automatically;
-- adapt notifications/meal reminders/hydration/recommendations;
-- avoid "you haven't eaten" messaging during active fasting periods;
-- allow start/end editing;
-- respect timezone/date boundaries;
-- keep medical advice conservative.
+- user explicitly opts in
+- never infer religion
+- adapt meal reminders
+- adapt hydration reminders
+- adapt meal timing guidance
+- suppress irrelevant "you haven't eaten" messaging
 
-Add state, scheduling, and notification tests.
+Add schedule/time-zone tests.
 ```
 
 ---
 
-## TASK 027 — AQI-Aware Workout Recommendations
+## TASK 070 — AQI-Aware Workout Recommendations
+
+Prompt:
 
 ```text
 Implement optional AQI-aware workout recommendations.
 
 Requirements:
-- use the configured/approved AQI source from Brain/data_sources.md;
-- respect location permissions and privacy;
-- cache appropriately for offline use;
-- use documented thresholds where available;
-- recommend indoor alternatives when outdoor conditions are poor;
-- do not claim medical certainty;
-- make the feature optional and dismissible.
+- documented AQI source abstraction
+- location permission handling
+- cache
+- thresholds
+- privacy-conscious location use
+- indoor-workout fallback recommendation
 
-If the exact AQI provider/API is not yet decided, document an OPEN DECISION instead of inventing one.
+Do not make AQI claims beyond the configured source values.
 
-Add service, caching, threshold, permission, and widget tests.
+Add tests for cached/offline/missing-location states.
 ```
 
 ---
 
-## TASK 028 — Ayurveda Wellness Layer Guardrails
+## TASK 071 — Indian Festival Context
+
+Prompt:
 
 ```text
-Review and implement/refine Ayurveda functionality according to the documentation.
+Implement the festival-context architecture.
 
-Ayurveda must remain a cultural/wellness personalization layer, not a replacement for medicine.
+Support:
+- festival calendar data source
+- optional user participation
+- food recommendations/context
+- fasting relationship
+- culturally appropriate content
 
-Requirements:
-- clearly separate traditional wellness concepts from evidence-based metrics;
-- no disease-curing claims;
-- no diagnosis presented as medical fact;
-- contextual recommendations can include seasonal eating/lifestyle guidance where already designed;
-- preserve user choice and avoid culturally insensitive assumptions.
+Do not assume a user's religion, fasting participation, or dietary practice.
 
-Audit all current Ayurveda text/content and fix claims that violate these rules.
-Add content/UX tests where practical.
+Keep the calendar/data source replaceable.
 ```
 
 ---
 
-## TASK 029 — Women's Health Expansion
+# PHASE 12 — WOMEN'S HEALTH
+
+## TASK 072 — Menstrual Cycle
+
+Prompt:
 
 ```text
-Audit and implement the documented women's health functionality using the existing architecture.
+Implement the women's health foundation.
 
-Relevant areas:
+Support documented:
 - menstrual cycle
-- cycle-aware training
-- PCOS lifestyle tracking
 - symptoms
-- menopause
-- pregnancy-related functionality where supported.
+- cycle history
+- cycle-aware training
+
+Treat this as sensitive health data.
+
+Ensure user consent and privacy controls.
+
+Do not make diagnostic claims.
+Add robust date-cycle tests.
+```
+
+---
+
+## TASK 073 — PCOS Lifestyle Tracking
+
+Prompt:
+
+```text
+Implement the documented PCOS lifestyle-tracking experience.
+
+Support:
+- symptoms
+- relevant lifestyle signals
+- nutrition/activity correlation tracking where documented
+- privacy
+- data export/deletion
+
+Do not claim FitKarma diagnoses or treats PCOS.
+
+Add tests for sensitive-data visibility and deletion.
+```
+
+---
+
+## TASK 074 — Menopause / Pregnancy Boundaries
+
+Prompt:
+
+```text
+Implement the documented architecture for menopause and pregnancy-related functionality only to the level actually specified.
+
+Do not invent medical protocols.
+
+Create opt-in data models and feature-gating boundaries.
+
+Any undefined clinical behavior must be marked OPEN DECISION.
+```
+
+---
+
+# PHASE 13 — FAMILY HEALTH
+
+## TASK 075 — Family Groups
+
+Prompt:
+
+```text
+Implement Family Group management.
+
+Support:
+- create family
+- invite member
+- accept/reject invite
+- member roles
+- leave/remove
+- status
+- consent state
+
+Use explicit authorization and minimal shared data.
+
+Add security and repository tests.
+```
+
+---
+
+## TASK 076 — Family Consent and Permissions
+
+Prompt:
+
+```text
+Implement explicit family health consent and permission management.
+
+Support:
+- requested access
+- accepted access
+- revoked access
+- role-based visibility
+- per-data-category permissions where documented
+- audit events
+
+No family member should automatically see sensitive data merely because they belong to a family group.
+
+Add authorization tests.
+```
+
+---
+
+## TASK 077 — Family Health Data Sharing
+
+Prompt:
+
+```text
+Implement shared family health metrics using strict consent.
+
+Potential documented metrics:
+- steps
+- weight
+- sleep
+- blood pressure
+- CGM
+- medication
+- activity
+
+Only expose data the monitored member explicitly permits.
+
+Add RLS/API authorization tests and revocation tests.
+```
+
+---
+
+## TASK 078 — Family Care Dashboard
+
+Prompt:
+
+```text
+Build the Family Care Dashboard.
+
+Design for the Indian household use case where an adult child may help monitor a parent.
+
+Provide:
+- consent-aware status
+- key shared metrics
+- last synchronization time
+- alerts where documented
+- no unnecessary data exposure
+
+Do not put all raw health data on one screen.
+```
+
+---
+
+# PHASE 14 — MONETIZATION & RAZORPAY
+
+## TASK 079 — Subscription Domain
+
+Prompt:
+
+```text
+Implement FitKarma subscription domain models.
+
+Plans:
+- Yogi Free
+- Karma Pro
+- FitKarma Elite
+- Sachet Sprints
+
+Keep pricing configurable from backend.
+
+Do not hard-code final production prices into business logic.
+
+Model:
+- plan
+- entitlement
+- status
+- start/end
+- renewal
+- grace period
+- cancellation
+- refund
+```
+
+---
+
+## TASK 080 — Razorpay Server Integration Boundary
+
+Prompt:
+
+```text
+Implement the Razorpay server-side integration boundary.
 
 Requirements:
-- treat the data as sensitive health information;
-- encryption/security/privacy controls must match the security docs;
-- avoid unsupported diagnosis/treatment claims;
-- integrate relevant nutrition/CGM signals only where the docs explicitly support the relationship;
-- preserve user control over visibility.
+- server-only secrets
+- client only receives safe/public values
+- order/subscription creation on trusted server
+- server verification
+- idempotency
+- audit metadata
+- error mapping
 
-Add privacy, authorization, calculation, and UI tests.
+Do not activate real production secrets.
+
+Do not let the Flutter app decide final entitlement status.
 ```
 
 ---
 
-## TASK 030 — Data Vault / Privacy UX
+## TASK 081 — UPI Payment Flow
+
+Prompt:
 
 ```text
-Implement the FitKarma Data Vault privacy experience.
+Implement the documented UPI-first payment flow.
 
-Support the documented concepts:
-- see what is stored locally vs cloud;
-- export my data;
-- erase my existence;
-- clear explanation of data categories;
-- deletion status/audit receipt where supported.
+Support the appropriate Razorpay UPI flow from the configured provider integration.
 
 Requirements:
-- never claim deletion completed unless the backend confirms it;
-- deletion must include all documented data/storage relationships;
-- sensitive health data must not leak through logs/analytics;
-- ensure family, AI, WhatsApp, and payment-related data are handled consistently with their retention policies.
+- user initiates payment
+- server creates required payment object
+- client handles payment UX
+- server confirms final state
+- entitlement remains server-authoritative
 
-Add end-to-end deletion/export tests and permission tests.
+Add mocked integration tests.
 ```
 
 ---
 
-## TASK 031 — Notifications and Retention Loop
+## TASK 082 — UPI AutoPay
+
+Prompt:
 
 ```text
-Implement/refine the documented FitKarma retention loop without becoming spammy.
+Implement UPI AutoPay subscription architecture.
 
-Core loop:
-WhatsApp/food input → insight → app readiness/DIP → micro-action → Karma reward.
+Flow:
+plan selected
+→ backend creates required Razorpay subscription/order
+→ user authorizes mandate
+→ mandate created
+→ Razorpay confirmation
+→ backend verifies
+→ subscription activated
+→ webhook events
+→ entitlement updated
+
+Support states:
+created
+pending
+mandate_authorized
+active
+renewal_pending
+payment_failed
+grace_period
+cancelled
+expired
+refunded
+
+Never trust a client callback as the final authority.
+```
+
+---
+
+## TASK 083 — Razorpay Webhooks
+
+Prompt:
+
+```text
+Implement secure Razorpay webhook processing.
 
 Requirements:
-- actionable notification content;
-- contextual frequency controls;
-- respect fasting mode;
-- do not notify users about sensitive information in unsafe wording;
-- premium/free differences must respect entitlement rules;
-- avoid notification fatigue.
+- signature verification
+- replay/duplicate protection
+- idempotency
+- event persistence
+- event ordering tolerance
+- state transition rules
+- retry safety
+- safe logging
 
-Add notification logic tests.
+Add tests for:
+- duplicate webhook
+- delayed webhook
+- invalid signature
+- out-of-order events
+- payment failure
+- refund
 ```
 
 ---
 
-## TASK 032 — Karma Points + Functional Gamification
+## TASK 084 — Entitlement Engine
+
+Prompt:
 
 ```text
-Implement functional gamification only.
+Implement the server-authoritative entitlement engine.
 
-Use documented concepts:
-- Karma points;
-- progression rings;
-- squads/collective challenges where already present;
-- tangible rewards integration only where actually supported.
+Map verified payment/subscription state to product entitlements.
 
-Do not build an Instagram-style fitness social feed.
+Support:
+- free
+- pro
+- elite
+- sachet products
+- grace period
+- expiry
+- cancellation
+- refund
+
+The Flutter client should consume entitlement state rather than calculate it.
+```
+
+---
+
+# PHASE 15 — ADS, NOTIFICATIONS & ENGAGEMENT
+
+## TASK 085 — AdMob Foundation
+
+Prompt:
+
+```text
+Implement the AdMob architecture from Brain/admob_spec.md.
 
 Requirements:
-- rewards cannot override health/safety constraints;
-- server-authoritative point issuance for valuable/redeemable rewards;
-- idempotent event handling;
-- abuse prevention.
+- free vs premium behavior
+- safe placements
+- frequency limits
+- consent
+- analytics hooks
+- rewarded ads only where appropriate
+- no ads inside critical health actions
+- no interference with medical/health workflows
 
-Add unit/security tests.
+Use test ad IDs during development.
+
+Do not ship production credentials yet.
 ```
 
 ---
 
-## TASK 033 — Quick-Commerce Grocery Integration Boundary
+## TASK 086 — Notification Infrastructure
+
+Prompt:
 
 ```text
-Prepare the grocery integration boundary for future Zepto/Blinkit-style integrations.
+Implement notification infrastructure.
 
-Do not pretend a partner API exists unless the repository/docs confirm it.
+Support:
+- local notification scheduling
+- FCM token registration
+- server-dispatched notifications boundary
+- categories/types
+- preferences
+- quiet periods
+- localization
+- cancellation
+- deep links
 
-Implement only:
-- normalized grocery list model;
-- export/integration interface;
-- provider adapter boundary;
-- privacy/consent behavior;
-- fallback to manual cart/list.
-
-Mark any external commercial/API dependency as OPEN DECISION if unresolved.
-Add unit tests around the adapter boundary.
+Add tests for notification preference enforcement.
 ```
 
 ---
 
-## TASK 034 — AdMob Specification + Safe Placement
+## TASK 087 — Karma Points
+
+Prompt:
 
 ```text
-Implement/refine AdMob according to Brain/admob_spec.md.
+Implement the Karma points system.
 
-Requirements:
-- ads only in permitted free-tier contexts;
-- no interference with critical health, privacy, payment, consent, or deletion flows;
-- no misleading health claims around ads;
-- frequency limits;
-- consent/privacy requirements;
-- rewarded ads only where explicitly approved;
-- premium experience remains ad-free where documented.
+Support documented reward sources such as:
+- completed actions
+- adherence
+- challenges
+- healthy behavior
 
-Audit current ad placements and fix unsafe placements.
-Add UI tests where practical.
+Keep points deterministic and auditable.
+
+Do not create artificial addictive loops or spam.
+
+Prepare for future partner rewards.
 ```
 
 ---
 
-## TASK 035 — API Contract Conformance Audit
+## TASK 088 — Squads and Collective Challenges
+
+Prompt:
 
 ```text
-Audit all implemented backend endpoints/services against Brain/api_contract.md.
-
-For each implemented endpoint, verify:
-- method
-- route
-- request schema
-- response schema
-- validation
-- authentication
-- authorization
-- error handling
-- rate limiting where implemented
-- idempotency where relevant.
-
-Do not create fictional endpoints merely to satisfy documentation.
-Update docs only when the actual implementation is authoritative and intentional.
-Create a gap report for missing or divergent contracts.
-```
-
----
-
-## TASK 036 — Error Handling Standardization
-
-```text
-Implement/refine the standardized error handling from Brain/error_handling.md.
-
-Cover:
-- network failures
-- offline mode
-- sync failures/conflicts
-- authentication/authorization
-- validation
-- AI errors/uncertainty
-- Razorpay/UPI/AutoPay
-- webhook failures
-- subscription failures
-- third-party API failures.
-
-Requirements:
-- stable machine-readable error codes;
-- safe user-facing messages;
-- no secret leakage;
-- retryability classification;
-- centralized mapping where architecture permits.
-
-Add unit and integration tests.
-```
-
----
-
-## TASK 037 — Security + RLS Audit
-
-```text
-Perform a security audit against Brain/security.md and Brain/master_rules.md.
-
-Inspect:
-- Supabase RLS;
-- auth/session handling;
-- SQLCipher/local storage;
-- secrets;
-- Edge Functions;
-- family access;
-- health data;
-- AI/WhatsApp data;
-- payment data;
-- logs/analytics;
-- deletion/export;
-- rate limiting and abuse prevention.
-
-Fix confirmed vulnerabilities and missing controls.
-Do not weaken security to make features work.
-
-Add regression tests for every security fix.
-Produce a concise findings/fixes report.
-```
-
----
-
-## TASK 038 — Test Suite Expansion
-
-```text
-Implement the testing matrix in Brain/testing.md for the newly added functionality.
-
-Prioritize:
-- nutrition calculations;
-- Tadka;
-- Family Recipe Splitter;
-- WhatsApp text/voice;
-- AI uncertainty;
-- photo recognition flow;
-- TDEE;
-- Health Connect/Apple Health adapters;
-- family authorization;
-- fasting;
-- AQI;
-- subscriptions;
-- Razorpay webhooks;
-- UPI AutoPay;
-- offline sync;
-- deletion.
-
-Include edge cases from the documentation.
-Do not delete or weaken existing tests.
-```
-
----
-
-## TASK 039 — Performance / Offline / Low-End Android Audit
-
-```text
-Audit FitKarma against the India Tier-2/Tier-3 offline-first strategy.
+Implement the documented functional social layer.
 
 Focus on:
-- startup time;
-- APK/app payload size where measurable;
-- database performance;
-- offline operation;
-- outbox size;
-- sync efficiency;
-- low-memory devices;
-- battery impact;
-- accessibility/legibility for older users.
+- squads
+- collective challenges
+- family activity rings
+- corporate step challenges
 
-Use profiling/measurement where available.
-Make only evidence-based optimizations.
-Do not introduce a new architecture without an ADR.
+Do NOT build an Instagram-style social feed.
+
+Add authorization and anti-abuse boundaries.
 ```
 
 ---
 
-## TASK 040 — CI/CD + GitHub Actions Hardening
+# PHASE 16 — DATA VAULT, PRIVACY & DPDP
+
+## TASK 089 — Data Vault
+
+Prompt:
 
 ```text
-Implement Brain/github_actions.md against the actual repository.
+Build the FitKarma Data Vault screen.
 
-Pipeline should cover, as applicable:
-- formatting;
-- linting;
-- flutter analyze;
-- unit/widget/integration tests;
-- database/RLS tests;
-- dependency/security checks;
-- secret scanning;
-- Android builds;
-- iOS builds;
-- signed release workflow separation.
+Show users:
+- what is stored locally
+- what is stored in cloud systems
+- connected health sources
+- AI/WhatsApp data categories
+- family-sharing state
+- retention/deletion controls where applicable
 
-Never put secrets into the repository or workflow logs.
-Use repository/environment secrets correctly.
-Do not create signing credentials.
-Add documentation for any required repository secrets as names/placeholders only.
+Provide entry points for:
+- export data
+- erase account/data
+- revoke family access
+- manage integrations
+
+Keep privacy language understandable.
 ```
 
 ---
 
-## TASK 041 — Production Readiness Checklist
+## TASK 090 — Data Export
+
+Prompt:
 
 ```text
-Work through Brain/production_checklist.md against the real repository.
+Implement the user data export architecture.
 
-Audit:
-- product flows;
-- backend;
-- database;
-- RLS/security;
-- privacy/DPDP workflows;
-- AI;
-- payments/Razorpay/UPI/AutoPay;
-- Android/iOS permissions;
-- offline mode;
-- monitoring;
-- analytics;
-- Play Store/App Store readiness.
+Support a secure export request covering the documented user data categories.
 
-Fix concrete blockers discovered during the audit.
-Do not mark an item complete unless evidence exists.
+Define:
+- request
+- generation
+- secure delivery
+- expiration
+- audit event
+
+Do not expose private data through insecure download URLs.
+
+Add access-control tests.
 ```
 
 ---
 
-## TASK 042 — Remove/Defer Scope-Creep Features
+## TASK 091 — Right-to-Erasure
+
+Prompt:
 
 ```text
-Audit the repository for features explicitly marked Deferred / Future / Not Recommended.
+Implement the client/server contract for the documented delete_user_data cascading deletion process.
 
-The strategy says not to prioritize:
-- Instagram-style social feed;
-- proprietary wearable hardware;
-- expensive pose estimation as a core feature;
-- heavy video-content production;
-- low-retention experimental AI.
+Cover:
+- local data wipe
+- remote deletion request
+- storage cleanup
+- AI/WhatsApp data deletion where applicable
+- family access removal
+- subscription/account handling boundaries
+- audit receipt without retaining deleted health data
 
-Do not blindly delete existing code. Instead:
-- disable unfinished experimental features from production navigation if the docs require that;
-- preserve reusable infrastructure when safe;
-- move incomplete feature flags/routes into a deferred state;
-- document any destructive removal as a decision.
+Add tests for deletion cascade and family-access revocation.
 
-Ensure the core product remains focused on nutrition + WhatsApp + offline + health aggregation.
+Do not falsely claim deletion is complete unless the backend confirms it.
 ```
 
 ---
 
-## TASK 043 — Final Documentation/Implementation Synchronization
+## TASK 092 — RLS and Authorization Hardening
+
+Prompt:
 
 ```text
-Read all FitKarma documentation again after the implementation work.
+Implement and test Supabase Row Level Security and authorization for all implemented user/family data.
 
-Search the entire repository for:
-RevenueCat
-Razorpay
-UPI
-UPI AutoPay
-subscription
-payment
-offline
-Drift
-Supabase
-Health Connect
-Apple Health
+Verify:
+- users can access only their own records
+- family users see only explicitly shared data
+- revoked users lose access immediately/appropriately
+- privileged operations use server-side controls
+- anonymous users cannot access health data
+
+Add pgTAP/database authorization tests.
+```
+
+---
+
+# PHASE 17 — ADMIN / FITKARMA HUB
+
+## TASK 093 — FitKarma Hub Foundation
+
+Prompt:
+
+```text
+If the repository/product scope includes the documented FitKarma Hub companion admin platform, create its foundation.
+
+Support administrative boundaries for:
+- user support
+- content/data management
+- food database administration
+- recipe management
+- subscription visibility
+- audit logs
+- feature/configuration management
+
+Do not expose unrestricted user health data to administrators.
+
+Document role boundaries.
+```
+
+---
+
+## TASK 094 — Indian Food Database Administration
+
+Prompt:
+
+```text
+Implement the admin workflow for managing Indian food/recipe data.
+
+Support:
+- food creation/editing
+- portions
+- raw/cooked variants
+- cooking multipliers
+- provenance
+- review status
+- versioning
+
+Prevent arbitrary deletion of food entities referenced by historical logs.
+
+Add audit trails.
+```
+
+---
+
+# PHASE 18 — EXTERNAL DATA SOURCES & RESPONSIBLE DATA COLLECTION
+
+## TASK 095 — Open Food Facts Integration
+
+Prompt:
+
+```text
+Implement Open Food Facts integration according to Brain/data_sources.md.
+
+Requirements:
+- API/source abstraction
+- caching
+- provenance
+- deduplication
+- rate-limit awareness
+- fallback
+- data normalization
+- privacy-safe usage
+
+Do not overwrite curated Indian food records blindly.
+
+Add import/normalization tests.
+```
+
+---
+
+## TASK 096 — Indian Dataset Ingestion
+
+Prompt:
+
+```text
+Implement the ingestion pipeline for approved Indian food datasets.
+
+Follow the documented priority:
+official APIs
+→ licensed datasets
+→ open datasets
+→ permitted scraping
+
+Support:
+- provenance
+- attribution
+- deduplication
+- review status
+- versioning
+- update process
+
+Do not ingest data that violates licensing or access restrictions.
+```
+
+---
+
+## TASK 097 — Responsible Scraping Pipeline
+
+Prompt:
+
+```text
+Implement only a responsible, policy-compliant scraping architecture where documented sources cannot be obtained through APIs/datasets.
+
+Requirements:
+- robots.txt awareness
+- Terms of Service review
+- throttling
+- caching
+- attribution
+- deduplication
+- provenance
+- change detection
+- stop conditions
+
+Do not implement access-control bypasses or ToS-violating automation.
+```
+
+---
+
+# PHASE 19 — ANALYTICS, METRICS & PRODUCT INSIGHTS
+
+## TASK 098 — Product Analytics Contract
+
+Prompt:
+
+```text
+Implement privacy-conscious product analytics events.
+
+Track only documented/necessary events such as:
+- onboarding completion
+- food log completion
+- workout completion
+- WhatsApp logging
+- AI confirmation
+- Health integration connection
+- subscription events
+- retention milestones
+
+Do not log sensitive health payloads as analytics properties.
+
+Create a documented event schema.
+```
+
+---
+
+## TASK 099 — Retention Loop Instrumentation
+
+Prompt:
+
+```text
+Instrument the documented FitKarma retention loop:
+
+Trigger
+→ WhatsApp/food logging
+→ insight
+→ app engagement
+→ micro-action
+→ Karma reward
+
+Measure each stage without storing unnecessary sensitive content.
+
+Create analytics tests and event deduplication behavior.
+```
+
+---
+
+# PHASE 20 — TESTING & QUALITY
+
+## TASK 100 — Testing Architecture
+
+Prompt:
+
+```text
+Establish the complete testing architecture from Brain/testing.md.
+
+Create conventions and helpers for:
+- unit tests
+- widget tests
+- integration tests
+- repository tests
+- database tests
+- RLS/pgTAP tests
+- offline tests
+- sync tests
+- AI contract tests
+- payment/webhook tests
+- localization tests
+- accessibility tests
+- performance tests
+
+Do not merely create empty test folders; provide useful shared helpers and examples.
+```
+
+---
+
+## TASK 101 — Nutrition Test Suite
+
+Prompt:
+
+```text
+Build a comprehensive nutrition test suite covering:
+
+- portion conversion
+- raw/cooked distinction
+- cooking multipliers
+- Tadka estimation
+- family recipe percentage splits
+- calories/macros
+- invalid inputs
+- rounding
+- historical reproducibility
+- offline save
+- synchronization
+- duplicate logs
+
+Add regression cases for every nutrition calculation bug discovered later.
+```
+
+---
+
+## TASK 102 — Offline and Sync Test Suite
+
+Prompt:
+
+```text
+Create comprehensive offline-first tests.
+
+Cover:
+- offline creation
+- offline edits
+- offline deletion
+- reconnect
+- duplicate upload
+- retry
+- permanent error
+- app restart during sync
+- conflict
+- partial batch
+- duplicate webhook-like sync events
+
+Prove user data is not lost during network failure.
+```
+
+---
+
+## TASK 103 — Authentication/Security Test Suite
+
+Prompt:
+
+```text
+Create comprehensive auth/security tests.
+
+Cover:
+- OTP failures
+- expired session
+- unauthorized API calls
+- RLS isolation
+- family revocation
+- local data access
+- logout cleanup
+- deletion
+- export authorization
+- secret exposure checks
+
+Do not print sensitive fixtures in CI logs.
+```
+
+---
+
+## TASK 104 — AI Test Suite
+
+Prompt:
+
+```text
+Create the AI test suite.
+
+Cover:
+- valid model response
+- malformed JSON
+- incomplete response
+- low confidence
+- ambiguous food
+- unsupported food
+- hallucinated nutrition
+- unsafe medical advice
+- prompt injection
+- provider timeout
+- rate limit
+- fallback behavior
+
+AI output must never bypass deterministic validation.
+```
+
+---
+
+## TASK 105 — Payment Test Suite
+
+Prompt:
+
+```text
+Create payment tests covering:
+
+- subscription creation
+- UPI payment success
+- UPI failure
+- AutoPay mandate creation
+- renewal
+- grace period
+- cancellation
+- expiry
+- refund
+- duplicate webhook
+- invalid webhook signature
+- delayed webhook
+- out-of-order webhook
+- entitlement updates
+
+Use mocked provider responses.
+Never use real payment credentials in automated tests.
+```
+
+---
+
+# PHASE 21 — CI/CD & RELEASE ENGINEERING
+
+## TASK 106 — GitHub Actions CI
+
+Prompt:
+
+```text
+Implement GitHub Actions CI according to Brain/github_actions.md.
+
+Pipeline should cover where applicable:
+- formatting check
+- lint/analyze
+- unit tests
+- widget tests
+- integration tests
+- security checks
+- dependency checks
+- secret scanning
+- database tests
+- RLS/pgTAP tests
+
+Fail safely without exposing secrets.
+```
+
+---
+
+## TASK 107 — Android Build Pipeline
+
+Prompt:
+
+```text
+Create the Android CI build pipeline.
+
+Support:
+- debug build
+- release build validation
+- signing configuration via CI secrets
+- artifact generation
+- versioning
+- test execution before build
+
+Do not commit signing keys.
+```
+
+---
+
+## TASK 108 — iOS Build Pipeline
+
+Prompt:
+
+```text
+Create the iOS CI build pipeline.
+
+Support:
+- simulator/test build where feasible
+- release validation
+- signing configuration via secure CI secrets
+- artifact generation
+
+Do not commit certificates/profiles or secrets.
+```
+
+---
+
+## TASK 109 — Dependency and Vulnerability Review
+
+Prompt:
+
+```text
+Implement dependency hygiene.
+
+Review:
+- Flutter packages
+- Dart packages
+- native Android dependencies
+- native iOS dependencies
+- Supabase/Edge Function dependencies
+
+Add automated checks for vulnerable/outdated dependencies where practical.
+
+Do not upgrade packages blindly; test compatibility before changing them.
+```
+
+---
+
+# PHASE 22 — PRODUCTION READINESS
+
+## TASK 110 — Performance Optimization
+
+Prompt:
+
+```text
+Perform a production performance pass.
+
+Measure:
+- cold start
+- dashboard render
+- local database queries
+- food search
+- sync performance
+- memory usage
+- image handling
+- AI request latency
+- battery-impact areas
+
+Optimize based on measured bottlenecks, not guesswork.
+
+Do not sacrifice correctness/security for superficial benchmarks.
+```
+
+---
+
+## TASK 111 — Offline Production Audit
+
+Prompt:
+
+```text
+Perform an end-to-end offline audit.
+
+Test:
+- onboarding as applicable
+- food logging
+- recipe creation
+- workouts
+- sleep
+- weight
+- water
+- mood
+- local dashboard
+- sync after reconnect
+
+Document which features are:
+- fully offline
+- partially offline
+- online-required
+
+Fix any unexpected data-loss paths.
+```
+
+---
+
+## TASK 112 — Security Production Audit
+
+Prompt:
+
+```text
+Perform a production security audit against Brain/security.md.
+
+Review:
+- secrets
+- RLS
+- authentication
+- authorization
+- local encryption
+- sensitive logs
+- storage
+- AI boundaries
+- WhatsApp
+- payments
+- family access
+- deletion
+- export
+- abuse/rate limiting
+
+Fix findings that are in scope.
+
+Record unresolved risks in the appropriate documentation.
+```
+
+---
+
+## TASK 113 — Privacy / DPDP Readiness Audit
+
+Prompt:
+
+```text
+Perform a privacy-readiness audit.
+
+Verify:
+- consent collection
+- purpose clarity
+- data minimization
+- export
+- deletion
+- family consent
+- sensitive health data handling
+- AI/WhatsApp data treatment
+- retention controls
+- audit records
+
+Do not claim legal certification/compliance beyond what the implementation and documentation support.
+
+Record OPEN DECISION items clearly.
+```
+
+---
+
+## TASK 114 — Accessibility and Localization Audit
+
+Prompt:
+
+```text
+Perform a final accessibility/localization audit.
+
+Test:
+- English
+- Hindi
+- long strings
+- text scaling
+- screen readers
+- touch targets
+- dark mode
+- contrast
+- orientation/responsive layouts
+
+Fix real defects found.
+```
+
+---
+
+## TASK 115 — Final Product Consistency Audit
+
+Prompt:
+
+```text
+Perform a full FitKarma product consistency audit.
+
+Search the repository and Brain documentation for:
+- RevenueCat
+- Razorpay
+- UPI
+- UPI AutoPay
+- subscription
+- payment
+- offline
+- Drift
+- Supabase
+- Health Connect
+- Apple Health
+- WhatsApp
+- AI
+- family
+- Ayurveda
+- DPDP
+
+RevenueCat may only remain as historical migration context in decisions/changelog documentation.
+
+Resolve implementation contradictions without inventing facts.
+
+Produce an audit report.
+```
+
+---
+
+## TASK 116 — Production Checklist Completion
+
+Prompt:
+
+```text
+Complete Brain/production_checklist.md against the actual implementation.
+
+Check:
+- product
+- backend
+- database
+- security
+- privacy
+- AI
+- payments
+- Razorpay
+- UPI
+- UPI AutoPay
+- Android
+- iOS
+- offline mode
+- monitoring
+- analytics
+- Play Store
+- App Store
+
+Mark every item:
+- PASS
+- FAIL
+- BLOCKED
+- OPEN DECISION
+
+Do not mark an item PASS without evidence.
+```
+
+---
+
+## TASK 117 — End-to-End Smoke Test
+
+Prompt:
+
+```text
+Execute a full greenfield FitKarma smoke test from a fresh environment.
+
+Test the highest-value path:
+
+install
+→ launch
+→ sign up
+→ onboarding
+→ permissions
+→ dashboard
+→ food logging
+→ Indian portions
+→ Tadka
+→ nutrition insight
+→ workout
+→ sleep/health data where available
+→ offline mode
+→ reconnect/sync
+→ subscription test flow
+→ logout
+→ privacy/data controls
+
+Document all failures.
+
+Do not begin a separate refactor during this task.
+```
+
+---
+
+## TASK 118 — Release Candidate Hardening
+
+Prompt:
+
+```text
+Prepare the FitKarma release candidate.
+
+Only fix issues discovered from the completed test/audit set.
+
+Perform:
+- regression tests
+- build validation
+- crash/error review
+- database migration validation
+- configuration validation
+- release notes preparation
+- known issues documentation
+
+Do not add major new features during this task.
+```
+
+---
+
+# PHASE 23 — POST-MVP CATEGORY LEADERSHIP
+
+These tasks should be performed only after the core app is stable.
+
+## TASK 119 — CGM Integration Architecture
+
+Prompt:
+
+```text
+Implement the CGM integration abstraction and first supported provider only after verifying current provider/API requirements.
+
+Support:
+- glucose samples
+- timestamps
+- source attribution
+- ingestion normalization
+- privacy
+- deletion
+- visualization
+- relationship to meals
+
+Do not invent provider APIs or medical interpretations.
+```
+
+---
+
+## TASK 120 — ABHA / ABDM Integration
+
+Prompt:
+
+```text
+Implement ABHA/ABDM integration only after documenting verified API/legal requirements.
+
+Create:
+- authentication/consent flow
+- record synchronization
+- normalization
+- secure storage
+- deletion/revocation boundaries
+
+Do not assume access or permissions not supported by the actual provider/API.
+```
+
+---
+
+## TASK 121 — Grocery Integration
+
+Prompt:
+
+```text
+Implement grocery integration architecture for future Zepto/Blinkit or other approved providers.
+
+Support:
+- ingredient list generation
+- cart mapping abstraction
+- user confirmation
+- privacy
+- provider fallbacks
+
+Do not hard-code unsupported third-party APIs.
+```
+
+---
+
+## TASK 122 — Corporate Wellness
+
+Prompt:
+
+```text
+Implement the FitKarma Hub corporate wellness architecture.
+
+Support the documented direction:
+- organizations
+- cohorts
+- challenges
+- aggregated reporting
+- privacy-safe metrics
+- employee consent
+- admin roles
+
+Do not expose individual medical data to employers.
+```
+
+---
+
+# DEFERRED / DO NOT IMPLEMENT UNLESS EXPLICITLY REAUTHORIZED
+
+The following should remain out of the main implementation sequence:
+
+- Instagram-style fitness social feed
+- proprietary wearable hardware
+- expensive on-device pose estimation as a core product feature
+- heavy video-production/content platform
+- low-retention experimental AI features
+
+The strategy source specifically identifies these as poor priorities compared with FitKarma's nutrition, WhatsApp, offline, family, and Health OS strengths.
+
+---
+
+# DEFINITION OF DONE FOR EVERY TASK
+
+A task cannot be considered complete merely because code exists.
+
+The task is DONE only when:
+
+[ ] functionality is implemented  
+[ ] architecture matches documentation  
+[ ] security/authorization is addressed  
+[ ] offline behavior is addressed where applicable  
+[ ] error handling exists  
+[ ] tests are added/updated  
+[ ] formatting passes  
+[ ] static analysis passes  
+[ ] relevant tests pass  
+[ ] documentation is updated when needed  
+[ ] no unrelated refactor was introduced  
+[ ] final diff was reviewed  
+
+---
+
+# TASK STATUS TEMPLATE
+
+Use this format when recording progress:
+
+```text
+## TASK XXX — <title>
+
+Status: NOT STARTED / IN PROGRESS / COMPLETE / BLOCKED
+
+Implementation:
+- ...
+
+Files changed:
+- ...
+
+Tests:
+- ...
+
+Checks:
+- flutter analyze
+- flutter test
+- other relevant checks
+
+Documentation:
+- ...
+
+Blockers:
+- ...
+
+Open Decisions:
+- ...
+```
+
+---
+
+# STRATEGIC BUILD ORDER
+
+The intended greenfield order is:
+
+```text
+Repository
+↓
+Flutter bootstrap
+↓
+Architecture
+↓
+Design system
+↓
+Auth
+↓
+Profile/onboarding
+↓
+Drift + SQLCipher
+↓
+Offline outbox/sync
+↓
+Health domain
+↓
+Indian nutrition
+↓
+Food logging
+↓
+Workouts
+↓
+Health Connect / Apple Health
+↓
+Daily Intelligence Package
+↓
+AI gateway
+↓
 WhatsApp
-AI
-family
-Ayurveda
-DPDP
-
-Resolve contradictions using this hierarchy:
-1. confirmed existing implementation;
-2. approved product strategy;
-3. architecture decisions in Brain/decisions.md.
-
-Critical rule:
-RevenueCat must not appear as an active dependency. Historical mention is allowed only in decisions/changelog.
-
-Update documentation for behavior that is now actually implemented.
-Mark unresolved items PROPOSED or OPEN DECISION.
-Do not invent missing API/table/provider details.
+↓
+Fasting/AQI
+↓
+Women's health
+↓
+Family health
+↓
+Razorpay
+↓
+UPI AutoPay
+↓
+Privacy/Data Vault
+↓
+Analytics/notifications
+↓
+Testing/CI
+↓
+Production hardening
+↓
+CGM / ABHA / Grocery / Corporate
 ```
 
 ---
 
-## TASK 044 — Final Full Regression + Release Candidate Audit
+# FINAL IMPLEMENTATION PRINCIPLE
 
-```text
-Treat the current repository as a release candidate.
+FitKarma is being built as a **new product from zero**, not as an incremental patchwork project.
 
-Read .agent/skills/SKILLS.md, Brain/master_rules.md, Brain/production_checklist.md, Brain/testing.md, Brain/security.md and Brain/decisions.md.
+The first priority is a stable, secure, offline-first foundation.
 
-Run the strongest available full validation suite, including:
-- Flutter format/analyze;
-- unit/widget/integration tests;
-- database/RLS tests;
-- payment/webhook tests;
-- offline/sync tests;
-- platform builds where the environment supports them;
-- security/dependency checks.
+The second priority is the India-first nutrition experience.
 
-Then produce:
-1. blockers;
-2. warnings;
-3. tests that passed;
-4. tests that could not run and why;
-5. remaining OPEN DECISION items;
-6. exact next steps for production readiness.
+The third priority is the frictionless WhatsApp + AI layer.
 
-Do not claim the app is production-ready unless the evidence supports it.
-```
+The fourth priority is the Health OS intelligence and integrations.
 
----
+The fifth priority is monetization, family health, and category leadership.
 
-# Final operating rules for every task
-
-- Always read `.agent/skills/SKILLS.md` before implementation.
-- For major changes, read `master_rules.md`, `pdr.md`, `trd.md`, `architecture.md`, `decisions.md`, then the relevant domain document.
-- Inspect the existing repository before making assumptions.
-- Implement only the current task unless a dependency fix is strictly required.
-- Do not start a large refactor unrelated to the task.
-- Do not invent database tables, API routes, provider APIs, formulas, or third-party capabilities.
-- Use `PROPOSED` or `OPEN DECISION` when the source documents do not define something.
-- Preserve existing working features unless an approved strategy/decision explicitly changes them.
-- Keep offline-first behavior explicit for every user-data feature.
-- Keep health data, family data, AI data, WhatsApp data, and payment data subject to the documented security/privacy rules.
-- Never trust client-side payment success for entitlement authority.
-- Never store payment secrets, UPI PINs, CVV, or bank credentials.
-- AI output must be validated and uncertainty surfaced.
-- Do not make unsupported medical claims.
-- Every feature needs appropriate tests.
-- Every architectural change needs an ADR in `Brain/decisions.md`.
-- Update documentation alongside implemented behavior.
-- Prefer small, descriptive commits with no unrelated changes.
-- Never commit secrets.
+Never sacrifice the foundational architecture to ship a flashy isolated feature.

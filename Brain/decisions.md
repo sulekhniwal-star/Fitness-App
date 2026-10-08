@@ -75,32 +75,3 @@
 **Status:** Accepted  
 **Decision:** defer custom social feed, proprietary hardware, heavy video production and high-cost pose estimation from the core roadmap.  
 **Reason:** protect solo-founder execution focus and the core nutrition/OS moat.
-
-## ADR-016 — Greenfield Implementation Baseline
-**Status:** Accepted  
-**Decision:** Treat `F:\Fitness App` as a clean-slate implementation workspace and exclude legacy external files. All modules (Flutter UI, Drift/SQLCipher, Supabase schema, Edge Functions, Razorpay) are to be built incrementally following Todo.md tasks.  
-**Reason:** Avoid carrying over deprecated dependencies, architectural drift, or unvalidated technical debt.
-
-## ADR-017 — Dual Documentation Path Mirroring (`/docs` and `Brain/`)
-**Status:** Accepted  
-**Decision:** Support both `Brain/` and `/docs` paths natively via a filesystem directory junction. `Brain/` remains the physical storage location for domain documentation, mirrored directly to `/docs`.  
-**Reason:** Reconciles references in Master Documentation and skills that cite `/docs` with the local workspace folder `Brain/` without file duplication or sync drift.
-
-## Open Architectural Decisions
-
-- **OD-001: Project Bootstrapping & Package Pinning**  
-  *Context*: Flutter SDK 3.47.6 / Dart 3.13.5 installed on host. Standard project structure, Riverpod 2.x, Drift, and SQLCipher dependencies must be pinned cleanly.  
-  *Status*: OPEN DECISION.
-
-- **OD-002: Supabase Migrations Workflow**  
-  *Context*: Supabase CLI is not installed on PATH. Migration scripts will be versioned as pure SQL in `supabase/migrations/` ready for CI and remote execution.  
-  *Status*: OPEN DECISION.
-
-- **OD-003: Razorpay Server Secrets & Webhook Verification Convention**  
-  *Context*: Standardizing Edge Function environment variables (`RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`) and HMAC SHA-256 verification contracts.  
-  *Status*: OPEN DECISION.
-
-- **OD-004: Offline Outbox Conflict Resolution Policy**  
-  *Context*: Defining entity-specific conflict rules (e.g. food log vs health observation sync collisions) for offline writes.  
-  *Status*: OPEN DECISION.
-
