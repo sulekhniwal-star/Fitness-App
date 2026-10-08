@@ -81,3 +81,8 @@
 **Decision:** Standardize dark-mode primary aesthetic (`#0D0F12`), high-contrast slate surfaces (`#161A22`, `#1F2430`), Neon Mint (`#00E599`) and Saffron Gold (`#FF9933`) accents, 8dp spacing scale with strict 48dp minimum accessible touch targets, frosted glass (`GlassContainer`), and modular Bento cards (`BentoCard`) with spring-physics touch feedback (`AppMotion.springBounce`, 150ms).  
 **Reason:** Ensures strong text legibility across older/tier-2 demographics while establishing a differentiated, modern, tactile Bento-grid UI. Custom bundled offline font typography assets remain `OPEN DECISION` until pre-launch packaging (Phase 13).
 
+## ADR-017 — Supabase Backend Workspace, Migration Protocol & Environment Separation
+**Status:** Accepted (Task 012A)  
+**Decision:** Standardize on Supabase CLI (`supabase/config.toml`, `project_id = "fitkarma"`) with strictly versioned timestamped migrations (`<YYYYMMDDHHMMSS>_<name>.sql` in `supabase/migrations/`), zero manual remote schema mutations, production-guarded seed fixtures (`supabase/seed.sql` and `supabase/seeds/`), strict multi-environment separation (local/dev, CI, staging, production with zero server secrets in client binaries), and automated CI migration validation (`npm run db:lint`). Product tables are intentionally deferred to TASK 012B.  
+**Reason:** Guarantees deterministic database deployments, prevents configuration drift across team/CI/production environments, and enforces strict secret boundaries in alignment with DPDP and security architecture.
+

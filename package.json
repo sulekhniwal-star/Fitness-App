@@ -4,6 +4,11 @@
   "private": true,
   "description": "FitKarma — India's Intelligent Health Operating System",
   "scripts": {
-    "doc:lint": "node scripts/doc_lint.js"
+    "doc:lint": "node scripts/doc_lint.js",
+    "db:lint": "node scripts/validate_migrations.js",
+    "db:validate": "node scripts/validate_migrations.js",
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:reset": "supabase db reset"
   }
 }

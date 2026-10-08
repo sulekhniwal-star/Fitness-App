@@ -145,6 +145,29 @@
   - `BentoCard`: Expanded title and subtitle wrapping (`maxLines: 2`) to eliminate truncation and RenderFlex overflow at 200% text scale.
 - Added comprehensive accessibility tests in `test/shared/presentation/accessibility_test.dart` (13 tests verifying WCAG contrast ratios, 48dp touch bounds, screen-reader semantics, reading order traversal, focus indicator behavior, reduced motion compliance, and RenderFlex safety at 2.0x text scale; total 85/85 tests green).
 
+## 2026-10-08 — TASK 012: Shared UI states and components
 
+- Implemented comprehensive reusable UI primitives under `lib/shared/presentation/widgets/`:
+  - `AppScaffold`: Screen wrapper integrating safe area, background gradient styling, customizable `AppTopBar`, floating bottom navigation slot, offline indicator banner, and connectivity status awareness.
+  - `AppTopBar`: Theme-aware top navigation bar with back navigation, action buttons, title/subtitle support, and frosted glass effect.
+  - `OfflineIndicatorBanner`: Animated, high-visibility connectivity indicator banner notifying users of offline status and pending sync queue items.
+  - `AppBottomNavBar`: Bottom navigation shell with active/inactive tab states, badge counters, glass styling, and spring tap feedback.
+  - `AppSectionHeader`: Structured section title with optional subtitle, trailing action ("See all" / CTA button), and semantic heading hierarchy.
+  - `MetricCard`: Bento-style health and fitness metric display featuring tabular numeral typography, unit labeling, trend indicator badges (positive/negative/neutral), subtitle context, and optional progress bar.
+  - `SkeletonLoader`, `SkeletonLine`, `SkeletonCard`: Pulse-animated loading skeletons with reduced-motion awareness and overflow-safe layouts for cards, lines, and bento grids.
+  - `AppSnackBar`: Floating toast notifications supporting success, error, warning, and info variants with high-contrast icons, dismiss actions, and WCAG AA contrast.
+  - `AppConfirmationDialog`: Modal confirmation dialog with standard and destructive variants, customized action buttons, and keyboard escape handling.
+  - `AppConsentDialog`: DPDP Act 2023 compliant data-processing consent modal supporting explicit opt-in, itemized purpose lists, and data usage disclosures.
+  - `AppErrorPanel`: Inline dismissible error card supporting error codes (`FK-xxxx`), user-friendly sanitized messages, and customizable retry actions.
+- Re-exported all new primitives through `lib/shared/presentation/widgets/shared_widgets.dart`.
+- Added comprehensive widget test suite in `test/shared/presentation/shared_ui_components_test.dart` (12 tests covering AppScaffold, AppTopBar, OfflineIndicatorBanner, AppBottomNavBar, AppSectionHeader, MetricCard, SkeletonLoader, AppSnackBar, AppConfirmationDialog, AppConsentDialog, and AppErrorPanel; total 97/97 tests green).
 
+## 2026-10-08 — TASK 012A: Supabase project, local stack and versioned migrations
 
+- Initialized greenfield Supabase CLI configuration in `supabase/config.toml` with `project_id = "fitkarma"`, standard local ports (API 54321, DB 54322, Studio 54323), auth rate limits, and seed paths.
+- Established versioned migrations directory `supabase/migrations/` using monotonic timestamp naming convention `<YYYYMMDDHHMMSS>_<name>.sql`.
+- Created initial database extension migration `supabase/migrations/20261008000000_init_extensions.sql` enabling baseline PostgreSQL extensions (`uuid-ossp`, `pgcrypto`, `citext`, `pg_trgm`). Product tables intentionally deferred to TASK 012B.
+- Created seed and test fixture architecture under `supabase/seeds/` (`01_reference_catalogs.sql`, `02_test_personas.sql`) coordinated via root `supabase/seed.sql` with automated safety assertions preventing execution against production databases.
+- Documented multi-environment tiering and secret isolation (local, CI, staging, production) in `supabase/environments/README.md` and template `supabase/.env.example`.
+- Implemented automated migration and workspace validator `scripts/validate_migrations.js` (wired to `npm run db:lint` / `npm run db:validate`) verifying filename patterns, monotonic timestamp order, SQL non-emptiness, production safety guards, and absence of committed secrets.
+- Recorded ADR-017 in `Brain/decisions.md`.
