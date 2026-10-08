@@ -102,3 +102,14 @@ Use localized coaching. During selected fasting periods suppress inappropriate �
 
 Offline bundled brand font files (e.g. Outfit / Inter font asset packaging) remain `OPEN DECISION` until pre-launch packaging in Phase 13. System typography fallback currently drives `AppTypography`.
 
+## 14. Localization Architecture (Finalized in Task 010)
+
+- **Active Languages**: English (`en`) and Hindi (`hi`, हिन्दी).
+- **Prepared Expansion Languages**: Tamil (`ta`), Telugu (`te`), Gujarati (`gu`), Bengali (`bn`), Marathi (`mr`), Punjabi (`pa`).
+- **Deterministic Fallback**: Any un-translated keys or unreleased regional languages fall back cleanly to `EnglishStrings` without error.
+- **Dynamic Switching**: `appLocaleProvider` driven by Riverpod updates active locale in-memory immediately without requiring app restart.
+- **Separation of Concerns**:
+  - **UI Strings**: Strictly static, typed catalogs (`AppStrings`) for buttons, navigation, status, metrics, and error handling.
+  - **AI Conversational Phrasing**: Managed independently via `AiPhrasingConfig` specifying dialect, Hinglish mix ratio (subtle 15%, balanced 45%, vernacular 75%), coaching tone (supportive elder, peer buddy, clinical specialist), and fasting awareness for LLM prompts.
+
+

@@ -573,6 +573,10 @@ Prepare the system for:
 - Hinglish AI-generated conversational content
 - Tamil
 - Telugu
+- Gujarati
+- Bengali
+- Marathi
+- Punjabi
 
 Separate UI localization from AI-generated conversational phrasing.
 

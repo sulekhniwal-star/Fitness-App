@@ -117,4 +117,20 @@
 - Added unit and widget tests in `test/shared/presentation/theme_and_components_test.dart` (15 tests covering tokens, touch target accessibility, component interactions, and showcase rendering; total 62/62 tests green).
 - Finalized design tokens in `Brain/ui_spec.md` and recorded ADR-016 in `Brain/decisions.md`. Offline bundled brand font files noted as OPEN DECISION until pre-launch packaging in Phase 13.
 
+## 2026-10-08 — TASK 010: Localization foundation
+
+- Implemented centralized localization architecture in `lib/core/localization/`:
+  - `AppSupportedLocale`: Encompasses active Phase 1 languages (English, Hindi) and prepared expansion languages (Tamil, Telugu, Gujarati, Bengali, Marathi, Punjabi).
+  - `AppStrings`: Strongly-typed interface for UI string catalogs, completely separating static UI localization from AI-generated conversational phrasing.
+  - `EnglishStrings` & `HindiStrings`: Native string catalogs covering navigation, common actions, health metrics, status badges, and error/recovery states.
+  - `AppLocalizations`: Centralized Flutter delegate with safe, deterministic fallback to English for missing keys or expansion languages.
+  - `appLocaleProvider` & `appStringsProvider`: Reactive Riverpod state management enabling live locale switching without application restart.
+- Implemented `AiPhrasingConfig` in `lib/core/localization/ai_conversational_phrasing.dart`:
+  - Decoupled AI conversational generation from UI strings.
+  - Models `AiConversationalDialect` (including natural Hinglish, regional Indian languages), `HinglishMixRatio` (subtle 15%, balanced 45%, vernacularHeavy 75%), coaching tone (supportive elder, peer buddy, clinical specialist), and fasting awareness directives.
+- Updated `FitKarmaApp` in `lib/app/fitkarma_app.dart` with `flutter_localizations` delegates and reactive `appLocaleProvider`.
+- Enhanced `DesignSystemShowcaseScreen` with interactive live language switcher and localization showcase section (Section 9).
+- Added comprehensive unit and widget tests in `test/core/localization/localization_test.dart` (10 tests asserting locale enumeration, string parity, fallback behavior, immediate widget updates without app restart, and strict separation between UI i18n and AI conversational directives; total 72/72 tests green).
+
+
 

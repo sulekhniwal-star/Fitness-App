@@ -1,6 +1,9 @@
+import 'package:fitkarma/core/localization/localization.dart';
 import 'package:fitkarma/shared/presentation/showcase/design_system_showcase_screen.dart';
 import 'package:fitkarma/shared/presentation/widgets/shared_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -289,9 +292,18 @@ void main() {
       tester,
     ) async {
       await tester.pumpWidget(
-        MaterialApp(
-          theme: FitKarmaTheme.darkTheme,
-          home: const DesignSystemShowcaseScreen(),
+        ProviderScope(
+          child: MaterialApp(
+            theme: FitKarmaTheme.darkTheme,
+            localizationsDelegates: const [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: AppSupportedLocale.supportedLocales,
+            home: const DesignSystemShowcaseScreen(),
+          ),
         ),
       );
       await tester.pump(const Duration(milliseconds: 100));

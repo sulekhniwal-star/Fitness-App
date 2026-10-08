@@ -1,20 +1,22 @@
+import 'package:fitkarma/core/localization/localization.dart';
 import 'package:fitkarma/shared/presentation/widgets/shared_widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Interactive showcase screen for FitKarma design tokens and UI components.
 ///
 /// Functions as an internal Storybook for testing theme, contrast, tactile feedback,
 /// and accessibility.
-class DesignSystemShowcaseScreen extends StatefulWidget {
+class DesignSystemShowcaseScreen extends ConsumerStatefulWidget {
   const DesignSystemShowcaseScreen({super.key});
 
   @override
-  State<DesignSystemShowcaseScreen> createState() =>
+  ConsumerState<DesignSystemShowcaseScreen> createState() =>
       _DesignSystemShowcaseScreenState();
 }
 
 class _DesignSystemShowcaseScreenState
-    extends State<DesignSystemShowcaseScreen> {
+    extends ConsumerState<DesignSystemShowcaseScreen> {
   bool _chipSelected = true;
   bool _isLoadingButton = false;
   final _textController = TextEditingController(text: 'Dal Tadka (1 Bowl)');
@@ -27,10 +29,25 @@ class _DesignSystemShowcaseScreenState
 
   @override
   Widget build(BuildContext context) {
+    final activeLocale = ref.watch(appLocaleProvider);
+    final strings = AppLocalizations.stringsOf(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Design System Showcase'),
         actions: [
+          TextButton.icon(
+            icon: const Icon(Icons.language, size: 18),
+            label: Text(
+              activeLocale.languageCode == 'en' ? 'हिन्दी' : 'English',
+              style: AppTypography.labelLarge.copyWith(
+                color: AppColors.primary,
+              ),
+            ),
+            onPressed: () {
+              ref.read(appLocaleProvider.notifier).toggleEnglishHindi();
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.info_outline),
             tooltip: 'Design System Info',
@@ -98,6 +115,13 @@ class _DesignSystemShowcaseScreenState
               'Deterministic recovery states',
             ),
             _buildStatesSection(),
+            const SizedBox(height: AppSpacing.xxl),
+
+            _buildSectionHeader(
+              '9. Bilingual Localization & AI Phrasing',
+              'Active locale: ${activeLocale.languageCode.toUpperCase()} (Live reactive toggle)',
+            ),
+            _buildLocalizationSection(activeLocale, strings),
             const SizedBox(height: AppSpacing.xxxl),
           ],
         ),
@@ -411,6 +435,103 @@ class _DesignSystemShowcaseScreenState
             message: 'Unable to reach sync engine. Your logs are safely preserved offline.',
             errorCode: 'FK-4001',
             onRetry: () {},
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLocalizationSection(Locale activeLocale, AppStrings strings) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        BentoCard(
+          title:
+              'UI String Catalog (${activeLocale.languageCode.toUpperCase()})',
+          subtitle: 'Pure static UI strings (Decoupled from AI)',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
+                children: [
+                  AppChip(
+                    label: strings.dashboard,
+                    icon: Icons.dashboard,
+                    isSelected: true,
+                    onSelected: (_) {},
+                  ),
+                  AppChip(
+                    label: strings.nutrition,
+                    icon: Icons.restaurant,
+                    isSelected: true,
+                    onSelected: (_) {},
+                  ),
+                  AppChip(
+                    label: strings.workouts,
+                    icon: Icons.fitness_center,
+                    isSelected: true,
+                    onSelected: (_) {},
+                  ),
+                  AppChip(
+                    label: strings.fasting,
+                    icon: Icons.timelapse,
+                    isSelected: true,
+                    onSelected: (_) {},
+                  ),
+                  AppChip(
+                    label: strings.dataVault,
+                    icon: Icons.lock,
+                    isSelected: true,
+                    onSelected: (_) {},
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                'Sample Banner: "${strings.onboarding}"',
+                style: AppTypography.bodyMedium,
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                'Offline Recovery: "${strings.offlinePreserved}"',
+                style: AppTypography.bodySmall,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.md),
+        BentoCard(
+          isGlass: true,
+          title: 'Language Selector & Fallback Testing',
+          subtitle: 'Active: ${activeLocale.languageCode}',
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Wrap(
+                spacing: AppSpacing.xs,
+                runSpacing: AppSpacing.xs,
+                children: AppSupportedLocale.values.map((supported) {
+                  final isCurrent =
+                      activeLocale.languageCode == supported.languageCode;
+                  return AppChip(
+                    label: '${supported.displayName} (${supported.nativeName})',
+                    isSelected: isCurrent,
+                    onSelected: (_) {
+                      ref
+                          .read(appLocaleProvider.notifier)
+                          .setSupportedLocale(supported);
+                    },
+                  );
+                }).toList(),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              const Text(
+                'Note: Prepared regional languages (Tamil, Telugu, Gujarati, Bengali, Marathi, Punjabi) safely fall back to English strings until fully translated in Phase 2.',
+                style: AppTypography.bodySmall,
+              ),
+            ],
           ),
         ),
       ],
