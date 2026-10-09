@@ -30,7 +30,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byKey(const Key('screen_onboarding')), findsOneWidget);
-      expect(find.text('FitKarma Personalization & Consent'), findsOneWidget);
+      expect(find.text("India's Private Health OS"), findsOneWidget);
     },
   );
 

@@ -91,3 +91,36 @@ enum DietaryIdentity {
   /// Whether the diet strictly prohibits meat and poultry.
   bool get excludesMeat => this != DietaryIdentity.nonVegetarian;
 }
+
+/// Ayurvedic constitution / Prakriti tendencies for optional holistic personalization.
+///
+/// NOTE: Non-medical wellness & lifestyle references per Brain/pdr.md and Brain/security.md.
+/// Not intended as clinical diagnoses or medical treatment.
+enum AyurvedicDosha {
+  vata,
+  pitta,
+  kapha,
+  tridoshic,
+  unknown;
+
+  String get displayName => switch (this) {
+    AyurvedicDosha.vata => 'Vata (Air & Ether)',
+    AyurvedicDosha.pitta => 'Pitta (Fire & Water)',
+    AyurvedicDosha.kapha => 'Kapha (Earth & Water)',
+    AyurvedicDosha.tridoshic => 'Tridoshic (Balanced)',
+    AyurvedicDosha.unknown => 'Not Specified',
+  };
+
+  String get description => switch (this) {
+    AyurvedicDosha.vata =>
+      'Creative, light, quick metabolism. Benefits from warm, grounding meals and consistent daily routines.',
+    AyurvedicDosha.pitta =>
+      'Focused, intense, strong digestive fire. Benefits from cooling, nourishing foods and moderate pace.',
+    AyurvedicDosha.kapha =>
+      'Calm, steady, endurance-oriented. Benefits from light, warm, stimulating nutrition and regular movement.',
+    AyurvedicDosha.tridoshic =>
+      'Naturally harmonious equilibrium of physical energies. Adaptable across seasonal transitions.',
+    AyurvedicDosha.unknown => 'Constitutional tendencies not set.',
+  };
+}
+

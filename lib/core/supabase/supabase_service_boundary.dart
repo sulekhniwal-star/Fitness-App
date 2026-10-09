@@ -116,6 +116,9 @@ abstract interface class ISupabaseAuthService {
     String? accessToken,
   });
 
+  /// Authenticates as an anonymous guest user for local-first onboarding and offline exploration.
+  Future<Result<FitKarmaAuthSession>> signInAnonymously();
+
   /// Signs out the current user session and clears local credentials.
   Future<Result<void>> signOut();
 }

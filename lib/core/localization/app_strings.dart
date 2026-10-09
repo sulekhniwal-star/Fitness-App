@@ -73,6 +73,42 @@ abstract interface class AppStrings {
   String get orDivider;
   String get signOut;
   String get googleSignInCancelled;
+
+  // --- Onboarding Flow ---
+  String get onboardingWelcomeTitle;
+  String get onboardingWelcomeSubtitle;
+  String get onboardingGetStarted;
+  String get onboardingLanguageTitle;
+  String get onboardingLanguageSubtitle;
+  String get onboardingPrivacyTitle;
+  String get onboardingPrivacySubtitle;
+  String get onboardingPrivacyConsentLabel;
+  String get onboardingMedicalDisclaimer;
+  String get onboardingBasicProfileTitle;
+  String get onboardingBasicProfileSubtitle;
+  String get onboardingDisplayNameLabel;
+  String get onboardingAgeLabel;
+  String get onboardingSexLabel;
+  String get onboardingHeightLabel;
+  String get onboardingWeightLabel;
+  String get onboardingGoalsTitle;
+  String get onboardingGoalsSubtitle;
+  String get onboardingDietTitle;
+  String get onboardingDietSubtitle;
+  String get onboardingActivityTitle;
+  String get onboardingActivitySubtitle;
+  String get onboardingAyurvedaTitle;
+  String get onboardingAyurvedaSubtitle;
+  String get onboardingAyurvedaDisclaimer;
+  String get onboardingSkip;
+  String get onboardingPermissionsTitle;
+  String get onboardingPermissionsSubtitle;
+  String get onboardingNotificationsLabel;
+  String get onboardingHealthSyncLabel;
+  String get onboardingAccountSetupTitle;
+  String get onboardingAccountSetupSubtitle;
+  String get onboardingContinueAsGuest;
+  String get onboardingComplete;
 }
 
 /// English string catalog implementation (default source of truth).
@@ -210,6 +246,90 @@ class EnglishStrings implements AppStrings {
   String get signOut => 'Sign Out';
   @override
   String get googleSignInCancelled => 'Google Sign-In was cancelled.';
+
+  // --- Onboarding Flow ---
+  @override
+  String get onboardingWelcomeTitle => "India's Private Health OS";
+  @override
+  String get onboardingWelcomeSubtitle =>
+      'Consolidates your health data, nutrition, and wellness into actionable daily intelligence. Works on WhatsApp and offline.';
+  @override
+  String get onboardingGetStarted => 'Get Started';
+  @override
+  String get onboardingLanguageTitle => 'Choose Your Language';
+  @override
+  String get onboardingLanguageSubtitle =>
+      'Select your preferred UI language. Conversational coaching adapts automatically.';
+  @override
+  String get onboardingPrivacyTitle => 'Privacy & DPDP Consent';
+  @override
+  String get onboardingPrivacySubtitle =>
+      'Your health data is stored locally first, encrypted, and never sold to advertisers or third parties.';
+  @override
+  String get onboardingPrivacyConsentLabel =>
+      'I consent to processing my health observations for personalized wellness insights';
+  @override
+  String get onboardingMedicalDisclaimer =>
+      'Medical Disclaimer: FitKarma provides lifestyle and nutritional wellness insights. It does not provide medical diagnoses, treatments, or prescriptions.';
+  @override
+  String get onboardingBasicProfileTitle => 'Basic Profile';
+  @override
+  String get onboardingBasicProfileSubtitle =>
+      'Required for clinical metabolic expenditure and nutritional calculations.';
+  @override
+  String get onboardingDisplayNameLabel => 'Your Name';
+  @override
+  String get onboardingAgeLabel => 'Age (Years)';
+  @override
+  String get onboardingSexLabel => 'Biological Sex (for metabolic calculations)';
+  @override
+  String get onboardingHeightLabel => 'Height (cm)';
+  @override
+  String get onboardingWeightLabel => 'Weight (kg)';
+  @override
+  String get onboardingGoalsTitle => 'Fitness & Health Goals';
+  @override
+  String get onboardingGoalsSubtitle =>
+      'Select your primary objectives to tailor your daily targets.';
+  @override
+  String get onboardingDietTitle => 'Dietary Identity & Preferences';
+  @override
+  String get onboardingDietSubtitle =>
+      'Respecting Indian culinary traditions, fasting, and dietary lifestyle.';
+  @override
+  String get onboardingActivityTitle => 'Activity Baseline';
+  @override
+  String get onboardingActivitySubtitle =>
+      'Helps calibrate your Total Daily Energy Expenditure (TDEE).';
+  @override
+  String get onboardingAyurvedaTitle => 'Ayurveda & Prakriti (Optional)';
+  @override
+  String get onboardingAyurvedaSubtitle =>
+      'Discover your constitutional tendencies for traditional routine and wellness balancing.';
+  @override
+  String get onboardingAyurvedaDisclaimer =>
+      'Ayurvedic insights provide traditional lifestyle guidance and are not medical diagnoses.';
+  @override
+  String get onboardingSkip => 'Skip for Now';
+  @override
+  String get onboardingPermissionsTitle => 'Permissions & Integrations';
+  @override
+  String get onboardingPermissionsSubtitle =>
+      'Enable notifications and health platform sync for complete daily intelligence.';
+  @override
+  String get onboardingNotificationsLabel => 'Daily DIP & Meal Notifications';
+  @override
+  String get onboardingHealthSyncLabel =>
+      'Sync with Health Connect / Apple Health';
+  @override
+  String get onboardingAccountSetupTitle => 'Account Setup';
+  @override
+  String get onboardingAccountSetupSubtitle =>
+      'Secure your profile and synchronize across devices.';
+  @override
+  String get onboardingContinueAsGuest => 'Explore as Guest (Offline Mode)';
+  @override
+  String get onboardingComplete => 'Complete Setup & Launch';
 }
 
 /// Hindi (हिन्दी) string catalog implementation.
@@ -347,4 +467,88 @@ class HindiStrings implements AppStrings {
   String get signOut => 'साइन आउट';
   @override
   String get googleSignInCancelled => 'गूगल साइन-इन रद्द कर दिया गया।';
+
+  // --- Onboarding Flow ---
+  @override
+  String get onboardingWelcomeTitle => 'भारत का निजी हेल्थ ओएस';
+  @override
+  String get onboardingWelcomeSubtitle =>
+      'आपके स्वास्थ्य, पोषण और दिनचर्या को दैनिक बुद्धिमत्ता में बदलता है। व्हाट्सएप और ऑफलाइन दोनों पर उपलब्ध।';
+  @override
+  String get onboardingGetStarted => 'शुरू करें';
+  @override
+  String get onboardingLanguageTitle => 'अपनी भाषा चुनें';
+  @override
+  String get onboardingLanguageSubtitle =>
+      'अपनी पसंदीदा भाषा चुनें। कोचिंग अपने आप अनुकूलित होगी।';
+  @override
+  String get onboardingPrivacyTitle => 'गोपनीयता और सहमति';
+  @override
+  String get onboardingPrivacySubtitle =>
+      'आपका स्वास्थ्य डेटा स्थानीय रूप से सुरक्षित और एन्क्रिप्टेड है, किसी तीसरे पक्ष को नहीं बेचा जाता।';
+  @override
+  String get onboardingPrivacyConsentLabel =>
+      'मैं व्यक्तिगत स्वास्थ्य सुझावों के लिए डेटा प्रसंस्करण की सहमति देता/देती हूँ';
+  @override
+  String get onboardingMedicalDisclaimer =>
+      'चिकित्सीय अस्वीकरण: फिटकर्मा केवल जीवनशैली और पोषण संबंधी मार्गदर्शन प्रदान करता है। यह चिकित्सीय निदान या उपचार का विकल्प नहीं है।';
+  @override
+  String get onboardingBasicProfileTitle => 'मूल प्रोफ़ाइल';
+  @override
+  String get onboardingBasicProfileSubtitle =>
+      'सटीक चयापचय (मेटाबॉलिक) गणनाओं के लिए आवश्यक।';
+  @override
+  String get onboardingDisplayNameLabel => 'आपका नाम';
+  @override
+  String get onboardingAgeLabel => 'आयु (वर्ष)';
+  @override
+  String get onboardingSexLabel => 'जैविक लिंग (मेटाबॉलिक गणना हेतु)';
+  @override
+  String get onboardingHeightLabel => 'कद (सेमी)';
+  @override
+  String get onboardingWeightLabel => 'वजन (किग्रा)';
+  @override
+  String get onboardingGoalsTitle => 'स्वास्थ्य और फिटनेस लक्ष्य';
+  @override
+  String get onboardingGoalsSubtitle =>
+      'दैनिक लक्ष्यों को अनुकूलित करने के लिए अपने मुख्य लक्ष्य चुनें।';
+  @override
+  String get onboardingDietTitle => 'आहार और भोजन प्राथमिकताएँ';
+  @override
+  String get onboardingDietSubtitle =>
+      'भारतीय भोजन परंपराओं, उपवास और आहार नियमों का सम्मान।';
+  @override
+  String get onboardingActivityTitle => 'दैनिक गतिविधि स्तर';
+  @override
+  String get onboardingActivitySubtitle =>
+      'दैनिक ऊर्जा व्यय (टीडीईई) को सटीक बनाने में मदद करता है।';
+  @override
+  String get onboardingAyurvedaTitle => 'आयुर्वेद और प्रकृति (वैकल्पिक)';
+  @override
+  String get onboardingAyurvedaSubtitle =>
+      'संतुलित दिनचर्या के लिए अपनी शारीरिक प्रकृति जानें।';
+  @override
+  String get onboardingAyurvedaDisclaimer =>
+      'आयुर्वेदिक मार्गदर्शन पारंपरिक जीवनशैली संदर्भ है, कोई चिकित्सीय निदान नहीं।';
+  @override
+  String get onboardingSkip => 'अभी छोड़ें';
+  @override
+  String get onboardingPermissionsTitle => 'अनुमतियाँ और एकीकरण';
+  @override
+  String get onboardingPermissionsSubtitle =>
+      'दैनिक सुझावों और स्वचालित डेटा सिंक के लिए अनुमतियाँ सक्षम करें।';
+  @override
+  String get onboardingNotificationsLabel => 'दैनिक सुझाव व भोजन स्मरण';
+  @override
+  String get onboardingHealthSyncLabel => 'हेल्थ कनेक्ट / एप्पल हेल्थ से जोड़ें';
+  @override
+  String get onboardingAccountSetupTitle => 'खाता सेटअप';
+  @override
+  String get onboardingAccountSetupSubtitle =>
+      'अपनी प्रोफ़ाइल सुरक्षित करें और उपकरणों के बीच सिंक करें।';
+  @override
+  String get onboardingContinueAsGuest =>
+      'अतिथि के रूप में अन्वेषण करें (ऑफलाइन)';
+  @override
+  String get onboardingComplete => 'सेटअप पूरा करें और शुरू करें';
 }

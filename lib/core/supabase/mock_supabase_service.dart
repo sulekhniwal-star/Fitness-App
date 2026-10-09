@@ -211,6 +211,17 @@ class MockSupabaseAuthService implements ISupabaseAuthService {
   }
 
   @override
+  Future<Result<FitKarmaAuthSession>> signInAnonymously() async {
+    final guestUser = FitKarmaUser(
+      id: '00000000-0000-0000-0000-guest00000001',
+      createdAt: DateTime.now(),
+      userMetadata: const {'is_anonymous': true, 'role': 'guest'},
+    );
+    simulateSignIn(guestUser);
+    return Success(_currentSession!);
+  }
+
+  @override
   Future<Result<void>> signOut() async {
     simulateSignOut();
     return const Success(null);

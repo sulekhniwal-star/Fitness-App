@@ -317,6 +317,42 @@ class _SupabaseAuthServiceImpl implements ISupabaseAuthService {
   }
 
   @override
+  Future<Result<FitKarmaAuthSession>> signInAnonymously() async {
+    try {
+      final res = await _auth.signInAnonymously();
+      final session = res.session;
+      final user = res.user;
+
+      if (session == null || user == null) {
+        return FailureResult(
+          SupabaseFailureMapper.map('Missing session after anonymous sign-in'),
+        );
+      }
+
+      final fitKarmaUser = FitKarmaUser(
+        id: user.id,
+        email: user.email,
+        phone: user.phone,
+        createdAt: DateTime.tryParse(user.createdAt) ?? DateTime.now(),
+        userMetadata: user.userMetadata ?? const {'is_anonymous': true},
+      );
+
+      return Success(
+        FitKarmaAuthSession(
+          accessToken: session.accessToken,
+          refreshToken: session.refreshToken,
+          expiresAt: session.expiresAt != null
+              ? DateTime.fromMillisecondsSinceEpoch(session.expiresAt! * 1000)
+              : null,
+          user: fitKarmaUser,
+        ),
+      );
+    } catch (e, st) {
+      return FailureResult(SupabaseFailureMapper.map(e, st));
+    }
+  }
+
+  @override
   Future<Result<void>> signOut() async {
     try {
       await _auth.signOut();

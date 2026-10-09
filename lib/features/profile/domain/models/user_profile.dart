@@ -18,6 +18,7 @@ class UserProfile {
   final List<FitnessGoal> goals;
   final ActivityLevel activityLevel;
   final DietaryIdentity dietaryIdentity;
+  final AyurvedicDosha? dosha;
   final NutritionPreferences nutritionPreferences;
   final NotificationPreferences notificationPreferences;
   final String locale;
@@ -36,6 +37,7 @@ class UserProfile {
     required this.goals,
     this.activityLevel = ActivityLevel.moderatelyActive,
     this.dietaryIdentity = DietaryIdentity.vegetarian,
+    this.dosha,
     this.nutritionPreferences = NutritionPreferences.defaults,
     this.notificationPreferences = NotificationPreferences.defaults,
     this.locale = 'en',
@@ -103,6 +105,7 @@ class UserProfile {
     List<FitnessGoal>? goals,
     ActivityLevel? activityLevel,
     DietaryIdentity? dietaryIdentity,
+    AyurvedicDosha? dosha,
     NutritionPreferences? nutritionPreferences,
     NotificationPreferences? notificationPreferences,
     String? locale,
@@ -121,6 +124,7 @@ class UserProfile {
       goals: goals ?? this.goals,
       activityLevel: activityLevel ?? this.activityLevel,
       dietaryIdentity: dietaryIdentity ?? this.dietaryIdentity,
+      dosha: dosha ?? this.dosha,
       nutritionPreferences: nutritionPreferences ?? this.nutritionPreferences,
       notificationPreferences:
           notificationPreferences ?? this.notificationPreferences,
@@ -144,6 +148,7 @@ class UserProfile {
       'goals': goals.map((g) => g.name).toList(),
       'activity_level': activityLevel.name,
       'dietary_identity': dietaryIdentity.name,
+      if (dosha != null) 'dosha': dosha!.name,
       'nutrition_preferences': nutritionPreferences.toJson(),
       'notification_preferences': notificationPreferences.toJson(),
       'locale': locale,
@@ -183,6 +188,12 @@ class UserProfile {
         (e) => e.name == json['dietary_identity'],
         orElse: () => DietaryIdentity.vegetarian,
       ),
+      dosha: json['dosha'] != null
+          ? AyurvedicDosha.values.firstWhere(
+              (e) => e.name == json['dosha'],
+              orElse: () => AyurvedicDosha.unknown,
+            )
+          : null,
       nutritionPreferences: json['nutrition_preferences'] != null
           ? NutritionPreferences.fromJson(
               json['nutrition_preferences'] as Map<String, dynamic>,
@@ -218,6 +229,7 @@ class UserProfile {
         'goals': goals.map((g) => g.name).toList(),
         'activity_level': activityLevel.name,
         'dietary_identity': dietaryIdentity.name,
+        if (dosha != null) 'dosha': dosha!.name,
         'nutrition_preferences': nutritionPreferences.toJson(),
         'notification_preferences': notificationPreferences.toJson(),
       },
@@ -262,6 +274,12 @@ class UserProfile {
         (e) => e.name == meta['dietary_identity'],
         orElse: () => DietaryIdentity.vegetarian,
       ),
+      dosha: meta['dosha'] != null
+          ? AyurvedicDosha.values.firstWhere(
+              (e) => e.name == meta['dosha'],
+              orElse: () => AyurvedicDosha.unknown,
+            )
+          : null,
       nutritionPreferences: meta['nutrition_preferences'] != null
           ? NutritionPreferences.fromJson(
               meta['nutrition_preferences'] as Map<String, dynamic>,
@@ -296,6 +314,7 @@ class UserProfile {
       'goals': goals.map((g) => g.name).toList(),
       'activity_level': activityLevel.name,
       'dietary_identity': dietaryIdentity.name,
+      if (dosha != null) 'dosha': dosha!.name,
       'locale': locale,
       'is_synced': isSynced,
     };
@@ -315,6 +334,7 @@ class UserProfile {
           weightKg == other.weightKg &&
           activityLevel == other.activityLevel &&
           dietaryIdentity == other.dietaryIdentity &&
+          dosha == other.dosha &&
           locale == other.locale &&
           isSynced == other.isSynced;
 
@@ -329,6 +349,7 @@ class UserProfile {
     weightKg,
     activityLevel,
     dietaryIdentity,
+    dosha,
     locale,
     isSynced,
   );

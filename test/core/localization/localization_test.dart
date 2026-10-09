@@ -82,6 +82,12 @@ void main() {
       expect(en.resendInSeconds(25), equals('Resend code in 25s'));
       expect(en.continueWithGoogle, equals('Continue with Google'));
       expect(en.signOut, equals('Sign Out'));
+
+      // Onboarding
+      expect(en.onboardingWelcomeTitle, equals("India's Private Health OS"));
+      expect(en.onboardingGetStarted, equals('Get Started'));
+      expect(en.onboardingMedicalDisclaimer, contains('Medical Disclaimer:'));
+      expect(en.onboardingContinueAsGuest, contains('Guest'));
     });
 
     test(
@@ -113,6 +119,12 @@ void main() {
         expect(hi.resendInSeconds(25), equals('25 सेकंड में पुनः भेजें'));
         expect(hi.continueWithGoogle, equals('गूगल के साथ आगे बढ़ें'));
         expect(hi.signOut, equals('साइन आउट'));
+
+        // Onboarding
+        expect(hi.onboardingWelcomeTitle, equals('भारत का निजी हेल्थ ओएस'));
+        expect(hi.onboardingGetStarted, equals('शुरू करें'));
+        expect(hi.onboardingMedicalDisclaimer, contains('चिकित्सीय अस्वीकरण:'));
+        expect(hi.onboardingContinueAsGuest, contains('अतिथि'));
       },
     );
   });

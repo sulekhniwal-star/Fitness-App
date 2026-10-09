@@ -165,3 +165,27 @@ All concrete physical columns are recorded as `PROPOSED` specifications in `Brai
    - Integrates cleanly with existing `public.profiles` schema by serializing domain-specific metabolic parameters into the documented JSONB `metadata` column.  
 **Reason:** Decouples user profile domain logic and physiological calculations from UI and remote transport while guaranteeing DPDP-compliant data handling and local-first resilience.
 
+## ADR-024 — FitKarma Onboarding Experience, Consent & Guest Architecture
+**Status:** Accepted (Task 017)  
+**Decision:** Implement the comprehensive 10-step FitKarma onboarding flow per `Brain/pdr.md`, `Brain/ui_spec.md`, `Brain/security.md`, and `Brain/api_contract.md`:
+1. Flow Sequence & Wizard Structure:
+   - Step 1: Welcome & Value Proposition (India-first nutrition, privacy by default, offline-first architecture, holistic fasting).
+   - Step 2: Language Selection (English, Hindi dynamic switching; Tamil, Telugu, Kannada preview chips).
+   - Step 3: Consent & DPDP Privacy Explanation (Local-first processing notice, data ownership declaration, affirmative consent requirement, medical disclaimer).
+   - Step 4: Basic Profile (Display name, biological sex selection for Mifflin-St Jeor calculations, age 13–120, height 50–250cm, weight 20–400kg).
+   - Step 5: Fitness Goals (Interactive Bento cards covering all 7 `FitnessGoal` values).
+   - Step 6: Dietary Identity & Fasting (Indian taxonomy: pureVeg, Jain, vegan, vegetarian, eggetarian, nonVeg; meal frequency slider; fasting protocols: 16:8, 14:10, Circadian, Ekadashi).
+   - Step 7: Activity Baseline (Sedentary, lightly active, moderately active, very active, extremely active with PAL multiplier indicators).
+   - Step 8: Optional Ayurveda & Prakriti Personalization (Saffron gold dosha cards for Vata, Pitta, Kapha, Tridoshic with skip option).
+   - Step 9: Permissions & Integrations (Notification preferences and Health Connect / HealthKit aggregate entry point).
+   - Step 10: Account Setup (Phone OTP, Google Sign-In, and "Explore as Guest" offline mode).
+2. Unsupported Medical Claim Safeguards:
+   - Mandatory visible medical disclaimer in Consent and Ayurveda steps stating FitKarma provides lifestyle and wellness suggestions, not medical diagnoses or treatment.
+   - Ayurvedic Prakriti insights explicitly framed as lifestyle and dietary guidance per classical taxonomy without clinical therapeutic claims.
+3. Guest & Local-First Completion Architecture:
+   - Supports anonymous guest exploration via `signInAnonymously()` generating a valid local session with `{'is_anonymous': true}` metadata.
+   - UserProfile is assembled and stored locally via `IUserProfileRepository` before transitioning to `/dashboard`, allowing immediate, unhindered usage.
+4. Navigation & State Management:
+   - Managed via Riverpod `OnboardingController` maintaining step validation, error messaging, and bidirectional navigation.  
+**Reason:** Provides a compliant, culturally nuanced onboarding experience that validates domain models, respects user privacy under DPDP, ensures seamless onboarding into the main application, and prevents unsupported medical claims.
+

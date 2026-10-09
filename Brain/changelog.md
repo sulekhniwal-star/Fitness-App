@@ -257,3 +257,27 @@
 - Added comprehensive unit and validation tests in `test/features/profile/user_profile_test.dart` (24 tests verifying domain validation rules, metabolic calculations, dietary taxonomy exclusions, serialization roundtrips, sensitive data redaction, database mapping, local-first cache/stream updates, and Riverpod notifier integration).
 - Verified with 165/165 passing Flutter tests across entire workspace, 0 analyzer issues, and 67/67 passing doc-lint checks.
 - Recorded ADR-023 in `Brain/decisions.md`.
+
+## 2026-10-09 — TASK 017: FitKarma Onboarding Experience & Personalization Flow
+
+- Implemented the complete 10-step FitKarma onboarding wizard adhering to `Brain/pdr.md`, `Brain/ui_spec.md`, `Brain/security.md`, and `Brain/api_contract.md`:
+  - `welcome_step_view.dart`: Welcome view with value proposition Bento cards (India-First Nutrition, Privacy by Default, Offline-First, Holistic Wellness).
+  - `language_step_view.dart`: Language selection featuring dynamic locale switching (English & Hindi) and preview chips for upcoming regional languages (Tamil, Telugu, Kannada, Marathi, Bengali, Gujarati).
+  - `consent_privacy_step_view.dart`: DPDP Act 2023 aligned consent explanation with local-first processing declaration, data rights notice, affirmative consent checkbox, and explicit non-medical disclaimer.
+  - `basic_profile_step_view.dart`: Interactive form for display name, biological sex selection for metabolic calculations, age (13–120), height (50–250 cm), and weight (20–400 kg) with real-time validation feedback.
+  - `fitness_goals_step_view.dart`: Interactive Bento grid supporting all 7 `FitnessGoal` options with calorie deltas and motivational descriptions.
+  - `dietary_step_view.dart`: Indian culinary identity picker (`pureVeg`, `jain`, `vegetarian`, `eggetarian`, `vegan`, `nonVegetarian`, `pescatarian`), meal frequency slider (1–8 meals/day), and fasting protocol chips (16:8, 14:10, Circadian, Ekadashi).
+  - `activity_step_view.dart`: Baseline activity selector displaying PAL multipliers (1.20 to 1.90) and daily routine guidance.
+  - `ayurveda_step_view.dart`: Optional Ayurvedic Prakriti personalization featuring saffron gold dosha cards (`Vata`, `Pitta`, `Kapha`, `Tridoshic`), a prominent non-medical disclaimer, and a dedicated skip action.
+  - `permissions_step_view.dart`: Permission switches for proactive notification cadences and Health Connect / Apple HealthKit sync.
+  - `account_setup_step_view.dart`: Final onboarding step offering Phone OTP, Google Sign-In, or "Explore as Guest" offline exploration.
+- Integrated onboarding with core domain and routing:
+  - `onboarding_controller.dart`: State controller managing step progression, dynamic locale switching, consent checks, domain validation, and anonymous profile persistence.
+  - `onboarding_screen.dart`: Cohesive wizard shell with `AppProgressBar`, back navigation, and inline error banners.
+  - `app_router.dart`: Mounted `OnboardingScreen` on `AppRoutes.onboarding` as the unauthenticated entry route.
+  - `supabase_service_boundary.dart`, `supabase_client_service.dart`, `mock_supabase_service.dart`: Added `signInAnonymously()` to support guest onboarding.
+  - `app_strings.dart`: Extended English and Hindi localization catalogs with comprehensive onboarding strings (verified by 10 parity tests).
+- Medical claim safeguard: Explicit disclaimers added in both consent and Ayurveda steps stating FitKarma provides lifestyle and wellness suggestions, not medical diagnoses or treatments.
+- Added comprehensive end-to-end onboarding tests in `test/features/onboarding/onboarding_test.dart` (6 tests verifying welcome cards, language switching, consent gating, basic profile validation, full flow options, and guest completion persisting `UserProfile` and navigating to `/dashboard`).
+- Verified with 171/171 passing Flutter tests across the entire test suite, 0 analyzer issues, and 67/67 passing doc-lint checks.
+- Recorded ADR-024 in `Brain/decisions.md`.
