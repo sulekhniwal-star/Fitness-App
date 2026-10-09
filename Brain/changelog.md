@@ -241,3 +241,19 @@
 - Added comprehensive unit, widget, and integration tests in `test/features/auth/google_auth_test.dart` (10 tests covering successful session establishment, user deduplication, cancellation handling, provider error toasts, and end-to-end logout with GoRouter redirection).
 - Verified with 141/141 passing Flutter tests, 0 analyzer issues, and 67/67 passing doc-lint checks.
 - Recorded ADR-022 in `Brain/decisions.md`.
+
+## 2026-10-09 — TASK 016: User Profile Domain Model & Repository
+
+- Implemented comprehensive user profile domain model adhering to `Brain/data_model.md`, `Brain/pdr.md`, and `Brain/security.md`:
+  - `profile_enums.dart`: Defined `BiologicalSex` (with clinical Mifflin-St Jeor BMR constant offsets), `ActivityLevel` (with standard PAL multipliers), `FitnessGoal` (with recommended calorie deltas), and `DietaryIdentity` (with Indian culinary classifications and dietary restriction helpers).
+  - `nutrition_preferences.dart`: Created `NutritionPreferences` managing macro distributions, daily calorie targets, fasting protocols, and allergies.
+  - `notification_preferences.dart`: Created `NotificationPreferences` managing daily DIP digest, meal, hydration, fasting, and workout cadences.
+  - `user_profile_validator.dart`: Created `UserProfileValidator` enforcing physiological boundaries (age 13-120, height 50-250cm, weight 20-400kg, non-empty goals, macro ratio sums, display name length).
+  - `user_profile.dart`: Created `UserProfile` entity with BMI, Mifflin-St Jeor BMR, TDEE, goal-adjusted calorie target calculation with 1200 kcal safety clamp, Supabase database row mapping (`public.profiles` metadata JSONB), and DPDP-compliant `toRedactedJson` masking sensitive physical metrics with `DataRedactor.redactedPlaceholder`.
+- Implemented local-first repository architecture:
+  - `user_profile_repository.dart`: Defined `IUserProfileRepository` interface.
+  - `local_first_profile_repository.dart`: Implemented `LocalFirstProfileRepository` featuring immediate local-first cache updates, reactive broadcast stream (`watchProfile`), offline-resilient sync fallback, and server synchronization behind the repository boundary.
+  - `profile_providers.dart`: Exposed Riverpod providers (`userProfileRepositoryProvider`, `userProfileStreamProvider`, `currentProfileProvider`, `ProfileNotifier`).
+- Added comprehensive unit and validation tests in `test/features/profile/user_profile_test.dart` (24 tests verifying domain validation rules, metabolic calculations, dietary taxonomy exclusions, serialization roundtrips, sensitive data redaction, database mapping, local-first cache/stream updates, and Riverpod notifier integration).
+- Verified with 165/165 passing Flutter tests across entire workspace, 0 analyzer issues, and 67/67 passing doc-lint checks.
+- Recorded ADR-023 in `Brain/decisions.md`.

@@ -138,5 +138,30 @@ All concrete physical columns are recorded as `PROPOSED` specifications in `Brai
 3. User cancellation handling: voluntary dismissal of the Google account picker is categorized as a non-fatal cancellation state rather than an error condition.
 4. Provider error mapping: OAuth failures and connectivity errors are scrubbed and translated via `SupabaseFailureMapper` into standard `FK-1001` or `FK-6001` error envelopes.
 5. Unified session logout (`signOut`): invalidates local tokens, clears authentication state, and triggers declarative GoRouter redirection back to unauthenticated public routes.  
-**Reason:** Ensures seamless, reliable Google authentication alongside phone OTP without duplicating user identities or fragmenting health telemetry.
+## ADR-023 — User Profile Domain Model & Local-First Repository Architecture
+**Status:** Accepted (Task 016)  
+**Decision:** Establish the core user profile domain model and repository boundary adhering to `Brain/data_model.md`, `Brain/pdr.md`, and `Brain/security.md`:
+1. Domain Entities & Enums:
+   - `BiologicalSex` with clinical Mifflin-St Jeor BMR constant offsets (+5 kcal male, -161 kcal female, -78 kcal other).
+   - `ActivityLevel` with standard physical activity level (PAL) multipliers (1.20 to 1.90).
+   - `FitnessGoal` with evidence-based recommended calorie adjustments (-500 to +300 kcal, clamped safely to >= 1200 kcal).
+   - `DietaryIdentity` supporting Indian culinary and ethical taxonomy (`pureVeg`, `jain`, `vegetarian`, `eggetarian`, `vegan`, `nonVegetarian`, `pescatarian`) with helper predicates (`excludesEggs`, `excludesMeat`).
+   - `NutritionPreferences` managing macro distributions (default 50% carbs / 25% protein / 25% fat), meal frequency, allergies, and fasting protocols.
+   - `NotificationPreferences` managing daily DIP digest, meal, hydration, fasting, and workout cadences.
+2. Clinical & Metabolic Computation:
+   - BMI calculation (`kg / m²`).
+   - Mifflin-St Jeor Basal Metabolic Rate (`BMR`).
+   - Total Daily Energy Expenditure (`TDEE = BMR × PAL`).
+   - Target calorie computation respecting primary goals and metabolic safety floors.
+3. Domain Validation:
+   - `UserProfileValidator` enforcing strict physiological ranges (age 13-120, height 50-250cm, weight 20-400kg, non-empty goals, macro ratio sum 1.0, meals 1-10, display name 2-60).
+4. Sensitive Data Handling & DPDP Compliance:
+   - `UserProfile.toRedactedJson` masks sensitive physical attributes (weight, age, display name) using `DataRedactor.redactedPlaceholder` (`[REDACTED]`), preventing leaks into telemetry or application logs.
+5. Local-First Repository Pattern:
+   - `IUserProfileRepository` and `LocalFirstProfileRepository` immediately persist changes to memory/cache and emit via broadcast stream before performing background Supabase sync.
+   - Preserves offline state when remote synchronization is unavailable or network is severed.
+   - Server synchronization is encapsulated entirely behind the repository boundary.
+6. Supabase Relational Mapping:
+   - Integrates cleanly with existing `public.profiles` schema by serializing domain-specific metabolic parameters into the documented JSONB `metadata` column.  
+**Reason:** Decouples user profile domain logic and physiological calculations from UI and remote transport while guaranteeing DPDP-compliant data handling and local-first resilience.
 
