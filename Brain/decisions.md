@@ -189,3 +189,25 @@ All concrete physical columns are recorded as `PROPOSED` specifications in `Brai
    - Managed via Riverpod `OnboardingController` maintaining step validation, error messaging, and bidirectional navigation.  
 **Reason:** Provides a compliant, culturally nuanced onboarding experience that validates domain models, respects user privacy under DPDP, ensures seamless onboarding into the main application, and prevents unsupported medical claims.
 
+## ADR-025 — Ayurveda & Prakriti Wellness Personalization Layer & Decoupling
+**Status:** Accepted (Task 018)  
+**Decision:** Implement the Ayurveda / Dosha feature as a separate, testable wellness personalization layer distinct from clinical health measurements, adhering to ADR-011, `Brain/pdr.md`, and `Brain/security.md`:
+1. Strict Layer Decoupling:
+   - Evidence-based health measurements: BMR (Mifflin-St Jeor), TDEE (BMR × PAL), BMI, target calories, and macro gram allocations are derived purely from clinical equations and remain 100% mathematically invariant to Ayurvedic constitutional states.
+   - Traditional wellness layer: Prakriti tendencies (Vata, Pitta, Kapha, Tridoshic), questionnaire responses, and lifestyle suggestions operate strictly as an advisory self-reflection layer.
+2. Deterministic Scoring Engine (`DoshaWellnessService`):
+   - Assesses 7 classical Prakriti dimensions: Physical Frame, Skin & Temperature, Appetite & Digestion, Physical Energy, Sleep Pattern, Stress Response, and Climate Affinity.
+   - Calculates point totals, percentages, and constitutional balance.
+   - Tridoshic equilibrium: assigned when score range (max - min) is <= 15% or all percentages fall within the balanced 25%–40% range.
+   - Dual-Dosha constitution: assigned when the top two doshas are within 15% of each other with secondary dosha identified.
+   - Single dominant constitution: assigned when the highest dosha strictly exceeds runner-up by > 15%.
+   - Classical tie-breaking: deterministic priority order (Vata -> Pitta -> Kapha).
+3. Non-Medical Claim Safeguards:
+   - Mandatory visible medical disclaimer (`WellnessProfile.nonMedicalDisclaimer`) embedded in the profile model and displayed prominently across UI screens: *"FitKarma Ayurvedic insights provide traditional lifestyle, dietary quality, and daily routine self-reflection suggestions. They are NOT clinical diagnoses, medical treatments, or healthcare advice. Always consult a licensed physician for any medical or nutritional concerns."*
+   - Recommendations explicitly carry `isMedicalClaim: false` and focus on dietary gunas, seasonal adaptation (Ritucharya), daily rhythm (Dinacharya), and mindful movement.
+4. Storage, Skip, and Revisitability:
+   - Managed via `IWellnessProfileRepository` and `LocalFirstWellnessRepository` with reactive stream (`watchWellnessProfile`), local-first in-memory cache, and parent `UserProfile.dosha` synchronization.
+   - Users can skip the assessment without blocking and can revisit, retake, or reset their profile at any time via `/wellness/dosha` (`DoshaWellnessScreen`).  
+**Reason:** Preserves Indian cultural health relevance and personalized lifestyle resonance without making unsupported medical claims or distorting evidence-based metabolic and clinical calculations.
+
+

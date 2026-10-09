@@ -19,6 +19,7 @@ abstract final class AppRoutes {
   static const String subscriptions = '/subscriptions';
   static const String settings = '/settings';
   static const String dataVault = '/data-vault';
+  static const String wellnessDosha = '/wellness/dosha';
 
   /// Routes accessible without active authentication.
   static const Set<String> unauthenticatedRoutes = {

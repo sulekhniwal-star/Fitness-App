@@ -4,6 +4,7 @@ import 'package:fitkarma/core/routing/placeholder_screens.dart';
 import 'package:fitkarma/features/auth/presentation/screens/otp_verification_screen.dart';
 import 'package:fitkarma/features/auth/presentation/screens/phone_entry_screen.dart';
 import 'package:fitkarma/features/onboarding/presentation/screens/onboarding_screen.dart';
+import 'package:fitkarma/features/profile/presentation/screens/dosha_wellness_screen.dart';
 import 'package:fitkarma/shared/presentation/showcase/design_system_showcase_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -166,6 +167,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           subtitle: 'DPDP Privacy, Export & Erasure',
           semanticKey: Key('screen_data_vault'),
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.wellnessDosha,
+        builder: (context, state) => const DoshaWellnessScreen(),
       ),
     ],
     errorBuilder: (context, state) =>

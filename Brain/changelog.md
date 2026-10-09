@@ -277,7 +277,34 @@
   - `app_router.dart`: Mounted `OnboardingScreen` on `AppRoutes.onboarding` as the unauthenticated entry route.
   - `supabase_service_boundary.dart`, `supabase_client_service.dart`, `mock_supabase_service.dart`: Added `signInAnonymously()` to support guest onboarding.
   - `app_strings.dart`: Extended English and Hindi localization catalogs with comprehensive onboarding strings (verified by 10 parity tests).
-- Medical claim safeguard: Explicit disclaimers added in both consent and Ayurveda steps stating FitKarma provides lifestyle and wellness suggestions, not medical diagnoses or treatments.
-- Added comprehensive end-to-end onboarding tests in `test/features/onboarding/onboarding_test.dart` (6 tests verifying welcome cards, language switching, consent gating, basic profile validation, full flow options, and guest completion persisting `UserProfile` and navigating to `/dashboard`).
 - Verified with 171/171 passing Flutter tests across the entire test suite, 0 analyzer issues, and 67/67 passing doc-lint checks.
 - Recorded ADR-024 in `Brain/decisions.md`.
+
+## 2026-10-09 — TASK 018: Ayurveda & Dosha Wellness Personalization Layer
+
+- Implemented the Ayurveda / Dosha feature as a separate wellness personalization layer strictly decoupled from clinical and evidence-based health measurements per ADR-011 and `Brain/pdr.md`:
+  - `dosha_question.dart`: Created 7-dimensional classical Prakriti self-reflection questionnaire models (`DoshaQuestion`, `DoshaQuestionOption`) covering Physical Structure, Sensory Constitution, Digestive Rhythm, Activity Rhythm, Rest & Recovery, Mental Balance, and Environmental Harmony.
+  - `dosha_score.dart`: Implemented statistical scoring model (`DoshaScore`) tracking raw point tallies, normalized percentages, dominant and secondary dosha determinations, and Tridoshic equilibrium indicators.
+  - `wellness_recommendation.dart`: Built non-medical lifestyle guidance model (`WellnessRecommendation`) with explicit `isMedicalClaim: false` assertions covering dietary gunas, seasonal Ritucharya, and daily Dinacharya.
+  - `wellness_profile.dart`: Implemented `WellnessProfile` containing calculated scores, selected answers, lifestyle guidance, completion timestamps, skip tracking, and prominent `nonMedicalDisclaimer`.
+  - `dosha_wellness_service.dart`: Created deterministic domain service (`DoshaWellnessService`) with scoring rules:
+    - Pure constitutional dominance (> 15% margin over runner-up).
+    - Tridoshic equilibrium (spread <= 15% or all percentages within 25%–40% balanced band).
+    - Dual-dosha categorization (top two within 15% with secondary identified).
+    - Classical deterministic tie-breaking priority (Vata -> Pitta -> Kapha).
+    - Missing/partial response handling.
+    - Strict mathematical decoupling verification ensuring clinical BMR, TDEE, and BMI are invariant to Ayurvedic state.
+- Implemented repository boundary and persistence:
+  - `wellness_profile_repository.dart`: Defined `IWellnessProfileRepository` interface.
+  - `local_first_wellness_repository.dart`: Implemented `LocalFirstWellnessRepository` with in-memory caching, reactive broadcast streams (`watchWellnessProfile`), offline resilience, and parent `UserProfile.dosha` synchronization.
+  - `wellness_providers.dart`: Exposed Riverpod providers (`doshaWellnessServiceProvider`, `wellnessProfileRepositoryProvider`, `wellnessProfileStreamProvider`, `wellnessControllerProvider`).
+- Implemented user interface and routing:
+  - `dosha_quiz_card.dart`: Interactive question card with category badge and selectable Bento option cards.
+  - `dosha_wellness_screen.dart`: Complete interactive screen supporting the 7-question assessment, progress indicators, non-medical disclaimer banner, results breakdown (percentage bars and lifestyle cards), skip action, and retake/revisit capabilities.
+  - `app_routes.dart` & `app_router.dart`: Mounted `DoshaWellnessScreen` on `AppRoutes.wellnessDosha` (`/wellness/dosha`).
+- Added comprehensive unit and widget tests:
+  - `dosha_wellness_service_test.dart` (16 tests verifying deterministic scoring rules, Tridoshic and dual-dosha detection, classical tie-breaking, partial input handling, non-medical disclaimer enforcement, clinical decoupling invariance, repository skip and revisit lifecycle, and serialization).
+  - `dosha_wellness_screen_test.dart` (3 widget tests verifying questionnaire rendering, disclaimer visibility, full 7-question completion with results display, and skip functionality).
+- Verified with 190/190 passing Flutter tests, 0 analyzer issues, and 67/67 passing doc-lint checks.
+- Recorded ADR-025 in `Brain/decisions.md`.
+
