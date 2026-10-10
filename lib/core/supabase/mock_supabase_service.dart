@@ -29,6 +29,14 @@ class MockSupabaseService implements ISupabaseService {
 
   @override
   bool get isMock => true;
+
+  void simulateSignIn(FitKarmaUser user, [String token = 'mock_access_token']) {
+    auth.simulateSignIn(user, token);
+  }
+
+  void simulateSignOut() {
+    auth.simulateSignOut();
+  }
 }
 
 /// Mock authentication service.

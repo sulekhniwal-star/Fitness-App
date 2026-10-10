@@ -57,6 +57,9 @@ class _FakeLocalDatabase implements LocalDatabase {
   bool initialized = false;
 
   @override
+  bool get isInitialized => initialized;
+
+  @override
   Future<void> initialize({required String encryptionKey}) async {
     initialized = true;
   }
@@ -68,6 +71,9 @@ class _FakeLocalDatabase implements LocalDatabase {
 
   @override
   Future<void> wipeLocalData() async {}
+
+  @override
+  Future<T> runInTransaction<T>(Future<T> Function() action) => action();
 }
 
 class _FakeSyncEngine implements SyncEngine {

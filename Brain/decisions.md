@@ -208,6 +208,50 @@ All concrete physical columns are recorded as `PROPOSED` specifications in `Brai
 4. Storage, Skip, and Revisitability:
    - Managed via `IWellnessProfileRepository` and `LocalFirstWellnessRepository` with reactive stream (`watchWellnessProfile`), local-first in-memory cache, and parent `UserProfile.dosha` synchronization.
    - Users can skip the assessment without blocking and can revisit, retake, or reset their profile at any time via `/wellness/dosha` (`DoshaWellnessScreen`).  
-**Reason:** Preserves Indian cultural health relevance and personalized lifestyle resonance without making unsupported medical claims or distorting evidence-based metabolic and clinical calculations.
+## ADR-026 — Account Lifecycle, DPDP Deletion Client Boundary & Local Data Wipe
+**Status:** Accepted (Task 019)  
+**Decision:** Implement comprehensive client-side account lifecycle management adhering to the Digital Personal Data Protection (DPDP) Act 2023, `Brain/security.md`, and `Brain/pdr.md`:
+1. Complete Logout & Local Cache Cleanup:
+   - `AccountLifecycleServiceImpl.logout(wipeLocalData: bool)` coordinates session termination via `ISupabaseAuthService.signOut()`.
+   - When `wipeLocalData: true`, orchestrates sequential cross-store purging across `LocalDataWipeCoordinator`.
+2. Safe Session Expiration Behavior:
+   - Handles expired tokens/sessions gracefully. Clears sensitive local profile and health cache immediately before terminating the session (`FitKarmaAuthSession`), preventing data leakage across shared or recycled devices.
+3. Session Restoration on Bootstrap:
+   - `restoreSession()` inspects existing session state on app launch. Returns structured `SessionRestorationResult` (`restored`, `noSession`, `expired`, `failed`) to drive root routing deterministically.
+4. DPDP-Compliant Deletion Client Boundary:
+   - `requestAccountDeletion({String? reason, bool confirmDataLoss})` enforces explicit user confirmation (`confirmDataLoss == true`) before initiating deletion.
+   - Dispatches client erasure request to the backend boundary (`POST /v1/data-erasure` with idempotency token). Full server-side purge execution remains deferred to backend tasks.
+   - Issues `AccountDeletionReceipt` establishing a 30-day statutory grace period (`isGracePeriodActive`, `scheduledPurgeAt`) during which deletion can be cancelled (`cancelAccountDeletion`).
+   - Triggers immediate local data wiping to safeguard device privacy while cloud purge is queued.
+5. Local Data Wipe Coordinator:
+   - `ILocalDataWipeCoordinator` and `LocalDataWipeCoordinator` provide a sequential, fault-tolerant registration boundary (`registerWipeableStore`) across all local storage domains (`user_profile`, `wellness_profile`, `auth_session`).
+   - Safely isolates failures in individual stores while ensuring all other stores continue wiping.
+6. Account Recovery Hooks:
+   - `initiateAccountRecovery(AccountRecoveryRequest)` provides phone SMS OTP and email magic link hooks into `ISupabaseAuthService.signInWithOtp`.
+7. Accessible UI & Intentional Confirmation:
+   - `DeleteAccountDialog` enforces intentional deletion confirmation with an explicit data loss checkbox, optional reason capture, and DPDP grace period disclaimer.  
+**Reason:** Guarantees user sovereignty, compliance with the Digital Personal Data Protection Act 2023, prevents sensitive health data leakage on expired sessions, and provides clean client-side orchestration for future backend erasure pipelines.
+
+## ADR-027 — Drift + SQLCipher Local Encrypted Persistence Foundation
+**Status:** Accepted (Task 020)  
+**Decision:** Establish the local encrypted persistence foundation using Drift and SQLCipher adhering to ADR-001, ADR-003, `Brain/architecture.md`, and `Brain/data_model.md`:
+1. Core Database & SQLCipher Encryption:
+   - Configured `AppDatabase` with `DatabaseConnectionFactory` generating file-backed SQLite connections encrypted via SQLCipher (`PRAGMA key = '...'` with escaping) and in-memory isolated test connections.
+   - Enforces `PRAGMA foreign_keys = ON;` and `PRAGMA cipher_memory_security = ON;`.
+2. Foundation Schemas (Phase 3 Baseline):
+   - `LocalProfiles` (`profiles_table.dart`): User profiles with physiological metrics, dietary identity, goals, and sync flags.
+   - `LocalWellnessProfiles` (`wellness_profiles_table.dart`): Ayurveda/Dosha constitutional states and recommendations.
+   - `LocalSyncOutbox` (`sync_outbox_table.dart`): Offline outbox queue for atomic synchronization, status tracking, and retry handling.
+   - `LocalAppSettings` (`app_settings_table.dart`): Key-value store for application flags and offline states.
+3. Schema Versioning & Migration Framework:
+   - Baseline initialized at `schemaVersion = 1`.
+   - Structured `MigrationStrategy` with `_applyMigrationStep` supporting deterministic, step-by-step version upgrades and foreign key validation upon database opening.
+4. Repository Access Boundary & Data Access Objects (DAOs):
+   - Created clean, strongly-typed DAOs: `ProfileDao`, `WellnessProfileDao`, `SyncOutboxDao`, and `AppSettingsDao`.
+   - Exposed reactive Streams for realtime UI updates (`watchProfileByUserId`, `watchWellnessProfileByUserId`).
+5. Atomic Transactions & Local Data Wipe:
+   - `LocalDatabase.runInTransaction` / `AppDatabase.transaction` guarantees ACID atomicity with automated rollback on unhandled exceptions.
+   - `LocalDatabase.wipeLocalData()` and `AppDatabase.wipeAllData()` atomically delete all local records across all tables within a single transaction, supporting DPDP Act 2023 compliance.  
+**Reason:** Establishes the offline-first encrypted storage foundation required for resilient tier-2/3 network operation, local-first data ownership, zero plain-text disk leakage, and seamless transition to sync engine outbox processing.
 
 

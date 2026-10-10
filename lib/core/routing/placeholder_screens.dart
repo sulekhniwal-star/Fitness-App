@@ -1,4 +1,6 @@
 import 'package:fitkarma/core/supabase/supabase_providers.dart';
+import 'package:fitkarma/features/auth/presentation/providers/account_lifecycle_providers.dart';
+import 'package:fitkarma/features/auth/presentation/widgets/delete_account_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -25,15 +27,24 @@ class AreaPlaceholderScreen extends ConsumerWidget {
         title: Text(title),
         backgroundColor: Colors.transparent,
         actions: [
-          if (isAuthenticated)
+          if (isAuthenticated) ...[
+            IconButton(
+              key: const Key('btn_request_account_deletion'),
+              icon: const Icon(Icons.delete_forever_outlined, color: Colors.redAccent),
+              tooltip: 'Delete Account',
+              onPressed: () => DeleteAccountDialog.show(context),
+            ),
             IconButton(
               key: const Key('logout_button'),
               icon: const Icon(Icons.logout_rounded),
               tooltip: 'Sign Out',
               onPressed: () async {
-                await ref.read(supabaseAuthServiceProvider).signOut();
+                await ref
+                    .read(accountLifecycleControllerProvider.notifier)
+                    .logout(wipeLocalData: true);
               },
             ),
+          ],
         ],
       ),
       body: SafeArea(

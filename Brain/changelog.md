@@ -308,3 +308,55 @@
 - Verified with 190/190 passing Flutter tests, 0 analyzer issues, and 67/67 passing doc-lint checks.
 - Recorded ADR-025 in `Brain/decisions.md`.
 
+## 2026-10-10 — TASK 019: Account Lifecycle Operations & Local Data Wipe
+
+- Implemented comprehensive client-side account lifecycle management adhering to `Brain/security.md`, `Brain/api_contract.md`, and `Brain/pdr.md`:
+  - `account_lifecycle_models.dart`: Defined domain models for `DeletionRequestStatus`, `AccountDeletionReceipt` (featuring 30-day grace period `isGracePeriodActive`), `AccountRecoveryRequest`, `AccountRecoveryReceipt`, `SessionRestorationResult`, and `LocalWipeResult`.
+  - `local_data_wipe_coordinator.dart`: Implemented `ILocalDataWipeCoordinator` and `LocalDataWipeCoordinator` managing sequential, fault-tolerant local data wiping across registered stores (`user_profile`, `wellness_profile`, `auth_session`) with isolated failure handling.
+  - `account_lifecycle_service.dart`: Created `IAccountLifecycleService` contract covering logout, session restoration, safe expiration, DPDP account deletion request, deletion cancellation, deletion status, and recovery hooks.
+  - `account_lifecycle_service_impl.dart`: Built `AccountLifecycleServiceImpl` integrating `ISupabaseAuthService`, `ILocalDataWipeCoordinator`, `IUserProfileRepository`, `IWellnessProfileRepository`, and `ISupabaseFunctionsService`:
+    - Clean logout with optional or mandatory cross-store local wiping.
+    - Safe session expiration handling clearing cached sensitive health/profile data on token expiration to eliminate device leakage risks.
+    - Session restoration checking existing sessions and refreshing expired sessions safely.
+    - DPDP-compliant account deletion boundary requiring affirmative data loss confirmation, generating receipt with a 30-day cancellation grace period, notifying backend function (`/v1/data-erasure` with idempotency key), and triggering immediate local device data wipe.
+    - Account recovery hooks for phone OTP and email links.
+  - `account_lifecycle_controller.dart`: Created Riverpod `AccountLifecycleNotifier` managing state (`AccountLifecycleState`).
+  - `account_lifecycle_providers.dart`: Exposed Riverpod providers (`localDataWipeCoordinatorProvider`, `accountLifecycleServiceProvider`, `accountLifecycleControllerProvider`).
+  - `delete_account_dialog.dart`: Built accessible, DPDP-compliant deletion modal dialog with warning banners, reason input, affirmative data-loss checkbox gate, and cancellation options.
+  - `placeholder_screens.dart`: Integrated logout and account deletion trigger with `DeleteAccountDialog` into the authenticated `AreaPlaceholderScreen`.
+- Added comprehensive unit and widget tests:
+  - `test/features/auth/account_lifecycle_test.dart`: 13 unit and widget tests covering logout wiping, logout without wiping, session restoration statuses, safe session expiration, deletion request prerequisites, receipt issuance and 30-day grace period verification, deletion cancellation, account recovery validation, wipe coordinator fault tolerance, and `DeleteAccountDialog` UI interactions and dismissal.
+- Verified test suite and documentation:
+  - 203/203 passing Flutter tests across entire workspace (0 failures).
+  - 0 analyzer issues (`flutter analyze` clean).
+  - 67/67 passing doc-lint checks (`npm run doc:lint`).
+- Recorded ADR-026 in `Brain/decisions.md`.
+
+## 2026-10-10 — TASK 020: Drift + SQLCipher Local Encrypted Database Foundation
+
+- Implemented the encrypted local persistence foundation using Drift and SQLCipher adhering to ADR-001, ADR-003, `Brain/architecture.md`, and `Brain/data_model.md`:
+  - `pubspec.yaml`: Integrated `drift: ^2.35.2`, `sqlite3: ^3.7.0`, `sqlcipher_flutter_libs: ^0.7.0+eol`, `path`, `path_provider`, and `drift_dev: ^2.35.1` with `build_runner`.
+  - `database_boundary.dart`: Defined `LocalDatabase` contract supporting initialization status (`isInitialized`), encryption key setup, connection termination, atomic data wiping, and transaction execution (`runInTransaction`).
+  - Minimum foundation tables required for app shell and profile flow:
+    - `profiles_table.dart` (`LocalProfiles`): Drift table mapping user profiles, metabolic parameters, dietary flags, and sync timestamps.
+    - `wellness_profiles_table.dart` (`LocalWellnessProfiles`): Drift table mapping Ayurveda/Dosha constitutional scores, answers, and lifestyle recommendations.
+    - `sync_outbox_table.dart` (`LocalSyncOutbox`): Drift table implementing offline-first sync outbox queue with status state machine, retry counters, and idempotency keys.
+    - `app_settings_table.dart` (`LocalAppSettings`): Drift table providing key-value configuration storage for offline flags and shell preferences.
+  - `app_database.dart`: Created central `@DriftDatabase` with schema versioning (`schemaVersion = 1`), `MigrationStrategy` handling step-by-step schema migrations, PRAGMA foreign keys activation, and atomic cross-table data wiping (`wipeAllData()`).
+  - `database_connection.dart`: Created `DatabaseConnectionFactory` managing encrypted SQLite connection opening with SQLCipher (`PRAGMA key = '...'` with escaping, `PRAGMA cipher_memory_security = ON`) and in-memory isolated test connections.
+  - Strongly-typed Data Access Objects (DAOs):
+    - `profile_dao.dart` (`ProfileDao`): Profile CRUD and reactive stream watch (`watchProfileByUserId`).
+    - `wellness_profile_dao.dart` (`WellnessProfileDao`): Wellness profile CRUD and reactive stream watch (`watchWellnessProfileByUserId`).
+    - `sync_outbox_dao.dart` (`SyncOutboxDao`): Outbox queue insertion, pending entry queries, and status transition helpers (`markProcessing`, `markCompleted`, `markFailed`).
+    - `app_settings_dao.dart` (`AppSettingsDao`): Key-value get, set, and delete operations.
+  - `drift_local_database.dart`: Implemented `DriftLocalDatabase` bridging `LocalDatabase` boundary to Drift, providing transactional execution and local store wiping.
+  - `database_providers.dart`: Exposed Riverpod providers for database instance and DAOs.
+- Added comprehensive unit, migration, and encryption tests:
+  - `test/core/database/app_database_test.dart`: 9 tests verifying schema version, foreign keys activation, Profile DAO operations, Wellness Profile DAO operations, Sync Outbox DAO lifecycle, App Settings DAO operations, transaction commit and rollback atomicity, atomic cross-table local data wipe, and file-backed SQLCipher encryption persistence across reopens.
+  - `test/core/database/migration_test.dart`: 2 tests verifying baseline schema version 1, sqlite_master table creation, and migration framework execution.
+- Verified test suite and documentation:
+  - 214/214 passing Flutter tests across entire workspace (0 failures).
+  - 0 analyzer issues (`flutter analyze` clean).
+  - 67/67 passing doc-lint checks (`npm run doc:lint`).
+- Recorded ADR-027 in `Brain/decisions.md`.
+
