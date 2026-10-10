@@ -150,12 +150,19 @@ void main() {
       expect(rawRow.retryCount, equals(1));
       expect(rawRow.lastError, contains('503'));
 
-      // 5. Mark completed removes row
+      // 5. Mark completed updates status
       await outboxDao.markCompleted('outbox_1');
-      final afterComplete = await (db.select(db.localSyncOutbox)
+      final completedRow = await (db.select(db.localSyncOutbox)
+            ..where((t) => t.id.equals('outbox_1')))
+          .getSingle();
+      expect(completedRow.status, equals('completed'));
+
+      // 6. Delete entry removes row
+      await outboxDao.deleteEntry('outbox_1');
+      final afterDelete = await (db.select(db.localSyncOutbox)
             ..where((t) => t.id.equals('outbox_1')))
           .getSingleOrNull();
-      expect(afterComplete, isNull);
+      expect(afterDelete, isNull);
     });
 
     test('appSettingsDao stores and retrieves key-value configuration',

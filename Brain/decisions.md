@@ -254,4 +254,62 @@ All concrete physical columns are recorded as `PROPOSED` specifications in `Brai
    - `LocalDatabase.wipeLocalData()` and `AppDatabase.wipeAllData()` atomically delete all local records across all tables within a single transaction, supporting DPDP Act 2023 compliance.  
 **Reason:** Establishes the offline-first encrypted storage foundation required for resilient tier-2/3 network operation, local-first data ownership, zero plain-text disk leakage, and seamless transition to sync engine outbox processing.
 
+## ADR-028 — Offline Outbox & Sync Queue Foundation
+**Status:** Accepted (Task 021)  
+**Decision:** Implement the generic offline outbox / sync queue foundation adhering to ADR-001, `Brain/architecture.md`, `Brain/data_model.md`, and `Brain/error_handling.md`:
+1. Queue Data Model & Schema:
+   - Enhanced `LocalSyncOutbox` Drift table with strongly-typed columns: `id`, `entityType`, `entityId`, `operation`, `payloadJson`, `idempotencyKey` (unique), `retryCount`, `maxRetries`, `status`, `lastError`, `lastErrorCode`, `metadataJson`, `nextRetryAt`, `createdAt`, `updatedAt`.
+   - Domain representation via `OutboxOperation` and typed enums `OutboxOperationType` (`create`, `update`, `delete`, `upsert`) and `OutboxStatus` (`pending`, `processing`, `completed`, `failed`, `permanentlyFailed`).
+2. Idempotency & Deduplication Engine:
+   - `IOutboxQueue.enqueue` strictly enforces idempotency prior to insertion.
+   - If an operation with the same `idempotencyKey` is detected:
+     - Returns `EnqueueStatus.duplicatePending` for pending/in-flight items, preventing duplicate mutations.
+     - Returns `EnqueueStatus.duplicateCompleted` if the operation was already acknowledged.
+     - Returns `EnqueueStatus.duplicateFailed` if the existing attempt failed.
+   - Rejects empty or whitespace idempotency keys.
+3. Retry-Safe Scheduling & Exponential Backoff:
+   - Computes exponential backoff via `min(maxDelay, baseDelay * 2^retryCount)`.
+   - Distinguishes transient, retryable failures (`markRetryableFailure` with `FK-3002` / 503) from terminal, non-retryable failures (`markPermanentFailure` with `FK-2001` / 400 / 401).
+   - Automatically halts retries and marks `OutboxStatus.permanentlyFailed` once `retryCount >= maxRetries`, preventing infinite retry thrashing.
+   - `getEligibleOperations` returns only operations that are pending or failed operations whose `nextRetryAt` has elapsed.
+4. Dependency & Reference Metadata:
+   - Supports dependency chaining through `metadata['depends_on_op_id']`.
+   - Sorts eligible operation batches so prerequisite operations are ordered before dependents regardless of timestamp skew.
+5. Sync Engine Abstraction:
+   - `OutboxSyncEngine` bridges `IOutboxQueue` to the application-level `SyncEngine` boundary, exposing reactive `SyncStatus` stream (`idle`, `syncing`, `synced`, `error`, `conflict`).  
+**Reason:** Ensures resilient, idempotent local queuing for all user-generated mutations, protects battery and network bandwidth through scheduled backoff, and provides a deterministic baseline for future remote sync worker implementations.
+
+## ADR-029 — Sync State Machine, Connectivity Awareness & Interruption Recovery
+**Status:** Accepted (Task 022)  
+**Decision:** Implement the sync state machine, coordinator, connectivity awareness, and interruption recovery adhering to ADR-001, `Brain/architecture.md`, `Brain/data_model.md`, and `Brain/error_handling.md`:
+1. Documented State Machine & Lifecycle Transitions:
+   - Formally defined `SyncState` with typed statuses: `idle`, `syncing`, `synced`, `error`, `conflict`.
+   - Transitions strictly follow the documented contract:
+     - `idle` → `syncing` → `synced` on complete successful batch dispatch.
+     - `idle` → `syncing` → `error` on transient failure or permanent dispatch failure, capturing error message, error code (`FK-3002` / `FK-2001`), and backoff timing.
+     - `idle` → `syncing` → `conflict` when server detects timestamp/version collisions or schema conflicts (`FK-3003`), preserving granular conflict payload details (`conflictDetails`) for resolution without discarding data.
+2. Sync Coordinator & Worker Boundary:
+   - `SyncCoordinator` orchestrates outbox draining by interfacing between `IOutboxQueue` and `ISyncWorker`.
+   - Drains eligible pending operations sequentially, updating outbox statuses (`processing` → `completed` / `failed` / `permanentlyFailed`).
+   - Supports pluggable remote dispatchers via `ISyncWorker` yielding structured `SyncDispatchResult` (`success`, `transientFailure`, `permanentFailure`, `conflict`).
+3. Connectivity Awareness & Auto-Resume:
+   - `IConnectivityService` wraps network monitoring (`connectivity_plus`), exposing reactive connectivity stream and current status (`isConnected`).
+   - `SyncCoordinator` prevents synchronization attempts while offline, transitioning immediately from `idle` to `error` with network unavailable code (`FK-3001`) without executing invalid dispatch calls.
+   - Automatically detects reconnection transitions (offline → online) and triggers background outbox synchronization.
+4. Exponential Retry, Backoff Scheduling & Circuit Breaking:
+   - Calculates exponential backoff with jitter on transient failures (`baseDelay * 2^retryCount` bounded by `maxDelay`).
+   - Schedules and activates background retry timers (`scheduleRetry`) for transient errors.
+   - Enforces permanent failure halting on terminal errors (`FK-2001`), preventing futile retry thrashing.
+5. Cancellation Support:
+   - `cancelSync()` enables graceful mid-batch cancellation.
+   - Checks cancellation flags before processing each queue item, safely releasing the processing loop and resetting status cleanly to `idle`.
+6. Safe Restart & Crash Interruption Recovery:
+   - `recoverInterruptedOperations()` executes upon coordinator initialization or session recovery.
+   - Scans the outbox table for orphaned operations left in `OutboxStatus.processing` due to unexpected app termination, power loss, or crash, and resets them safely to `OutboxStatus.pending` to guarantee zero-loss processing resumption.
+7. Riverpod State Exposure:
+   - `SyncCoordinator` extends `StateNotifier<SyncState>`.
+   - Exposed through `syncCoordinatorProvider` (`StateNotifierProvider<SyncCoordinator, SyncState>`), `syncStatusProvider` (`Provider<SyncStatus>`), and `syncStateStreamProvider`.  
+**Reason:** Guarantees deterministic, resilient local-first outbox synchronization that respects device connectivity, protects battery and server resources with exponential backoff, recovers gracefully from app interruptions, and delivers reactive UI state.
+
+
 

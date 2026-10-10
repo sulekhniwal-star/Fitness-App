@@ -360,3 +360,55 @@
   - 67/67 passing doc-lint checks (`npm run doc:lint`).
 - Recorded ADR-027 in `Brain/decisions.md`.
 
+## 2026-10-10 — TASK 021: Generic Offline Outbox & Sync Queue Foundation
+
+- Implemented the generic offline outbox/sync queue foundation adhering to ADR-001, `Brain/architecture.md`, `Brain/data_model.md`, and `Brain/error_handling.md`:
+  - `sync_outbox_table.dart` (`LocalSyncOutbox`): Enhanced Drift outbox table with strongly-typed columns: `id`, `entityType`, `entityId`, `operation`, `payloadJson`, `idempotencyKey` (unique), `retryCount`, `maxRetries`, `status`, `lastError`, `lastErrorCode`, `metadataJson`, `nextRetryAt`, `createdAt`, and `updatedAt`.
+  - `outbox_models.dart`: Created domain models for outbox operations:
+    - `OutboxOperationType`: `create`, `update`, `delete`, `upsert`.
+    - `OutboxStatus`: `pending`, `processing`, `completed`, `failed`, `permanentlyFailed`.
+    - `EnqueueStatus`: `enqueued`, `duplicatePending`, `duplicateCompleted`, `duplicateFailed`.
+    - `OutboxOperation`: Immutable model with exponential backoff calculation (`calculateExponentialBackoff`), JSON serialization, and Drift entity conversion.
+  - `sync_outbox_dao.dart` (`SyncOutboxDao`): Enhanced DAO with `getByIdempotencyKey`, `getEligibleEntries` (evaluating `status` and scheduled `nextRetryAt`), `markProcessing`, `markCompleted`, `markFailed` (with auto-transition to `permanentlyFailed` on max retries exhaustion), `markPermanentFailure`, `resetForRetry`, and `deleteCompleted`.
+  - `outbox_queue.dart` & `outbox_queue_impl.dart` (`IOutboxQueue`, `OutboxQueueImpl`):
+    - Strict idempotency deduplication returning appropriate `EnqueueResult` without duplicate database writes.
+    - Argument validation rejecting empty/whitespace idempotency keys.
+    - Automated exponential backoff calculation with jitter protection.
+    - Dependency metadata ordering ensuring prerequisite operations (`metadata['depends_on_op_id']`) precede dependents in batch retrieval.
+    - Error classification distinguishing retryable transient errors (`FK-3002`, HTTP 503) from terminal permanent errors (`FK-2001`, HTTP 400).
+    - Max retry exhaustion threshold handling.
+  - `outbox_sync_engine.dart` (`OutboxSyncEngine`): Concrete implementation of `SyncEngine` bridging `IOutboxQueue` to reactive `SyncStatus` stream (`idle`, `syncing`, `synced`, `error`, `conflict`).
+  - `outbox_providers.dart`: Exposed `outboxQueueProvider` via Riverpod.
+- Added comprehensive unit and integration tests:
+  - `test/core/sync/outbox_queue_test.dart`: 9 unit and integration tests verifying enqueue with metadata, duplicate idempotency cases (pending, completed, empty key rejection), success lifecycle and completed record purging, retryable failure with exponential backoff and schedule eligibility, explicit permanent failure and exclusion from queue, max retries exhaustion auto-transition, dependency metadata ordering, and `OutboxSyncEngine` delegation.
+- Verified test suite and documentation:
+  - 223/223 passing Flutter tests across entire workspace (0 failures).
+  - 0 analyzer issues (`flutter analyze` clean).
+  - 67/67 passing doc-lint checks (`npm run doc:lint`).
+- Recorded ADR-028 in `Brain/decisions.md`.
+
+## 2026-10-10 — TASK 022: Sync State Machine, Connectivity Awareness & Coordinator
+
+- Implemented the documented sync state machine, coordinator, connectivity awareness, and interruption recovery adhering to ADR-001, `Brain/architecture.md`, `Brain/data_model.md`, and `Brain/error_handling.md`:
+  - `pubspec.yaml`: Integrated `connectivity_plus: ^7.3.2`.
+  - `connectivity_service.dart`: Created `IConnectivityService` boundary, `ConnectivityServiceImpl` implementing live platform monitoring with connectivity status streams (`isConnected`, `onConnectivityChanged`), and `FakeConnectivityService` for testing.
+  - `sync_state.dart`: Defined `SyncState` model representing state snapshots: `status` (`SyncStatus`), `lastSyncedAt`, `pendingCount`, `activeOperationId`, `errorMessage`, `errorCode`, `isOnline`, `conflictDetails`.
+  - `sync_worker.dart`: Created pluggable dispatcher contracts `ISyncWorker`, `SyncDispatchResult`, `SyncDispatchStatus` (`success`, `transientFailure`, `permanentFailure`, `conflict`), and `DefaultSyncWorker`.
+  - `sync_coordinator.dart`: Implemented `SyncCoordinator` extending Riverpod `StateNotifier<SyncState>` and implementing `SyncEngine`:
+    - Full state machine transitions: `idle` → `syncing` → `synced`, `error`, or `conflict`.
+    - Connectivity awareness: tracks network changes, executes outbox drain on reconnect, and safely blocks sync attempts while offline (`FK-3001`).
+    - Exponential retry & backoff: transient errors (`FK-3002`) schedule backoff timer with jitter.
+    - Permanent error handling: non-retryable errors (`FK-2001`) halt auto-retry loops immediately.
+    - Conflict state handling: preserves conflict details (`FK-3003`) in state for resolution without data loss.
+    - Mid-batch cancellation support: `cancelSync()` safely breaks processing loop between operations and returns status cleanly to `idle`.
+    - Safe restart after interruption: `recoverInterruptedOperations()` resets orphaned `processing` outbox operations back to `pending`.
+  - `sync_providers.dart`: Exposed Riverpod providers: `connectivityServiceProvider`, `syncWorkerProvider`, `syncCoordinatorProvider`, `syncStatusProvider`, and `syncStateStreamProvider`.
+- Added comprehensive deterministic tests for state transitions:
+  - `test/core/sync/sync_coordinator_test.dart`: 8 unit and integration tests verifying `idle` → `syncing` → `synced` happy path, `idle` → `syncing` → `error` on retryable failure with exponential backoff schedule, terminal failure transition, `idle` → `syncing` → `conflict` with preserved payload, offline protection and auto-resume on reconnect, mid-batch cancellation, safe restart after crash interruption, and reactive Riverpod state exposure.
+- Verified test suite and documentation:
+  - 231/231 passing Flutter tests across entire workspace (0 failures).
+  - 0 analyzer issues (`flutter analyze` clean).
+  - 67/67 passing doc-lint checks (`npm run doc:lint`).
+- Recorded ADR-029 in `Brain/decisions.md`.
+
+

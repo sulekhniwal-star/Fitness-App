@@ -2127,6 +2127,7 @@ class $LocalSyncOutboxTable extends LocalSyncOutbox
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways('UNIQUE'),
   );
   static const VerificationMeta _retryCountMeta = const VerificationMeta(
     'retryCount',
@@ -2140,12 +2141,35 @@ class $LocalSyncOutboxTable extends LocalSyncOutbox
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _maxRetriesMeta = const VerificationMeta(
+    'maxRetries',
+  );
+  @override
+  late final GeneratedColumn<int> maxRetries = GeneratedColumn<int>(
+    'max_retries',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(5),
+  );
   static const VerificationMeta _lastErrorMeta = const VerificationMeta(
     'lastError',
   );
   @override
   late final GeneratedColumn<String> lastError = GeneratedColumn<String>(
     'last_error',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastErrorCodeMeta = const VerificationMeta(
+    'lastErrorCode',
+  );
+  @override
+  late final GeneratedColumn<String> lastErrorCode = GeneratedColumn<String>(
+    'last_error_code',
     aliasedName,
     true,
     type: DriftSqlType.string,
@@ -2160,6 +2184,28 @@ class $LocalSyncOutboxTable extends LocalSyncOutbox
     type: DriftSqlType.string,
     requiredDuringInsert: false,
     defaultValue: const Constant('pending'),
+  );
+  static const VerificationMeta _metadataJsonMeta = const VerificationMeta(
+    'metadataJson',
+  );
+  @override
+  late final GeneratedColumn<String> metadataJson = GeneratedColumn<String>(
+    'metadata_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _nextRetryAtMeta = const VerificationMeta(
+    'nextRetryAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> nextRetryAt = GeneratedColumn<DateTime>(
+    'next_retry_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
@@ -2192,8 +2238,12 @@ class $LocalSyncOutboxTable extends LocalSyncOutbox
     payloadJson,
     idempotencyKey,
     retryCount,
+    maxRetries,
     lastError,
+    lastErrorCode,
     status,
+    metadataJson,
+    nextRetryAt,
     createdAt,
     updatedAt,
   ];
@@ -2266,16 +2316,49 @@ class $LocalSyncOutboxTable extends LocalSyncOutbox
         retryCount.isAcceptableOrUnknown(data['retry_count']!, _retryCountMeta),
       );
     }
+    if (data.containsKey('max_retries')) {
+      context.handle(
+        _maxRetriesMeta,
+        maxRetries.isAcceptableOrUnknown(data['max_retries']!, _maxRetriesMeta),
+      );
+    }
     if (data.containsKey('last_error')) {
       context.handle(
         _lastErrorMeta,
         lastError.isAcceptableOrUnknown(data['last_error']!, _lastErrorMeta),
       );
     }
+    if (data.containsKey('last_error_code')) {
+      context.handle(
+        _lastErrorCodeMeta,
+        lastErrorCode.isAcceptableOrUnknown(
+          data['last_error_code']!,
+          _lastErrorCodeMeta,
+        ),
+      );
+    }
     if (data.containsKey('status')) {
       context.handle(
         _statusMeta,
         status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    }
+    if (data.containsKey('metadata_json')) {
+      context.handle(
+        _metadataJsonMeta,
+        metadataJson.isAcceptableOrUnknown(
+          data['metadata_json']!,
+          _metadataJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('next_retry_at')) {
+      context.handle(
+        _nextRetryAtMeta,
+        nextRetryAt.isAcceptableOrUnknown(
+          data['next_retry_at']!,
+          _nextRetryAtMeta,
+        ),
       );
     }
     if (data.containsKey('created_at')) {
@@ -2331,14 +2414,30 @@ class $LocalSyncOutboxTable extends LocalSyncOutbox
         DriftSqlType.int,
         data['${effectivePrefix}retry_count'],
       )!,
+      maxRetries: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}max_retries'],
+      )!,
       lastError: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}last_error'],
+      ),
+      lastErrorCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_error_code'],
       ),
       status: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}status'],
       )!,
+      metadataJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}metadata_json'],
+      ),
+      nextRetryAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}next_retry_at'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -2365,8 +2464,12 @@ class LocalSyncOutboxData extends DataClass
   final String payloadJson;
   final String idempotencyKey;
   final int retryCount;
+  final int maxRetries;
   final String? lastError;
+  final String? lastErrorCode;
   final String status;
+  final String? metadataJson;
+  final DateTime? nextRetryAt;
   final DateTime createdAt;
   final DateTime updatedAt;
   const LocalSyncOutboxData({
@@ -2377,8 +2480,12 @@ class LocalSyncOutboxData extends DataClass
     required this.payloadJson,
     required this.idempotencyKey,
     required this.retryCount,
+    required this.maxRetries,
     this.lastError,
+    this.lastErrorCode,
     required this.status,
+    this.metadataJson,
+    this.nextRetryAt,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -2392,10 +2499,20 @@ class LocalSyncOutboxData extends DataClass
     map['payload_json'] = Variable<String>(payloadJson);
     map['idempotency_key'] = Variable<String>(idempotencyKey);
     map['retry_count'] = Variable<int>(retryCount);
+    map['max_retries'] = Variable<int>(maxRetries);
     if (!nullToAbsent || lastError != null) {
       map['last_error'] = Variable<String>(lastError);
     }
+    if (!nullToAbsent || lastErrorCode != null) {
+      map['last_error_code'] = Variable<String>(lastErrorCode);
+    }
     map['status'] = Variable<String>(status);
+    if (!nullToAbsent || metadataJson != null) {
+      map['metadata_json'] = Variable<String>(metadataJson);
+    }
+    if (!nullToAbsent || nextRetryAt != null) {
+      map['next_retry_at'] = Variable<DateTime>(nextRetryAt);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -2410,10 +2527,20 @@ class LocalSyncOutboxData extends DataClass
       payloadJson: Value(payloadJson),
       idempotencyKey: Value(idempotencyKey),
       retryCount: Value(retryCount),
+      maxRetries: Value(maxRetries),
       lastError: lastError == null && nullToAbsent
           ? const Value.absent()
           : Value(lastError),
+      lastErrorCode: lastErrorCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastErrorCode),
       status: Value(status),
+      metadataJson: metadataJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(metadataJson),
+      nextRetryAt: nextRetryAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(nextRetryAt),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -2432,8 +2559,12 @@ class LocalSyncOutboxData extends DataClass
       payloadJson: serializer.fromJson<String>(json['payloadJson']),
       idempotencyKey: serializer.fromJson<String>(json['idempotencyKey']),
       retryCount: serializer.fromJson<int>(json['retryCount']),
+      maxRetries: serializer.fromJson<int>(json['maxRetries']),
       lastError: serializer.fromJson<String?>(json['lastError']),
+      lastErrorCode: serializer.fromJson<String?>(json['lastErrorCode']),
       status: serializer.fromJson<String>(json['status']),
+      metadataJson: serializer.fromJson<String?>(json['metadataJson']),
+      nextRetryAt: serializer.fromJson<DateTime?>(json['nextRetryAt']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -2449,8 +2580,12 @@ class LocalSyncOutboxData extends DataClass
       'payloadJson': serializer.toJson<String>(payloadJson),
       'idempotencyKey': serializer.toJson<String>(idempotencyKey),
       'retryCount': serializer.toJson<int>(retryCount),
+      'maxRetries': serializer.toJson<int>(maxRetries),
       'lastError': serializer.toJson<String?>(lastError),
+      'lastErrorCode': serializer.toJson<String?>(lastErrorCode),
       'status': serializer.toJson<String>(status),
+      'metadataJson': serializer.toJson<String?>(metadataJson),
+      'nextRetryAt': serializer.toJson<DateTime?>(nextRetryAt),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -2464,8 +2599,12 @@ class LocalSyncOutboxData extends DataClass
     String? payloadJson,
     String? idempotencyKey,
     int? retryCount,
+    int? maxRetries,
     Value<String?> lastError = const Value.absent(),
+    Value<String?> lastErrorCode = const Value.absent(),
     String? status,
+    Value<String?> metadataJson = const Value.absent(),
+    Value<DateTime?> nextRetryAt = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => LocalSyncOutboxData(
@@ -2476,8 +2615,14 @@ class LocalSyncOutboxData extends DataClass
     payloadJson: payloadJson ?? this.payloadJson,
     idempotencyKey: idempotencyKey ?? this.idempotencyKey,
     retryCount: retryCount ?? this.retryCount,
+    maxRetries: maxRetries ?? this.maxRetries,
     lastError: lastError.present ? lastError.value : this.lastError,
+    lastErrorCode: lastErrorCode.present
+        ? lastErrorCode.value
+        : this.lastErrorCode,
     status: status ?? this.status,
+    metadataJson: metadataJson.present ? metadataJson.value : this.metadataJson,
+    nextRetryAt: nextRetryAt.present ? nextRetryAt.value : this.nextRetryAt,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -2498,8 +2643,20 @@ class LocalSyncOutboxData extends DataClass
       retryCount: data.retryCount.present
           ? data.retryCount.value
           : this.retryCount,
+      maxRetries: data.maxRetries.present
+          ? data.maxRetries.value
+          : this.maxRetries,
       lastError: data.lastError.present ? data.lastError.value : this.lastError,
+      lastErrorCode: data.lastErrorCode.present
+          ? data.lastErrorCode.value
+          : this.lastErrorCode,
       status: data.status.present ? data.status.value : this.status,
+      metadataJson: data.metadataJson.present
+          ? data.metadataJson.value
+          : this.metadataJson,
+      nextRetryAt: data.nextRetryAt.present
+          ? data.nextRetryAt.value
+          : this.nextRetryAt,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -2515,8 +2672,12 @@ class LocalSyncOutboxData extends DataClass
           ..write('payloadJson: $payloadJson, ')
           ..write('idempotencyKey: $idempotencyKey, ')
           ..write('retryCount: $retryCount, ')
+          ..write('maxRetries: $maxRetries, ')
           ..write('lastError: $lastError, ')
+          ..write('lastErrorCode: $lastErrorCode, ')
           ..write('status: $status, ')
+          ..write('metadataJson: $metadataJson, ')
+          ..write('nextRetryAt: $nextRetryAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -2532,8 +2693,12 @@ class LocalSyncOutboxData extends DataClass
     payloadJson,
     idempotencyKey,
     retryCount,
+    maxRetries,
     lastError,
+    lastErrorCode,
     status,
+    metadataJson,
+    nextRetryAt,
     createdAt,
     updatedAt,
   );
@@ -2548,8 +2713,12 @@ class LocalSyncOutboxData extends DataClass
           other.payloadJson == this.payloadJson &&
           other.idempotencyKey == this.idempotencyKey &&
           other.retryCount == this.retryCount &&
+          other.maxRetries == this.maxRetries &&
           other.lastError == this.lastError &&
+          other.lastErrorCode == this.lastErrorCode &&
           other.status == this.status &&
+          other.metadataJson == this.metadataJson &&
+          other.nextRetryAt == this.nextRetryAt &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -2562,8 +2731,12 @@ class LocalSyncOutboxCompanion extends UpdateCompanion<LocalSyncOutboxData> {
   final Value<String> payloadJson;
   final Value<String> idempotencyKey;
   final Value<int> retryCount;
+  final Value<int> maxRetries;
   final Value<String?> lastError;
+  final Value<String?> lastErrorCode;
   final Value<String> status;
+  final Value<String?> metadataJson;
+  final Value<DateTime?> nextRetryAt;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<int> rowid;
@@ -2575,8 +2748,12 @@ class LocalSyncOutboxCompanion extends UpdateCompanion<LocalSyncOutboxData> {
     this.payloadJson = const Value.absent(),
     this.idempotencyKey = const Value.absent(),
     this.retryCount = const Value.absent(),
+    this.maxRetries = const Value.absent(),
     this.lastError = const Value.absent(),
+    this.lastErrorCode = const Value.absent(),
     this.status = const Value.absent(),
+    this.metadataJson = const Value.absent(),
+    this.nextRetryAt = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -2589,8 +2766,12 @@ class LocalSyncOutboxCompanion extends UpdateCompanion<LocalSyncOutboxData> {
     required String payloadJson,
     required String idempotencyKey,
     this.retryCount = const Value.absent(),
+    this.maxRetries = const Value.absent(),
     this.lastError = const Value.absent(),
+    this.lastErrorCode = const Value.absent(),
     this.status = const Value.absent(),
+    this.metadataJson = const Value.absent(),
+    this.nextRetryAt = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.rowid = const Value.absent(),
@@ -2610,8 +2791,12 @@ class LocalSyncOutboxCompanion extends UpdateCompanion<LocalSyncOutboxData> {
     Expression<String>? payloadJson,
     Expression<String>? idempotencyKey,
     Expression<int>? retryCount,
+    Expression<int>? maxRetries,
     Expression<String>? lastError,
+    Expression<String>? lastErrorCode,
     Expression<String>? status,
+    Expression<String>? metadataJson,
+    Expression<DateTime>? nextRetryAt,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<int>? rowid,
@@ -2624,8 +2809,12 @@ class LocalSyncOutboxCompanion extends UpdateCompanion<LocalSyncOutboxData> {
       if (payloadJson != null) 'payload_json': payloadJson,
       if (idempotencyKey != null) 'idempotency_key': idempotencyKey,
       if (retryCount != null) 'retry_count': retryCount,
+      if (maxRetries != null) 'max_retries': maxRetries,
       if (lastError != null) 'last_error': lastError,
+      if (lastErrorCode != null) 'last_error_code': lastErrorCode,
       if (status != null) 'status': status,
+      if (metadataJson != null) 'metadata_json': metadataJson,
+      if (nextRetryAt != null) 'next_retry_at': nextRetryAt,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (rowid != null) 'rowid': rowid,
@@ -2640,8 +2829,12 @@ class LocalSyncOutboxCompanion extends UpdateCompanion<LocalSyncOutboxData> {
     Value<String>? payloadJson,
     Value<String>? idempotencyKey,
     Value<int>? retryCount,
+    Value<int>? maxRetries,
     Value<String?>? lastError,
+    Value<String?>? lastErrorCode,
     Value<String>? status,
+    Value<String?>? metadataJson,
+    Value<DateTime?>? nextRetryAt,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<int>? rowid,
@@ -2654,8 +2847,12 @@ class LocalSyncOutboxCompanion extends UpdateCompanion<LocalSyncOutboxData> {
       payloadJson: payloadJson ?? this.payloadJson,
       idempotencyKey: idempotencyKey ?? this.idempotencyKey,
       retryCount: retryCount ?? this.retryCount,
+      maxRetries: maxRetries ?? this.maxRetries,
       lastError: lastError ?? this.lastError,
+      lastErrorCode: lastErrorCode ?? this.lastErrorCode,
       status: status ?? this.status,
+      metadataJson: metadataJson ?? this.metadataJson,
+      nextRetryAt: nextRetryAt ?? this.nextRetryAt,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       rowid: rowid ?? this.rowid,
@@ -2686,11 +2883,23 @@ class LocalSyncOutboxCompanion extends UpdateCompanion<LocalSyncOutboxData> {
     if (retryCount.present) {
       map['retry_count'] = Variable<int>(retryCount.value);
     }
+    if (maxRetries.present) {
+      map['max_retries'] = Variable<int>(maxRetries.value);
+    }
     if (lastError.present) {
       map['last_error'] = Variable<String>(lastError.value);
     }
+    if (lastErrorCode.present) {
+      map['last_error_code'] = Variable<String>(lastErrorCode.value);
+    }
     if (status.present) {
       map['status'] = Variable<String>(status.value);
+    }
+    if (metadataJson.present) {
+      map['metadata_json'] = Variable<String>(metadataJson.value);
+    }
+    if (nextRetryAt.present) {
+      map['next_retry_at'] = Variable<DateTime>(nextRetryAt.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
@@ -2714,8 +2923,12 @@ class LocalSyncOutboxCompanion extends UpdateCompanion<LocalSyncOutboxData> {
           ..write('payloadJson: $payloadJson, ')
           ..write('idempotencyKey: $idempotencyKey, ')
           ..write('retryCount: $retryCount, ')
+          ..write('maxRetries: $maxRetries, ')
           ..write('lastError: $lastError, ')
+          ..write('lastErrorCode: $lastErrorCode, ')
           ..write('status: $status, ')
+          ..write('metadataJson: $metadataJson, ')
+          ..write('nextRetryAt: $nextRetryAt, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('rowid: $rowid')
@@ -3974,8 +4187,12 @@ typedef $$LocalSyncOutboxTableCreateCompanionBuilder =
       required String payloadJson,
       required String idempotencyKey,
       Value<int> retryCount,
+      Value<int> maxRetries,
       Value<String?> lastError,
+      Value<String?> lastErrorCode,
       Value<String> status,
+      Value<String?> metadataJson,
+      Value<DateTime?> nextRetryAt,
       required DateTime createdAt,
       required DateTime updatedAt,
       Value<int> rowid,
@@ -3989,8 +4206,12 @@ typedef $$LocalSyncOutboxTableUpdateCompanionBuilder =
       Value<String> payloadJson,
       Value<String> idempotencyKey,
       Value<int> retryCount,
+      Value<int> maxRetries,
       Value<String?> lastError,
+      Value<String?> lastErrorCode,
       Value<String> status,
+      Value<String?> metadataJson,
+      Value<DateTime?> nextRetryAt,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<int> rowid,
@@ -4040,13 +4261,33 @@ class $$LocalSyncOutboxTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get maxRetries => $composableBuilder(
+    column: $table.maxRetries,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get lastError => $composableBuilder(
     column: $table.lastError,
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get lastErrorCode => $composableBuilder(
+    column: $table.lastErrorCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get status => $composableBuilder(
     column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get metadataJson => $composableBuilder(
+    column: $table.metadataJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get nextRetryAt => $composableBuilder(
+    column: $table.nextRetryAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4105,13 +4346,33 @@ class $$LocalSyncOutboxTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get maxRetries => $composableBuilder(
+    column: $table.maxRetries,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get lastError => $composableBuilder(
     column: $table.lastError,
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get lastErrorCode => $composableBuilder(
+    column: $table.lastErrorCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get status => $composableBuilder(
     column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get metadataJson => $composableBuilder(
+    column: $table.metadataJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get nextRetryAt => $composableBuilder(
+    column: $table.nextRetryAt,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -4164,11 +4425,31 @@ class $$LocalSyncOutboxTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get maxRetries => $composableBuilder(
+    column: $table.maxRetries,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get lastError =>
       $composableBuilder(column: $table.lastError, builder: (column) => column);
 
+  GeneratedColumn<String> get lastErrorCode => $composableBuilder(
+    column: $table.lastErrorCode,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<String> get status =>
       $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get metadataJson => $composableBuilder(
+    column: $table.metadataJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get nextRetryAt => $composableBuilder(
+    column: $table.nextRetryAt,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -4221,8 +4502,12 @@ class $$LocalSyncOutboxTableTableManager
                 Value<String> payloadJson = const Value.absent(),
                 Value<String> idempotencyKey = const Value.absent(),
                 Value<int> retryCount = const Value.absent(),
+                Value<int> maxRetries = const Value.absent(),
                 Value<String?> lastError = const Value.absent(),
+                Value<String?> lastErrorCode = const Value.absent(),
                 Value<String> status = const Value.absent(),
+                Value<String?> metadataJson = const Value.absent(),
+                Value<DateTime?> nextRetryAt = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -4234,8 +4519,12 @@ class $$LocalSyncOutboxTableTableManager
                 payloadJson: payloadJson,
                 idempotencyKey: idempotencyKey,
                 retryCount: retryCount,
+                maxRetries: maxRetries,
                 lastError: lastError,
+                lastErrorCode: lastErrorCode,
                 status: status,
+                metadataJson: metadataJson,
+                nextRetryAt: nextRetryAt,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
@@ -4249,8 +4538,12 @@ class $$LocalSyncOutboxTableTableManager
                 required String payloadJson,
                 required String idempotencyKey,
                 Value<int> retryCount = const Value.absent(),
+                Value<int> maxRetries = const Value.absent(),
                 Value<String?> lastError = const Value.absent(),
+                Value<String?> lastErrorCode = const Value.absent(),
                 Value<String> status = const Value.absent(),
+                Value<String?> metadataJson = const Value.absent(),
+                Value<DateTime?> nextRetryAt = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<int> rowid = const Value.absent(),
@@ -4262,8 +4555,12 @@ class $$LocalSyncOutboxTableTableManager
                 payloadJson: payloadJson,
                 idempotencyKey: idempotencyKey,
                 retryCount: retryCount,
+                maxRetries: maxRetries,
                 lastError: lastError,
+                lastErrorCode: lastErrorCode,
                 status: status,
+                metadataJson: metadataJson,
+                nextRetryAt: nextRetryAt,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 rowid: rowid,
