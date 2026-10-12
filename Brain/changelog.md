@@ -411,4 +411,36 @@
   - 67/67 passing doc-lint checks (`npm run doc:lint`).
 - Recorded ADR-029 in `Brain/decisions.md`.
 
+## 2026-10-12 — TASK 023: Drift + Supabase Reusable Repository Synchronization Pattern
+
+- Implemented the generic, reusable repository synchronization pattern between Drift (local encrypted SQLite source of truth) and Supabase (remote backend) adhering to ADR-001, ADR-003, `Brain/architecture.md`, `Brain/data_model.md`, and `Brain/error_handling.md`:
+  - `sync_entity.dart`: Defined `SyncEntity<TId>` base contract specifying synchronization invariants: `syncId`, `syncUpdatedAt`, `syncVersion`, `isSynced`, `lastSyncedAt`, and `toRemoteJson()`.
+  - `conflict_strategy.dart`: Created pluggable conflict resolution framework:
+    - Structured `ConflictResolution<T>` with outcome types: `localWins`, `remoteWins`, `merge`, and `conflictReported`.
+    - `TimestampLastWriteWinsStrategy`: Timestamp-based Last-Write-Wins (LWW) evaluating ISO-8601 timestamps.
+    - `VersionConflictStrategy`: Monotonic version/etag comparison with timestamp fallback.
+    - `ClientWinsStrategy`: Unconditional local precedence.
+    - `ServerWinsStrategy`: Unconditional remote backend precedence.
+    - `ManualConflictStrategy`: Preserves local changes without data loss and surfaces structured `ConflictFailure` (`FK-3003`).
+    - Recorded entity-specific conflict models as `PROPOSED` in `Brain/decisions.md` (`ADR-030`).
+  - `local_data_source.dart`: Defined `ILocalSyncDataSource<TEntity, TId>` and in-memory test implementation for local source of truth operations.
+  - `remote_data_source.dart`: Defined `IRemoteSyncDataSource<TEntity, TId>`, `SupabaseTableRemoteDataSource` for Postgrest operations, and `FakeRemoteSyncDataSource` for test simulation.
+  - `drift_sync_adapter.dart`: Created `DriftLocalSyncDataSource` reusable adapter bridging any Drift Table and DAO to `ILocalSyncDataSource` via companion and row mappers.
+  - `sync_repository.dart`: Built `SyncRepository<TEntity, TId>` abstract base class implementing the complete sync lifecycle:
+    - Local source of truth (reads and reactive streams directly from Drift).
+    - Outbox push with optimistic local persistence (`isSynced: false`) and deterministic idempotency deduplication.
+    - Remote fetch and local merge handling clean merges vs concurrent mutation conflict resolution.
+    - Server acknowledgement updating `isSynced = true`, storing server timestamps, and marking outbox operations completed.
+    - Duplicate handling preventing duplicate queue entries and upserting existing local entities.
+  - `repository_sync_worker.dart`: Created `RepositorySyncWorker` and `RepositoryEntitySyncHandler` integrating `SyncRepository` with `ISyncWorker` and `SyncCoordinator`.
+  - `sync_providers.dart`: Exposed `repositorySyncWorkerProvider` via Riverpod.
+- Added comprehensive deterministic tests for repository synchronization:
+  - `test/core/sync/sync_repository_test.dart`: 11 unit and integration tests verifying local source of truth reads and streams, outbox push with optimistic write, remote fetch & clean local merge, duplicate idempotency deduplication, timestamp LWW conflict resolution (remote newer and local newer), manual conflict reporting with FK-3003 payload preservation, version conflict strategy, server acknowledgement lifecycle, end-to-end outbox draining through `RepositorySyncWorker` and `SyncCoordinator`, and `DriftLocalSyncDataSource` Drift table queries and companions.
+- Verified test suite and documentation:
+  - 242/242 passing Flutter tests across entire workspace (0 failures).
+  - 0 analyzer issues (`flutter analyze` clean).
+  - 67/67 passing doc-lint checks (`npm run doc:lint`).
+- Recorded ADR-030 in `Brain/decisions.md`.
+
+
 

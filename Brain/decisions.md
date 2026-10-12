@@ -311,5 +311,36 @@ All concrete physical columns are recorded as `PROPOSED` specifications in `Brai
    - Exposed through `syncCoordinatorProvider` (`StateNotifierProvider<SyncCoordinator, SyncState>`), `syncStatusProvider` (`Provider<SyncStatus>`), and `syncStateStreamProvider`.  
 **Reason:** Guarantees deterministic, resilient local-first outbox synchronization that respects device connectivity, protects battery and server resources with exponential backoff, recovers gracefully from app interruptions, and delivers reactive UI state.
 
+## ADR-030 — Reusable Repository Synchronization Pattern Between Drift and Supabase
+**Status:** Accepted framework; Entity conflict models recorded as `PROPOSED` (Task 023)  
+**Decision:** Establish the generic, reusable repository synchronization pattern bridging the local encrypted SQLite database (Drift via SQLCipher) as the local source of truth with the Supabase remote backend:
+1. Local Source of Truth:
+   - Drift persistence (`ILocalSyncDataSource`) is the single source of truth for all application reads and reactive streams (`watchById`, `watchAll`).
+   - Mutations are written optimistically to Drift immediately with `isSynced = false`, guaranteeing full offline usability and zero user interface blocking.
+2. Outbox Push & Idempotency:
+   - Mutations enqueue an `OutboxOperation` into `IOutboxQueue` (`create`, `update`, `delete`, `upsert`).
+   - Deduplication is guaranteed via unique, deterministic `idempotencyKey` values (`<prefix>_<entityType>_<entityId>_<timestamp>`). Duplicate mutation calls return duplicate status without inserting duplicate queue items.
+3. Remote Fetch & Local Merge:
+   - `fetchAndMerge` performs on-demand or incremental reconciliation against `IRemoteSyncDataSource` (e.g. `SupabaseTableRemoteDataSource` querying Postgrest tables via `rawClient.from(...)`).
+   - Clean Fast-Path: When the local entity has no unpushed changes (`isSynced == true`), the remote fetched record cleanly overwrites local Drift storage, updating `lastSyncedAt` and preserving `isSynced = true`.
+   - Concurrent Mutation Path: When unpushed local changes exist (`isSynced == false`), the framework delegates to the pluggable `ConflictResolutionStrategy`.
+4. Pluggable Conflict Strategies & PROPOSED Models:
+   - The concrete conflict resolution strategy is decoupled and pluggable via `ConflictResolutionStrategy<TEntity>`:
+     - `TimestampLastWriteWinsStrategy`: Compares `syncUpdatedAt` ISO-8601 timestamps. The later timestamp wins.
+     - `VersionConflictStrategy`: Evaluates monotonic version/etag sequence numbers; falls back to timestamps.
+     - `ClientWinsStrategy`: Unconditionally preserves local modifications.
+     - `ServerWinsStrategy`: Unconditionally adopts remote backend state.
+     - `ManualConflictStrategy`: Retains local data without silent overwrite and raises structured `ConflictFailure` (`FK-3003`) containing both local and remote JSON states for user/UI reconciliation.
+   - **PROPOSED Entity Conflict Models** (documented as `PROPOSED` per task requirements):
+     - `public.profiles` & settings: **PROPOSED** Timestamp-based Last-Write-Wins (LWW) with client-timestamp clock-skew clamping (+/- 5 minutes) against server `now()`.
+     - `public.food_logs`, `public.health_observations`, `public.workouts`: **PROPOSED** Append-only event strategy with client-issued UUID primary keys. True conflicts are structurally impossible for immutable event streams; deletions/corrections are handled via tombstone events.
+     - `public.recipes` & custom foods: **PROPOSED** Version-based optimistic concurrency control (OCC). Concurrent updates trigger `ManualConflictStrategy` (`FK-3003`) presenting side-by-side diffing in UI rather than silent overwrite.
+5. Server Acknowledgement & Outbox Completion:
+   - Upon successful remote response, `acknowledgePush` atomically updates the local Drift record (`isSynced = true`, updates `lastSyncedAt` and server-issued timestamps), and marks the associated `OutboxOperation` as `completed`.
+6. Outbox Worker Integration:
+   - `RepositorySyncWorker` implements `ISyncWorker`, routing outbox operations by `entityType` to registered repository entity handlers (`RepositoryEntitySyncHandler`), fully integrating with `SyncCoordinator` and the sync state machine.  
+**Reason:** Unifies local-first persistence, network resilience, offline mutations, server reconciliation, and conflict management into a single deterministic pattern while formally declaring entity conflict models as `PROPOSED`.
+
+
 
 

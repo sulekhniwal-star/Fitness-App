@@ -3,6 +3,7 @@ import 'package:fitkarma/core/sync/coordinator/sync_coordinator.dart';
 import 'package:fitkarma/core/sync/coordinator/sync_worker.dart';
 import 'package:fitkarma/core/sync/models/sync_state.dart';
 import 'package:fitkarma/core/sync/outbox/outbox_providers.dart';
+import 'package:fitkarma/core/sync/repository/repository_sync_worker.dart';
 import 'package:fitkarma/core/sync/sync_boundary.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -15,8 +16,14 @@ final connectivityServiceProvider = Provider<IConnectivityService>((ref) {
 
 /// Provider for remote endpoint sync worker.
 final syncWorkerProvider = Provider<ISyncWorker>((ref) {
-  return const DefaultSyncWorker();
+  return ref.watch(repositorySyncWorkerProvider);
 }, name: 'syncWorkerProvider');
+
+/// Provider for [RepositorySyncWorker] allowing dynamic entity repository registration.
+final repositorySyncWorkerProvider = Provider<RepositorySyncWorker>((ref) {
+  return RepositorySyncWorker();
+}, name: 'repositorySyncWorkerProvider');
+
 
 /// Provider for the central [SyncCoordinator].
 final syncCoordinatorProvider =

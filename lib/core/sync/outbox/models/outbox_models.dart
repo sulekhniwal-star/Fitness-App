@@ -137,6 +137,33 @@ class OutboxOperation {
     this.nextRetryAt,
   });
 
+  /// Factory helper creating a new outbox operation with auto-generated id and timestamps.
+  factory OutboxOperation.create({
+    String? id,
+    required String entityType,
+    required String entityId,
+    required OutboxOperationType operationType,
+    required Map<String, dynamic> payload,
+    required String idempotencyKey,
+    Map<String, dynamic>? metadata,
+    int maxRetries = 5,
+  }) {
+    final now = DateTime.now();
+    return OutboxOperation(
+      id: id ?? 'op_${now.microsecondsSinceEpoch}',
+      entityType: entityType,
+      entityId: entityId,
+      operationType: operationType,
+      payload: payload,
+      idempotencyKey: idempotencyKey,
+      createdAt: now,
+      updatedAt: now,
+      metadata: metadata,
+      maxRetries: maxRetries,
+    );
+  }
+
+
   /// Whether this operation is eligible to be retried.
   bool get isRetryable =>
       status == OutboxStatus.failed && retryCount < maxRetries;
