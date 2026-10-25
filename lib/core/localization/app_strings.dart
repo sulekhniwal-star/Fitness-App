@@ -44,6 +44,28 @@ abstract interface class AppStrings {
   String get offline;
   String get karmaPro;
   String get syncPending;
+  String get syncing;
+  String get synced;
+  String get syncError;
+  String get syncConflict;
+  String get syncNow;
+  String pendingSyncCount(int count);
+  String get syncDetailsTitle;
+  String get connectionOnline;
+  String get connectionOffline;
+  String get localDataSecureGuarantee;
+  String get conflictTitle;
+  String get conflictSubtitle;
+  String get keepMine;
+  String get keepMineSubtitle;
+  String get keepServer;
+  String get keepServerSubtitle;
+  String get mergeSafe;
+  String get mergeSafeSubtitle;
+  String get yourVersion;
+  String get serverVersion;
+  String get conflictResolved;
+  String get reviewConflict;
 
   // --- Error & Empty States ---
   String get genericError;
@@ -188,6 +210,53 @@ class EnglishStrings implements AppStrings {
   String get karmaPro => 'Karma Pro';
   @override
   String get syncPending => 'Sync Pending';
+  @override
+  String get syncing => 'Syncing changes...';
+  @override
+  String get synced => 'All changes synced';
+  @override
+  String get syncError => 'Sync failed';
+  @override
+  String get syncConflict => 'Conflict detected';
+  @override
+  String get syncNow => 'Sync Now';
+  @override
+  String pendingSyncCount(int count) =>
+      count == 1 ? '1 change pending sync' : '$count changes pending sync';
+  @override
+  String get syncDetailsTitle => 'Sync & Connectivity Status';
+  @override
+  String get connectionOnline => 'Online';
+  @override
+  String get connectionOffline => 'Offline';
+  @override
+  String get localDataSecureGuarantee =>
+      'Your health logs and workouts are securely encrypted on this device and will sync automatically when connected.';
+  @override
+  String get conflictTitle => 'Review Conflicting Changes';
+  @override
+  String get conflictSubtitle =>
+      'This item was updated on another device while offline. Choose which version you would like to keep.';
+  @override
+  String get keepMine => 'Keep My Version';
+  @override
+  String get keepMineSubtitle => 'Keep changes made on this device';
+  @override
+  String get keepServer => 'Keep Cloud Version';
+  @override
+  String get keepServerSubtitle => 'Accept updates from the cloud';
+  @override
+  String get mergeSafe => 'Merge Changes';
+  @override
+  String get mergeSafeSubtitle => 'Combine non-overlapping updates';
+  @override
+  String get yourVersion => 'This Device (Local)';
+  @override
+  String get serverVersion => 'Cloud (Other Device)';
+  @override
+  String get conflictResolved => 'Conflict resolved successfully.';
+  @override
+  String get reviewConflict => 'Review Conflict';
 
   @override
   String get genericError => 'Something went wrong';
@@ -409,6 +478,53 @@ class HindiStrings implements AppStrings {
   String get karmaPro => 'कर्मा प्रो';
   @override
   String get syncPending => 'सिंक प्रतीक्षारत';
+  @override
+  String get syncing => 'डेटा सिंक हो रहा है...';
+  @override
+  String get synced => 'सभी डेटा सिंक हो गया';
+  @override
+  String get syncError => 'सिंक विफल';
+  @override
+  String get syncConflict => 'डेटा टकराव पाया गया';
+  @override
+  String get syncNow => 'अभी सिंक करें';
+  @override
+  String pendingSyncCount(int count) =>
+      count == 1 ? '1 बदलाव सिंक प्रतीक्षारत' : '$count बदलाव सिंक प्रतीक्षारत';
+  @override
+  String get syncDetailsTitle => 'सिंक व कनेक्टिविटी स्थिति';
+  @override
+  String get connectionOnline => 'ऑनलाइन';
+  @override
+  String get connectionOffline => 'ऑफलाइन';
+  @override
+  String get localDataSecureGuarantee =>
+      'आपका स्वास्थ्य डेटा इस डिवाइस पर सुरक्षित रूप से एन्क्रिप्टेड है और इंटरनेट मिलने पर अपने आप सिंक हो जाएगा।';
+  @override
+  String get conflictTitle => 'बदलावों की समीक्षा करें';
+  @override
+  String get conflictSubtitle =>
+      'ऑफ़लाइन रहते हुए इस आइटम में किसी अन्य डिवाइस से बदलाव किए गए हैं। कृपया चुनें कि आप कौन सा वर्शन रखना चाहते हैं।';
+  @override
+  String get keepMine => 'मेरा वर्शन रखें';
+  @override
+  String get keepMineSubtitle => 'इस डिवाइस पर किए गए बदलाव सुरक्षित रखें';
+  @override
+  String get keepServer => 'क्लाउड वर्शन रखें';
+  @override
+  String get keepServerSubtitle => 'क्लाउड पर मौजूद अपडेट को अपनाएं';
+  @override
+  String get mergeSafe => 'बदलावों को मिलाएं';
+  @override
+  String get mergeSafeSubtitle => 'दोनों बदलावों को सुरक्षित रूप से जोड़ें';
+  @override
+  String get yourVersion => 'यह डिवाइस (स्थानीय)';
+  @override
+  String get serverVersion => 'क्लाउड (अन्य डिवाइस)';
+  @override
+  String get conflictResolved => 'डेटा टकराव सफलतापूर्वक सुलझा लिया गया।';
+  @override
+  String get reviewConflict => 'टकराव की समीक्षा करें';
 
   @override
   String get genericError => 'कुछ गड़बड़ हुई';

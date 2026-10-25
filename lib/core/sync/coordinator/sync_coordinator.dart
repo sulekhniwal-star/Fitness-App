@@ -284,6 +284,7 @@ class SyncCoordinator extends StateNotifier<SyncState> implements SyncEngine {
 
   @override
   void dispose() {
+    if (!mounted) return;
     _retryTimer?.cancel();
     _connectivitySubscription?.cancel();
     _statusController.close();

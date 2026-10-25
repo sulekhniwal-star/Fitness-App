@@ -1,8 +1,12 @@
+import 'package:fitkarma/core/supabase/supabase_providers.dart';
 import 'package:fitkarma/core/sync/connectivity/connectivity_service.dart';
 import 'package:fitkarma/core/sync/coordinator/sync_coordinator.dart';
 import 'package:fitkarma/core/sync/coordinator/sync_worker.dart';
 import 'package:fitkarma/core/sync/models/sync_state.dart';
 import 'package:fitkarma/core/sync/outbox/outbox_providers.dart';
+import 'package:fitkarma/core/sync/realtime/realtime_service_boundary.dart';
+import 'package:fitkarma/core/sync/realtime/realtime_sync_bridge.dart';
+import 'package:fitkarma/core/sync/realtime/supabase_realtime_service.dart';
 import 'package:fitkarma/core/sync/repository/repository_sync_worker.dart';
 import 'package:fitkarma/core/sync/sync_boundary.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -23,6 +27,27 @@ final syncWorkerProvider = Provider<ISyncWorker>((ref) {
 final repositorySyncWorkerProvider = Provider<RepositorySyncWorker>((ref) {
   return RepositorySyncWorker();
 }, name: 'repositorySyncWorkerProvider');
+
+/// Provider for Supabase Realtime channel service.
+final realtimeServiceProvider = Provider<ISupabaseRealtimeService>((ref) {
+  final supabase = ref.watch(supabaseServiceProvider);
+  final service = SupabaseRealtimeService(supabaseService: supabase);
+  ref.onDispose(service.dispose);
+  return service;
+}, name: 'realtimeServiceProvider');
+
+/// Provider for [RealtimeSyncBridge] coordinating realtime feeds to repositories.
+final realtimeSyncBridgeProvider = Provider<RealtimeSyncBridge>((ref) {
+  final realtime = ref.watch(realtimeServiceProvider);
+  final coordinator = ref.watch(syncCoordinatorProvider.notifier);
+  final bridge = RealtimeSyncBridge(
+    realtimeService: realtime,
+    syncCoordinator: coordinator,
+  );
+  ref.onDispose(bridge.dispose);
+  return bridge;
+}, name: 'realtimeSyncBridgeProvider');
+
 
 
 /// Provider for the central [SyncCoordinator].

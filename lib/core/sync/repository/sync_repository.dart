@@ -3,6 +3,7 @@ import 'package:fitkarma/core/errors/failures.dart';
 import 'package:fitkarma/core/errors/result.dart';
 import 'package:fitkarma/core/sync/outbox/models/outbox_models.dart';
 import 'package:fitkarma/core/sync/outbox/outbox_queue.dart';
+import 'package:fitkarma/core/sync/realtime/models/realtime_event.dart';
 import 'package:fitkarma/core/sync/repository/conflict_strategy.dart';
 import 'package:fitkarma/core/sync/repository/local_data_source.dart';
 import 'package:fitkarma/core/sync/repository/remote_data_source.dart';
@@ -284,7 +285,204 @@ abstract class SyncRepository<TEntity extends SyncEntity<TId>, TId> {
   }
 
   // ===========================================================================
-  // 5. HELPER UTILITIES
+  // 5. REALTIME INTEGRATION & REORDERING/DUPLICATE PROTECTION
+  // ===========================================================================
+
+  /// Merges a Supabase Realtime broadcast event through the standard repository pipeline.
+  ///
+  /// Guarantees:
+  /// - Deduplicates self-echo events originating from local outbox operations
+  /// - Merges incoming data using the exact same conflict strategy as pulled changes
+  /// - Discards stale, reordered older events if local entity is already newer
+  Future<Result<TEntity?>> applyRealtimeEvent({
+    required RealtimePayload payload,
+    required TId Function(String idString) parseId,
+    required TEntity Function(Map<String, dynamic> json) deserializeEntity,
+  }) async {
+    final entityIdStr = payload.entityId;
+    if (entityIdStr == null) {
+      return const Success(null);
+    }
+
+    final id = parseId(entityIdStr);
+
+    // 1. Deduplicate self-echoes from our own local outbox operations
+    if (payload.clientIdempotencyKey != null) {
+      final outboxOp =
+          await outboxQueue.getByIdempotencyKey(payload.clientIdempotencyKey!);
+      if (outboxOp != null) {
+        if (outboxOp.status != OutboxStatus.completed) {
+          await outboxQueue.markSuccess(outboxOp.id);
+        }
+        final local = await localDataSource.getById(id);
+        if (local != null) {
+          final acknowledged = local.copyWithSyncMetadata(
+            isSynced: true,
+            lastSyncedAt: payload.eventTimestamp,
+          ) as TEntity;
+          await localDataSource.saveLocal(
+            acknowledged,
+            isSynced: true,
+            lastSyncedAt: payload.eventTimestamp,
+          );
+          return Success(acknowledged);
+        }
+      }
+    }
+
+    // 2. Handle deletion
+    if (payload.eventType == RealtimeEventType.delete) {
+      final hasUnsynced = await localDataSource.hasUnsyncedChanges(id);
+      if (!hasUnsynced) {
+        await localDataSource.deleteLocal(id);
+        return const Success(null);
+      }
+      return const Success(null);
+    }
+
+    // 3. Handle insert / update
+    final remoteEntity = deserializeEntity(payload.newRecord);
+    final localEntity = await localDataSource.getById(id);
+    final hasUnsynced = await localDataSource.hasUnsyncedChanges(id);
+
+    // 4. Stale / Reordered event protection:
+    // If local is already synced and its timestamp is strictly newer than this incoming event,
+    // drop the stale reordered event safely.
+    if (localEntity != null && !hasUnsynced) {
+      if (localEntity.syncUpdatedAt.isAfter(remoteEntity.syncUpdatedAt)) {
+        return Success(localEntity);
+      }
+    }
+
+    // 5. Clean merge path: local has no unpushed mutations
+    if (localEntity == null || !hasUnsynced) {
+      await localDataSource.saveLocal(
+        remoteEntity,
+        isSynced: true,
+        lastSyncedAt: payload.eventTimestamp,
+      );
+      return Success(remoteEntity);
+    }
+
+    // 6. Conflict path: local has unpushed mutations
+    final resolution = conflictStrategy.resolve(
+      localEntity: localEntity,
+      remoteEntity: remoteEntity,
+    );
+
+    switch (resolution.type) {
+      case ConflictResolutionType.remoteWins:
+        await localDataSource.saveLocal(
+          resolution.resolvedEntity!,
+          isSynced: true,
+          lastSyncedAt: payload.eventTimestamp,
+        );
+        return Success(resolution.resolvedEntity);
+
+      case ConflictResolutionType.localWins:
+        return Success(localEntity);
+
+      case ConflictResolutionType.merge:
+        await localDataSource.saveLocal(
+          resolution.resolvedEntity!,
+          isSynced: false,
+          lastSyncedAt: payload.eventTimestamp,
+        );
+        return Success(resolution.resolvedEntity);
+
+      case ConflictResolutionType.conflictReported:
+        return FailureResult(
+          ConflictFailure(
+            message: resolution.reason,
+            details: resolution.conflictDetails,
+          ),
+        );
+    }
+  }
+
+  // ===========================================================================
+  // 6. CONFLICT RESOLUTION (FK-3003)
+  // ===========================================================================
+
+  /// Resolves an active FK-3003 conflict according to the user's explicit choice.
+  ///
+  /// Guarantees:
+  /// - [ConflictUserChoice.keepMine]: Preserves local edits, increments syncVersion, and re-enqueues for remote push.
+  /// - [ConflictUserChoice.keepServer]: Adopts server entity, updates local store as synced, and clears conflicting outbox mutations.
+  /// - [ConflictUserChoice.merge]: Saves the combined/merged entity, increments syncVersion, and re-enqueues for remote push.
+  Future<Result<TEntity>> resolveConflict({
+    required TId id,
+    required ConflictUserChoice choice,
+    required TEntity serverEntity,
+    TEntity? mergedEntity,
+  }) async {
+    switch (choice) {
+      case ConflictUserChoice.keepMine:
+        final local = await localDataSource.getById(id);
+        if (local == null) {
+          return const FailureResult(
+            ValidationFailure(message: 'Local entity not found for conflict resolution'),
+          );
+        }
+        final updated = local.copyWithSyncMetadata(
+          isSynced: false,
+          syncUpdatedAt: DateTime.now(),
+          syncVersion: (local.syncVersion ?? 0) + 1,
+        ) as TEntity;
+        await localDataSource.saveLocal(updated, isSynced: false);
+        await outboxQueue.enqueue(
+          entityType: entityType,
+          entityId: id.toString(),
+          operationType: OutboxOperationType.upsert,
+          payload: updated.toRemoteJson(),
+          idempotencyKey: generateIdempotencyKey(
+            entityId: id.toString(),
+            timestamp: updated.syncUpdatedAt,
+            prefix: 'res_mine',
+          ),
+        );
+        return Success(updated);
+
+      case ConflictUserChoice.keepServer:
+        await localDataSource.saveLocal(
+          serverEntity,
+          isSynced: true,
+          lastSyncedAt: DateTime.now(),
+        );
+        // Clear any pending outbox mutations for this entity
+        final pendingOps = await outboxQueue.getEligibleOperations();
+        for (final op in pendingOps) {
+          if (op.entityType == entityType && op.entityId == id.toString()) {
+            await outboxQueue.markSuccess(op.id);
+          }
+        }
+        return Success(serverEntity);
+
+      case ConflictUserChoice.merge:
+        final resolved = mergedEntity ?? serverEntity;
+        final updated = resolved.copyWithSyncMetadata(
+          isSynced: false,
+          syncUpdatedAt: DateTime.now(),
+          syncVersion: (resolved.syncVersion ?? 0) + 1,
+        ) as TEntity;
+        await localDataSource.saveLocal(updated, isSynced: false);
+        await outboxQueue.enqueue(
+          entityType: entityType,
+          entityId: id.toString(),
+          operationType: OutboxOperationType.upsert,
+          payload: updated.toRemoteJson(),
+          idempotencyKey: generateIdempotencyKey(
+            entityId: id.toString(),
+            timestamp: updated.syncUpdatedAt,
+            prefix: 'res_merge',
+          ),
+        );
+        return Success(updated);
+    }
+  }
+
+  // ===========================================================================
+  // 7. HELPER UTILITIES
   // ===========================================================================
 
   /// Generates a deterministic idempotency key for deduplicating mutations.
@@ -295,4 +493,16 @@ abstract class SyncRepository<TEntity extends SyncEntity<TId>, TId> {
   }) {
     return '${prefix}_${entityType}_${entityId}_${timestamp.millisecondsSinceEpoch}';
   }
+}
+
+/// User-selected resolution action for resolving an FK-3003 conflict.
+enum ConflictUserChoice {
+  /// Keep the local version modified on this device.
+  keepMine,
+
+  /// Accept the server version updated from another device.
+  keepServer,
+
+  /// Merge non-overlapping fields safely between local and server.
+  merge,
 }

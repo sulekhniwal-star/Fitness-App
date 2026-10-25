@@ -341,6 +341,96 @@ All concrete physical columns are recorded as `PROPOSED` specifications in `Brai
    - `RepositorySyncWorker` implements `ISyncWorker`, routing outbox operations by `entityType` to registered repository entity handlers (`RepositoryEntitySyncHandler`), fully integrating with `SyncCoordinator` and the sync state machine.  
 **Reason:** Unifies local-first persistence, network resilience, offline mutations, server reconciliation, and conflict management into a single deterministic pattern while formally declaring entity conflict models as `PROPOSED`.
 
+## ADR-031 — Supabase Realtime Integration, RLS Scoping & Resilient Event Merging
+**Status:** Accepted (Task 023A)  
+**Decision:** Integrate Supabase Realtime into the sync engine adhering to ADR-001, ADR-030, `Brain/architecture.md`, `Brain/data_model.md`, and `Brain/error_handling.md`:
+1. RLS and Consent Scope Enforcement:
+   - Realtime channel subscriptions are strictly isolated by authenticated `user_id` (`filter: user_id=eq.$userId`).
+   - Gated by active user consent scopes (`base_profile`, `health_tracking`, `family_sharing`). If consent is omitted or revoked, subscriptions for sensitive domain tables are withheld.
+2. Unified Repository Merging:
+   - Incoming Realtime Postgres change events merge through the exact same `SyncRepository` pipeline (`applyRealtimeEvent`) as pulled sync data.
+   - Enforces the active `ConflictResolutionStrategy` without bypassing the Drift local source of truth.
+3. Outbox Self-Echo Deduplication:
+   - Broadcast events echoing our own outbox mutations (carrying `client_idempotency_key`) are identified and acknowledged without false conflict or duplicate write.
+4. Protection Against Reordered & Duplicate Events:
+   - Duplicate events are merged idempotently without duplicating entity records or re-enqueuing outbox items.
+   - Reordered stale older events arriving after a newer local state is already applied are safely discarded.
+5. Dropped Event Reconnection & Catch-Up Sync:
+   - On websocket disconnect and recovery (`reconnecting` -> `connected`), `RealtimeSyncBridge` triggers catch-up pull (`pullRemoteChanges()`) across registered repositories to recover any events dropped during the disconnection window.
+6. Graceful Degradation & Optimization Invariant:
+   - Realtime is strictly an optimization; the app remains 100% correct without it.
+   - When Realtime is disconnected, disabled, or enters an error state, sync operations gracefully degrade to background/manual sync engine runs (`SyncCoordinator.triggerSync()`).  
+**Reason:** Ensures low-latency multi-device updates while protecting against duplicate applications, dropped messages, and RLS/consent boundary violations without compromising offline correctness.
 
+## ADR-032 — Global Offline UX, Unobtrusive Status Surfacing & Failure Diagnostics
+**Status:** Accepted (Task 024)  
+**Decision:** Establish a global, non-blocking offline UX system adhering to `Brain/architecture.md`, `Brain/data_model.md`, `Brain/error_handling.md`, and `Brain/ui_spec.md`:
+1. Unobtrusive Status Surfacing:
+   - `OfflineIndicatorBanner` sits cleanly at the top of the viewport without obstructing user interactions or causing layout shifts.
+   - Quietly and automatically hides when online and fully synchronized with zero pending outbox operations.
+   - Styled using FitKarma dark design tokens (`AppColors.surface`, `#FF9933` Saffron for offline/pending, `#00E599` Neon Mint for syncing/synced, `#EF4444` for sync failures).
+2. Offline Usability Guarantee:
+   - Non-blocking design ensures the core app remains 100% usable without network access. Forms, logging, navigation, and local writes proceed uninterrupted.
+3. Tactile Retry Action:
+   - Provides a dedicated retry button meeting the WCAG 48x48dp minimum touch target requirement, triggering synchronization via `SyncCoordinator.triggerSync()`.
+   - Displays a responsive progress spinner when synchronization is actively in flight, disabling duplicate requests.
+4. Comprehensive Diagnostic Explanation (`SyncFailureDetailsSheet`):
+   - Tapping the banner opens an accessible bottom sheet explaining the connectivity state, outbox queue count, and error classification (`FK-3001` queued offline, `FK-3002` transient network error, `FK-3003` conflict).
+   - Features an explicit security guarantee reassuring users that data is securely stored on-device in SQLCipher encrypted local persistence.
+5. Reactive Riverpod & Scaffold Integration:
+   - `OfflineIndicatorBanner.connected()` and `AppScaffold(autoSyncBanner: true)` connect seamlessly to `syncCoordinatorProvider`, enabling reactive updates across the application shell.  
+**Reason:** Gives users total visibility and control over connectivity and sync states without impeding offline operation or compromising the premium dark UX.
 
+## ADR-033 — User-Facing Conflict Resolution UX & Per-Entity Strategies (FK-3003)
+**Status:** Accepted (Task 024A)  
+**Decision:** Establish user-facing conflict handling (error code `FK-3003`) and per-entity conflict resolution strategies adhering to `Brain/architecture.md`, `Brain/data_model.md`, `Brain/error_handling.md`, and `Brain/ui_spec.md`:
+1. Material Change Non-Overwriting Invariant:
+   - Local mutations are never silently overwritten when concurrent server updates are detected.
+   - When conflicts occur, local state remains preserved in Drift encrypted local storage, raising a structured `ConflictFailure` (`FK-3003`).
+2. Per-Entity Conflict Strategies (PROPOSED):
+   - `public.profiles` & settings: **PROPOSED** Timestamp-based Last-Write-Wins (LWW) with clock-skew clamping against server `now()`. If concurrent edits cannot be reconciled automatically, user review is prompted.
+   - `public.food_logs`, `public.health_observations`, `public.workouts`: **PROPOSED** Append-only event streams using client-generated UUID primary keys. True conflicts are structurally impossible for immutable log streams; deletions/corrections are handled via tombstone events.
+   - `public.recipes` & custom foods: **PROPOSED** Version-based optimistic concurrency control (OCC). Concurrent updates trigger `ManualConflictStrategy` (`FK-3003`) presenting user-facing comparison diffing.
+3. Visible Pending / Synced / Conflict States:
+   - `EntitySyncBadge` provides clear visual status badges for individual entities: pending (`Icons.cloud_queue_rounded`), synced (`Icons.cloud_done_rounded`), and conflict (`Icons.warning_amber_rounded`).
+4. Non-Blaming Resolution Affordances (`ConflictResolutionSheet`):
+   - Presents a side-by-side inspection view ("This Device (Local)" vs "Cloud (Other Device)") with localized, empathetic explanations.
+   - Three distinct resolution paths:
+     - **Keep My Version** (`ConflictUserChoice.keepMine`): Preserves local edits, increments `syncVersion`, and enqueues outbox mutation to push to the cloud.
+     - **Keep Cloud Version** (`ConflictUserChoice.keepServer`): Accepts cloud update, updates Drift persistence with `isSynced = true`, and clears conflicting pending outbox items.
+     - **Merge Changes** (`ConflictUserChoice.merge`): Blends non-overlapping updates, saves locally, increments version, and enqueues outbox mutation.
+5. Touch Accessibility:
+   - Enforces WCAG 48x48dp minimum touch target bounding on all resolution action buttons.  
+**Reason:** Prevents silent data loss, establishes transparent per-entity conflict boundaries, and empowers users with clear, non-blaming resolution controls.
+
+## ADR-034 — Normalized Health Domain Primitives & Provider-Neutral Observation Architecture
+**Status:** Accepted (Task 025)  
+**Decision:** Establish a vendor-neutral, normalized health domain model for FitKarma adhering to `Brain/architecture.md`, `Brain/data_model.md`, and `Brain/trd.md`:
+1. Provider-Neutral Architecture & Domain Boundary:
+   - The domain models in `lib/features/health_tracking/domain/models/` have zero dependencies on Flutter UI, device platform APIs, or third-party SDKs (such as Android Health Connect or Apple HealthKit).
+   - Ingestion adapters in future tasks will map platform-specific schemas into these canonical primitives without leaking external provider assumptions.
+2. Normalized Core Primitives:
+   - **Timestamp & Time Range** (`HealthTimestamp`, `HealthTimeRange`): Enforces UTC ISO-8601 storage with explicit local timezone offset minutes (`timezoneOffsetMinutes`) to enable accurate circadian analysis, shift-worker metrics, and daylight savings reconciliation.
+   - **Units & Quantities** (`HealthUnit`, `HealthQuantity`): Type-safe unit definitions across mass, time, frequency, pressure, glucose, and volume. Provides deterministic conversions (`convertTo`) between pounds and kilograms, mmol/L and mg/dL, milliseconds/seconds/minutes/hours, and milliliters/liters.
+   - **Compound Quantities**:
+     - `BloodPressureQuantity`: Dual systolic and diastolic mmHg metrics with MAP (mean arterial pressure) computation and pulse pressure calculation.
+     - `SleepQuantity`: Multi-stage sleep duration tracking (deep, REM, light, awake) alongside aggregate duration and sleep score.
+     - `GlucoseQuantity`: Glycemic concentration tracking with canonical `mg/dL` conversion and meal context tagging (fasting, pre-meal, post-meal, bedtime).
+   - **Source Attribution & Provenance** (`HealthDataSource`, `HealthSourceOrigin`): Explicit tracking of data origin (`manual`, `healthConnect`, `appleHealth`, `bleDevice`, `wearableDevice`, `cgmSensor`), hardware device identifiers, OS aggregator flags, and external record IDs for deduplication.
+   - **Confidence Scoring** (`HealthConfidence`, `HealthConfidenceLevel`): Continuous confidence rating (0.0 to 1.0) paired with qualitative tiers (`clinical`, `high`, `moderate`, `low`, `estimated`), user verification flags, and uncertainty notes.
+   - **Measurement Metadata** (`HealthMetadata`): Captures optional sensor types (PPG, ECG, bioimpedance, enzymatic), body location, meal context, fasting status, tags, and extensible key-value attributes.
+3. Seven Core Metrics Architecture:
+   - Canonical `HealthObservation` with specialized constructors and normalization for:
+     - `steps`: Step count over an interval or instantaneous total (`HealthUnit.steps`).
+     - `heartRate`: Beats per minute (`HealthUnit.bpm`) with resting/active metadata.
+     - `hrv`: Root Mean Square of Successive Differences (RMSSD) in milliseconds (`HealthUnit.milliseconds`).
+     - `sleep`: Sleep duration, sleep score, and stage breakdowns (`SleepQuantity`).
+     - `weight`: Mass measurement auto-normalized to kilograms (`HealthUnit.kilograms`).
+     - `bloodPressure`: Systolic and diastolic pressure in mmHg (`BloodPressureQuantity`).
+     - `glucose`: Blood glucose concentration auto-normalized to mg/dL (`HealthUnit.mgPerDl`).
+4. Synchronization Integration:
+   - `HealthObservation` directly implements `SyncEntity<String>`, embedding `syncVersion`, `isSynced`, and `updatedAt` for zero-overhead integration with Drift and the Supabase outbox sync engine.
+5. Deterministic Serialization:
+   - Complete JSON round-trip serialization with defensive validation on all primitives.  
+**Reason:** Ensures clinical-grade data integrity, eliminates vendor lock-in, and provides a unified, local-first foundation for multi-sensor health tracking and analytics.
 

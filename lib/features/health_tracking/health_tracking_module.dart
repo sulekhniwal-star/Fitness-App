@@ -1,3 +1,5 @@
+export 'domain/models/health_domain.dart';
+
 /// Health tracking feature module boundary.
 ///
 /// Encapsulates normalized health observations: weight, steps, sleep, mood,

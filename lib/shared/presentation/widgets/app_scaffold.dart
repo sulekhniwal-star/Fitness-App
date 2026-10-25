@@ -1,8 +1,9 @@
-import 'package:fitkarma/core/localization/localization.dart';
 import 'package:fitkarma/shared/presentation/theme/app_colors.dart';
-import 'package:fitkarma/shared/presentation/theme/app_spacing.dart';
 import 'package:fitkarma/shared/presentation/theme/app_typography.dart';
+import 'package:fitkarma/shared/presentation/widgets/offline_indicator_banner.dart';
 import 'package:flutter/material.dart';
+
+export 'offline_indicator_banner.dart';
 
 /// Top bar with back navigation, titles, and action slots for FitKarma screens.
 class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
@@ -60,80 +61,6 @@ class AppTopBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-/// Offline warning and sync banner presented at the top of scaffolds.
-class OfflineIndicatorBanner extends StatelessWidget {
-  final bool isOffline;
-  final String? customMessage;
-  final VoidCallback? onRetry;
-
-  const OfflineIndicatorBanner({
-    super.key,
-    required this.isOffline,
-    this.customMessage,
-    this.onRetry,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    if (!isOffline) return const SizedBox.shrink();
-
-    final strings = AppLocalizations.stringsOf(context);
-    final message = customMessage ?? strings.offlinePreserved;
-
-    return Semantics(
-      liveRegion: true,
-      label: 'Offline indicator: $message',
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.lg,
-          vertical: AppSpacing.sm,
-        ),
-        decoration: BoxDecoration(
-          color: AppColors.warning.withValues(alpha: 0.15),
-          border: const Border(
-            bottom: BorderSide(color: AppColors.warning, width: 1.0),
-          ),
-        ),
-        child: Row(
-          children: [
-            const Icon(Icons.cloud_off, size: 18, color: AppColors.warning),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: Text(
-                message,
-                style: AppTypography.bodySmall.copyWith(
-                  color: AppColors.textPrimary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ),
-            if (onRetry != null) ...[
-              const SizedBox(width: AppSpacing.sm),
-              TextButton(
-                onPressed: onRetry,
-                style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                  ),
-                  minimumSize: const Size(0, 32),
-                ),
-                child: Text(
-                  strings.retry,
-                  style: AppTypography.labelSmall.copyWith(
-                    color: AppColors.warning,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 /// Centralized application scaffold enforcing dark aesthetic, offline banner,
 /// and safe insets.
 class AppScaffold extends StatelessWidget {
@@ -142,6 +69,8 @@ class AppScaffold extends StatelessWidget {
   final Widget? bottomNavigationBar;
   final Widget? floatingActionButton;
   final bool isOffline;
+  final bool autoSyncBanner;
+  final VoidCallback? onRetrySync;
   final bool safeArea;
   final EdgeInsetsGeometry? padding;
 
@@ -152,6 +81,8 @@ class AppScaffold extends StatelessWidget {
     this.bottomNavigationBar,
     this.floatingActionButton,
     this.isOffline = false,
+    this.autoSyncBanner = false,
+    this.onRetrySync,
     this.safeArea = true,
     this.padding,
   });
@@ -160,7 +91,15 @@ class AppScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     Widget content = Column(
       children: [
-        if (isOffline) OfflineIndicatorBanner(isOffline: isOffline),
+        if (isOffline)
+          OfflineIndicatorBanner(
+            isOffline: isOffline,
+            onRetry: onRetrySync,
+          )
+        else if (autoSyncBanner)
+          OfflineIndicatorBanner.connected(
+            onRetryOverride: onRetrySync,
+          ),
         Expanded(
           child: padding != null
               ? Padding(padding: padding!, child: body)
@@ -182,3 +121,4 @@ class AppScaffold extends StatelessWidget {
     );
   }
 }
+

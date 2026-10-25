@@ -442,5 +442,121 @@
   - 67/67 passing doc-lint checks (`npm run doc:lint`).
 - Recorded ADR-030 in `Brain/decisions.md`.
 
+## 2026-10-23 — TASK 023A: Supabase Realtime Integration & Resilient Event Merging
 
+- Fed Supabase Realtime changes into the sync engine adhering to ADR-001, ADR-030, `Brain/architecture.md`, `Brain/data_model.md`, and `Brain/error_handling.md`:
+  - `realtime_event.dart`: Defined `RealtimeEventType` (`insert`, `update`, `delete`) and `RealtimePayload` extracting entity IDs, timestamps, versions, and `client_idempotency_key` metadata.
+  - `realtime_service_boundary.dart`: Defined `ISupabaseRealtimeService` boundary and `RealtimeConnectionStatus` (`disconnected`, `connecting`, `connected`, `reconnecting`, `error`).
+  - `fake_realtime_service.dart`: Created `FakeRealtimeService` test double supporting simulated broadcasts, socket drops, reconnect transitions, and subscription verification.
+  - `supabase_realtime_service.dart`: Implemented production `SupabaseRealtimeService` using Supabase Flutter Postgres change channels with RLS user isolation (`filter: user_id=eq.$userId`) and exponential backoff on connection drops.
+  - `sync_repository.dart`: Enhanced `SyncRepository` with `applyRealtimeEvent`:
+    - Merges Realtime events through the identical repository conflict strategy pipeline as pulled changes.
+    - Recognizes self-echoes from local outbox mutations via `client_idempotency_key`, completing outbox operations and updating local state without false conflicts.
+    - Discards stale, reordered older events when local state is already newer.
+    - Idempotently deduplicates duplicate incoming events.
+  - `realtime_sync_bridge.dart`: Built `RealtimeSyncBridge` orchestrating table subscriptions, RLS user filtering, user consent scope enforcement, dropped-event catch-up pulls (`triggerCatchUpSync()`) upon reconnection, and graceful degradation to sync engine runs (`SyncCoordinator.triggerSync()`).
+  - `sync_providers.dart`: Exposed `realtimeServiceProvider` and `realtimeSyncBridgeProvider` via Riverpod.
+- Added comprehensive deterministic tests for Realtime sync integration:
+  - `test/core/sync/realtime_sync_test.dart`: 7 unit and integration tests verifying RLS and consent scope gating, clean Realtime insert/update merging, outbox self-echo deduplication, duplicate event idempotent handling, reordered stale event protection, dropped event recovery via reconnect catch-up pull, and graceful degradation to manual sync engine under permanent Realtime errors.
+- Verified test suite and documentation:
+  - 249/249 passing Flutter tests across entire workspace (0 failures).
+  - 0 analyzer issues (`flutter analyze` clean).
+  - 67/67 passing doc-lint checks (`npm run doc:lint`).
+- Recorded ADR-031 in `Brain/decisions.md`.
+
+## 2026-10-25 — TASK 024: Global Offline UX & Diagnostics
+- Implemented global offline UX adhering to ADR-001, ADR-030, ADR-032, `Brain/architecture.md`, `Brain/data_model.md`, `Brain/error_handling.md`, and `Brain/ui_spec.md`:
+  - `app_strings.dart`: Added localization keys (`syncing`, `synced`, `syncError`, `syncConflict`, `syncNow`, `pendingSyncCount`, `syncDetailsTitle`, `connectionOnline`, `connectionOffline`, `localDataSecureGuarantee`) in both `EnglishStrings` and `HindiStrings`.
+  - `offline_indicator_banner.dart`: Created unobtrusive, dark-styled global `OfflineIndicatorBanner`:
+    - Shows current connectivity state (Online / Offline).
+    - Displays pending sync count and status badges (`idle`, `syncing`, `synced`, `error`, `conflict`).
+    - Provides tactile retry button satisfying the 48x48dp minimum touch target requirement with loading spinner feedback during active synchronization cycles.
+    - Connects directly to Riverpod via `OfflineIndicatorBanner.connected()`.
+    - Automatically hides when online and fully synchronized with zero pending outbox operations.
+    - Non-blocking layout guarantees core application workflows (food logging, workout entry, metrics viewing) remain 100% usable without network access.
+  - `SyncFailureDetailsSheet`: Created accessible diagnostic modal sheet explaining failure domains:
+    - Queued offline operations (`FK-3001`).
+    - Transient sync retries with exponential backoff (`FK-3002`).
+    - Data conflicts pending review (`FK-3003`).
+    - Explicit local data safety reassurance confirming local data is encrypted via SQLCipher on device and will sync automatically upon reconnection.
+  - `app_scaffold.dart`: Updated `AppScaffold` with `autoSyncBanner` support and seamless re-export of `OfflineIndicatorBanner`.
+  - `sync_coordinator.dart`: Added safe `mounted` guard to `dispose()` preventing double-disposal in test environments.
+- Added comprehensive widget tests for global offline UX:
+  - `test/shared/presentation/offline_mode_ux_test.dart`: 11 widget tests asserting connectivity state display, pending sync count surfacing, unobtrusive hiding when synced, spinning indicator during sync, sync failure with error code, conflict detection, accessible 48dp retry action, modal explanation sheet with data safety guarantees, transient failure details, non-blocking offline usability of underlying forms, and reactive Riverpod coordinator transitions.
+- Verified test suite and documentation:
+  - 260/260 passing Flutter tests across entire workspace (0 failures).
+  - 0 analyzer issues (`flutter analyze` clean).
+  - 67/67 passing doc-lint checks (`npm run doc:lint`).
+  - Recorded ADR-032 in `Brain/decisions.md`.
+
+## 2026-10-25 — TASK 024A: User-Facing Conflict Resolution UX & Per-Entity Strategies (FK-3003)
+- Implemented user-facing conflict handling (error code `FK-3003`) adhering to ADR-001, ADR-030, ADR-032, ADR-033, `Brain/architecture.md`, `Brain/data_model.md`, `Brain/error_handling.md`, and `Brain/ui_spec.md`:
+  - `sync_repository.dart`: Added `ConflictUserChoice` enum (`keepMine`, `keepServer`, `merge`) and `resolveConflict` method executing non-blaming resolution:
+    - `keepMine`: Preserves local edits, increments `syncVersion`, re-enqueues outbox mutation for remote push.
+    - `keepServer`: Adopts server record, saves locally with `isSynced = true`, clears pending conflicting outbox mutations.
+    - `merge`: Blends safe fields, saves locally, increments version, and re-enqueues outbox mutation.
+  - `app_strings.dart`: Added conflict resolution localization strings in English and Hindi (`conflictTitle`, `conflictSubtitle`, `keepMine`, `keepMineSubtitle`, `keepServer`, `keepServerSubtitle`, `mergeSafe`, `mergeSafeSubtitle`, `yourVersion`, `serverVersion`, `conflictResolved`, `reviewConflict`).
+  - `conflict_resolution_sheet.dart`: Created `ConflictResolutionSheet` and `EntitySyncBadge`:
+    - `EntitySyncBadge`: Visual status badge supporting pending (`Icons.cloud_queue_rounded`), synced (`Icons.cloud_done_rounded`), and conflict (`Icons.warning_amber_rounded`) states with tap affordance.
+    - `ConflictResolutionSheet`: Side-by-side comparative inspection card ("This Device (Local)" vs "Cloud (Other Device)") with empathetic, non-blaming language and 48dp touch-accessible resolution buttons.
+  - `offline_indicator_banner.dart`: Wired `SyncFailureDetailsSheet` with direct `Review Conflict` affordance when `status == SyncStatus.conflict` or `errorCode == 'FK-3003'`.
+  - Recorded per-entity conflict models (`profiles` LWW, `food_logs`/`health_observations`/`workouts` append-only immutable events, `recipes`/`custom_foods` OCC manual resolution) as `PROPOSED` in `Brain/decisions.md` (`ADR-033`).
+- Added comprehensive sync and widget tests:
+  - `test/core/sync/conflict_resolution_sync_test.dart`: 5 tests asserting conflict creation under `ManualConflictStrategy`, preservation of local modifications without silent overwrite, `SyncCoordinator` transition to `SyncStatus.conflict` with `FK-3003`, and resolution paths (`keepMine`, `keepServer`, `merge`).
+  - `test/shared/presentation/conflict_resolution_ux_test.dart`: 7 widget tests asserting `EntitySyncBadge` states (synced, pending, conflict), `ConflictResolutionSheet` rendering and actions, 48dp touch target bounds, and banner review-conflict integration.
+- Verified test suite and documentation:
+  - 272/272 passing Flutter tests across entire workspace (0 failures).
+  - 0 analyzer issues (`flutter analyze` clean).
+  - 67/67 passing doc-lint checks (`npm run doc:lint`).
+  - Recorded ADR-033 in `Brain/decisions.md`.
+
+## 2026-10-25 — TASK 025: Normalized Health Domain Primitives & Provider-Neutral Architecture
+- Implemented vendor-neutral normalized health domain primitives and multi-sensor observation architecture adhering to ADR-001, ADR-030, ADR-034, `Brain/architecture.md`, `Brain/data_model.md`, and `Brain/trd.md`:
+  - `health_types.dart`:
+    - Enums for `HealthMetricType` (all 12 metrics including steps, heart rate, resting heart rate, HRV, sleep, weight, blood pressure, blood glucose, oxygen saturation, body temperature, active energy, water intake).
+    - `HealthUnit` covering mass, time, frequency, glucose, pressure, and volume with robust case-insensitive alias parsing (`fromString`/`tryParse`).
+    - `HealthSourceOrigin` (`manual`, `healthConnect`, `appleHealth`, `bleDevice`, `wearableDevice`, `cgmSensor`, `thirdPartyApp`, `inferred`).
+    - `HealthConfidenceLevel` (`clinical`, `high`, `moderate`, `low`, `estimated`).
+    - `MealContext` (`fasting`, `preMeal`, `postMeal`, `bedtime`, `general`).
+    - `SleepStage` (`deep`, `rem`, `light`, `awake`).
+  - `health_quantity.dart`:
+    - Scalar `HealthQuantity` supporting arithmetic operations (`+`, `-`, `*`, `/`) and deterministic unit conversions:
+      - Mass: pounds <-> kilograms, grams <-> kilograms.
+      - Glucose: mmol/L <-> mg/dL (18.0182 conversion factor).
+      - Time: milliseconds <-> seconds <-> minutes <-> hours.
+      - Volume: milliliters <-> liters.
+      - `toCanonical()` converting values into standardized FitKarma units (kg, mg/dL, minutes, etc.).
+    - Compound quantities:
+      - `BloodPressureQuantity`: Systolic & diastolic pressure in mmHg with MAP and pulse pressure calculation.
+      - `SleepQuantity`: Deep, REM, light, awake stage breakdowns with sleep score calculation.
+      - `GlucoseQuantity`: Glycemic concentration with canonical conversion and meal context tagging.
+  - `health_timestamp.dart`:
+    - `HealthTimestamp`: Preserves UTC `DateTime` along with local timezone offset minutes (`timezoneOffsetMinutes`) for circadian and circadian-shift analyses.
+    - `HealthTimeRange`: Bounded interval model supporting duration, intersection, containment, and chronological validation.
+  - `health_source.dart`:
+    - `HealthDataSource`: Comprehensive attribution tracking origin, source name, hardware device ID, device model, app package name, external record ID for deduplication, and OS aggregator flags.
+    - Factory constructors: `manual`, `healthConnect`, `appleHealth`, `bleDevice`, `wearableDevice`, and `cgm`.
+  - `health_confidence.dart`:
+    - `HealthConfidence`: Continuous confidence score (0.0 to 1.0), qualitative `HealthConfidenceLevel`, user verification flag, and clinical uncertainty notes.
+  - `health_metadata.dart`:
+    - `HealthMetadata`: Captures device model, sensor type (PPG, ECG, bioimpedance, enzymatic), body location, meal context, fasting status, tags, and extensible custom metadata.
+  - `health_observation.dart`:
+    - Canonical `HealthObservation` implementing `SyncEntity<String>` for zero-friction integration with Drift encrypted database and outbox sync engine.
+    - Specialized factory constructors with automated canonical normalization for all 7 core metrics:
+      - `HealthObservation.steps()`: Step counts over interval or instantaneous total.
+      - `HealthObservation.heartRate()`: Heart rate in bpm.
+      - `HealthObservation.hrv()`: RMSSD in milliseconds.
+      - `HealthObservation.sleep()`: Compound sleep stages and sleep score.
+      - `HealthObservation.weight()`: Body mass auto-normalized from pounds/grams to kilograms.
+      - `HealthObservation.bloodPressure()`: Systolic and diastolic mmHg compound quantity.
+      - `HealthObservation.glucose()`: Glycemic concentration auto-normalized from mmol/L to mg/dL with meal context.
+    - Complete, defensive `toJson()` and `fromJson()` serialization and deserialization.
+  - `health_domain.dart` & `health_tracking_module.dart`:
+    - Barrel exports cleanly decoupling the domain model from UI, storage, or external SDK implementations.
+- Added comprehensive unit and normalization tests:
+  - `test/core/health/health_primitives_test.dart`: 23 tests verifying mass/glucose/time/volume unit conversions, compound quantity modeling, timezone preservation, source attribution, confidence scoring, and full round-trip JSON serialization across all 7 core metrics.
+- Verified test suite and documentation:
+  - 295/295 passing Flutter tests across entire workspace (0 failures).
+  - 0 analyzer issues (`flutter analyze` clean).
+  - Recorded ADR-034 in `Brain/decisions.md`.
 
